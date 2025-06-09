@@ -1,0 +1,30 @@
+{
+  "name": "scarlett-turbo-v2",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "type-check": "turbo type-check",
+    "storybook": "turbo storybook --filter=@scarlett/ui",
+    "build-storybook": "turbo build-storybook"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.0.0-alpha.36",
+    "@turbo/gen": "^2.5.4",
+    "@types/bun": "latest",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "^9.16.0",
+    "prettier": "^3.5.3",
+    "tailwindcss": "4.0.0-alpha.36",
+    "turbo": "^2.5.4",
+    "typescript": "^5.7.2"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
