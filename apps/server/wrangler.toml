@@ -1,0 +1,41 @@
+# Scarlett Karaoke API - Cloudflare Worker Configuration
+
+name = "scarlett-api"
+main = "src/index.ts"
+compatibility_date = "2024-01-15"
+
+# Base configuration
+[vars]
+ENVIRONMENT = "development"
+
+# Development environment
+[env.development]
+name = "scarlett-api-dev"
+vars = { ENVIRONMENT = "development" }
+
+[[env.development.d1_databases]]
+binding = "DB"
+database_name = "scarlett-dev"
+database_id = "YOUR_DEV_DB_ID" # Set via deployment script
+
+# Production environment
+[env.production]
+name = "scarlett-api"
+vars = { ENVIRONMENT = "production" }
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "scarlett-prod"
+database_id = "YOUR_PROD_DB_ID" # Set via deployment script
+
+# Routes (configure in Cloudflare dashboard)
+# [env.production.routes]
+# pattern = "api.scarlettx.xyz/*"
+# zone_name = "scarlettx.xyz"
+
+# Secrets to configure via wrangler:
+# - JWT_SECRET: JWT signing secret
+# - GENIUS_API_KEY: Genius API key for lyrics
+# - ELEVENLABS_API_KEY: ElevenLabs API key for TTS/STT
+# - DEEPGRAM_API_KEY: Deepgram API key for STT
+# - VENICE_API_KEY: Venice AI API key for coaching
