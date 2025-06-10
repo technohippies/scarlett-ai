@@ -13,8 +13,7 @@
     "type-check:watch": "turbo type-check:watch --parallel",
     "check-all": "turbo lint type-check --parallel",
     "storybook": "turbo storybook --filter=@scarlett/ui",
-    "build-storybook": "turbo build-storybook --filter=@scarlett/ui",
-    "prepare": "husky"
+    "build-storybook": "turbo build-storybook --filter=@scarlett/ui"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.0.0-alpha.36",
