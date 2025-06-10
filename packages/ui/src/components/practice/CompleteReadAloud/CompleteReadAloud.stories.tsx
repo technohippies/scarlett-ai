@@ -1,4 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/html';
+
+// Props for demo stories
+interface DemoProps {}
 import { render } from 'solid-js/web';
 import { createSignal } from 'solid-js';
 import { ProgressBar } from '../../common/ProgressBar';
@@ -7,7 +10,7 @@ import { ExerciseTemplate } from '../ExerciseTemplate';
 import { ReadAloud } from '../ReadAloud';
 import { ExerciseFooter } from '../ExerciseFooter';
 
-const meta: Meta = {
+const meta: Meta<DemoProps> = {
   title: 'Practice/CompleteReadAloud',
   parameters: {
     layout: 'fullscreen',
@@ -15,7 +18,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<DemoProps>;
 
 const CompleteReadAloudDemo = () => {
   const [isRecording, setIsRecording] = createSignal(false);

@@ -23,11 +23,16 @@ const app = new Hono<{
   Bindings: Env;
   Variables: {
     user?: User;
-    validatedBody?: any;
-    validatedQuery?: any;
-    validatedParams?: any;
+    validatedBody?: Record<string, unknown>;
+    validatedQuery?: Record<string, unknown>;
+    validatedParams?: Record<string, unknown>;
   };
 }>();
+
+// OPTIONS /api/karaoke/:trackId - Handle CORS preflight
+app.options('/:trackId', (_c) => {
+  return new Response(null, { status: 204 });
+});
 
 // GET /api/karaoke/:trackId - Get karaoke data for a track
 app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {

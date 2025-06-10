@@ -12,7 +12,7 @@ export interface MobileContainerProps {
 }
 
 export const MobileContainer: Component<MobileContainerProps> = (props) => {
-  const [viewportHeight, setViewportHeight] = createSignal(0);
+  const [_viewportHeight, setViewportHeight] = createSignal(0);
 
   onMount(() => {
     // Handle viewport height changes (e.g., mobile browser chrome)

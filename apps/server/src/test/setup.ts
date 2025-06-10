@@ -16,8 +16,8 @@ afterEach(() => {
 global.fetch = vi.fn();
 
 // Mock crypto for Workers environment
-if (!global.crypto) {
-  global.crypto = {
+if (!(globalThis as any).crypto) {
+  (globalThis as any).crypto = {
     randomUUID: () => {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
         const r = (Math.random() * 16) | 0;

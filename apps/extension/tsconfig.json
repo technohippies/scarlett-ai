@@ -7,7 +7,8 @@
       "@scarlett/ui": ["../../packages/ui/src/index.ts"],
       "@scarlett/ui/*": ["../../packages/ui/src/*"]
     },
-    "types": ["chrome", "webextension-polyfill"]
+    "types": ["chrome", "webextension-polyfill"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
   "include": [
     "src/**/*",

@@ -96,22 +96,3 @@ export const WithCustomFeedback: Story = {
   ],
 };
 
-export const WithoutPracticeButton: Story = {
-  args: {
-    score: 50,
-    rank: 42,
-    speed: '0.5x',
-    // No onPractice prop - button won't show
-  },
-  decorators: [
-    (Story) => {
-      const container = document.createElement('div');
-      container.className = 'w-full max-w-[420px] mx-auto';
-      const storyElement = Story();
-      if (storyElement instanceof Node) {
-        container.appendChild(storyElement);
-      }
-      return container;
-    },
-  ],
-};

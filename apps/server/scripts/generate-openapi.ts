@@ -8,10 +8,7 @@ import {
   uuidSchema,
   paginationSchema,
   createSessionSchema,
-  gradeAudioSchema,
   songQuerySchema,
-  tutorAnalysisSchema,
-  tutorTtsSchema,
 } from '../src/utils/validation';
 
 // Initialize OpenAPI registry
@@ -394,7 +391,11 @@ import * as yaml from 'js-yaml';
 const yamlStr = yaml.dump(document);
 fs.writeFileSync(outputPath.replace('.json', '.yaml'), yamlStr);
 
+// eslint-disable-next-line no-console
 console.log('✅ OpenAPI documentation generated successfully!');
+// eslint-disable-next-line no-console
 console.log(`📄 Output: ${outputPath}`);
+// eslint-disable-next-line no-console
 console.log('\nTo view the documentation:');
+// eslint-disable-next-line no-console
 console.log('  npm run docs:serve');

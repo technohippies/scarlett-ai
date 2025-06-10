@@ -4,7 +4,14 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
   },
-  "include": ["src/**/*", ".storybook/**/*"]
+  "include": ["src/**/*", ".storybook/**/*"],
+  "exclude": ["node_modules", "dist", ".next"]
 }

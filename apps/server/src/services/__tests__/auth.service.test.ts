@@ -103,7 +103,7 @@ describe('AuthService', () => {
       const mockUser = createTestUser(userData);
 
       let runCalled = false;
-      vi.spyOn(env.DB, 'prepare').mockImplementation((query: string) => {
+      vi.spyOn(env.DB, 'prepare').mockImplementation((query: any) => {
         if (query.includes('INSERT')) {
           return {
             bind: vi.fn().mockReturnValue({

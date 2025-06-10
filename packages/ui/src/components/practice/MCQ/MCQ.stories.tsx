@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { MCQ } from './MCQ';
+import { MCQ, type MCQProps } from './MCQ';
 import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta = {
+const meta: Meta<MCQProps> = {
   title: 'Practice/MCQ',
   render: solidStory(MCQ),
   parameters: {
@@ -25,7 +25,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<MCQProps>;
 
 const sampleOptions = [
   { id: 'a', text: 'Bonjour, comment allez-vous?' },
@@ -39,7 +39,7 @@ export const Default: Story = {
     question: 'How do you say "Hello, how are you?" in French?',
     options: sampleOptions,
     correctOptionId: 'a',
-    onComplete: (id, correct) => console.log('Selected:', id, 'Correct:', correct),
+    onComplete: (id: string | number, correct: boolean) => console.log('Selected:', id, 'Correct:', correct),
   },
 };
 
@@ -48,7 +48,7 @@ export const LongQuestion: Story = {
     question: 'Which of the following phrases would you use to politely greet someone you don\'t know very well in a formal business setting?',
     options: sampleOptions,
     correctOptionId: 'a',
-    onComplete: (id, correct) => console.log('Selected:', id, 'Correct:', correct),
+    onComplete: (id: string | number, correct: boolean) => console.log('Selected:', id, 'Correct:', correct),
   },
 };
 
@@ -64,7 +64,7 @@ export const ManyOptions: Story = {
       { id: '6', text: 'Dutch' },
     ],
     correctOptionId: '3',
-    onComplete: (id, correct) => console.log('Selected:', id, 'Correct:', correct),
+    onComplete: (id: string | number, correct: boolean) => console.log('Selected:', id, 'Correct:', correct),
   },
 };
 
@@ -77,6 +77,6 @@ export const ShortOptions: Story = {
       { id: 'c', text: '5' },
     ],
     correctOptionId: 'b',
-    onComplete: (id, correct) => console.log('Selected:', id, 'Correct:', correct),
+    onComplete: (id: string | number, correct: boolean) => console.log('Selected:', id, 'Correct:', correct),
   },
 };

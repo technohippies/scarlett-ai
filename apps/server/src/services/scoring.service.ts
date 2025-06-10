@@ -151,7 +151,7 @@ export class ScoringService {
   }
 
   private hasNonLatinCharacters(text: string): boolean {
-    return /[^\u0001-\u024F\u1E00-\u1EFF]/.test(text);
+    return /[^\u0020-\u024F\u1E00-\u1EFF]/.test(text);
   }
 
   private analyzeWords(

@@ -11,7 +11,8 @@ export function handleError(error: unknown, c: Context) {
         error: error.message,
         code: error.code,
       },
-      error.statusCode
+      // @ts-expect-error - Hono type issue with status codes
+      error.statusCode || 500
     );
   }
 
@@ -36,7 +37,7 @@ export function handleError(error: unknown, c: Context) {
 
 export function createErrorResponse(
   message: string,
-  statusCode: number = 500,
+  _statusCode: number = 500,
   code?: string
 ) {
   return {

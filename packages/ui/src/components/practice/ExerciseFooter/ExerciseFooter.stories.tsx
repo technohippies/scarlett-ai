@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { ExerciseFooter } from './ExerciseFooter';
+import { ExerciseFooter, type ExerciseFooterProps } from './ExerciseFooter';
 import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta = {
+const meta: Meta<ExerciseFooterProps> = {
   title: 'Practice/ExerciseFooter',
   render: solidStory(ExerciseFooter),
   parameters: {
@@ -37,7 +37,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ExerciseFooterProps>;
 
 export const Default: Story = {
   args: {

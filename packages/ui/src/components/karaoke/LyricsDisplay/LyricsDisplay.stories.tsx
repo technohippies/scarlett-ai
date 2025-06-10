@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { LyricsDisplay } from './LyricsDisplay';
+import type { Meta, StoryObj } from '@storybook/html';
+import { LyricsDisplay, type LyricsDisplayProps } from './LyricsDisplay';
+import { solidStory } from '../../../utils/storybook';
 
 const mockLyrics = [
   { id: '1', text: "Never gonna give you up", startTime: 0, duration: 3000 },
@@ -10,20 +11,23 @@ const mockLyrics = [
   { id: '6', text: "Never gonna tell a lie and hurt you", startTime: 16000, duration: 4000 },
 ];
 
-const meta: Meta<typeof LyricsDisplay> = {
+const meta: Meta<LyricsDisplayProps> = {
   title: 'Karaoke/LyricsDisplay',
-  component: LyricsDisplay,
+  render: solidStory(LyricsDisplay),
   parameters: {
     layout: 'fullscreen',
   },
   decorators: [
-    (Story) => (
-      <div class="bg-base h-screen p-8">
-        <div class="max-w-2xl mx-auto h-full bg-surface rounded-lg overflow-hidden">
-          <Story />
+    (Story) => {
+      const StoryComponent = () => (
+        <div class="bg-base h-screen p-8">
+          <div class="max-w-2xl mx-auto h-full bg-surface rounded-lg overflow-hidden">
+            <Story />
+          </div>
         </div>
-      </div>
-    ),
+      );
+      return solidStory(StoryComponent)({});
+    },
   ],
   argTypes: {
     currentTime: {
@@ -38,7 +42,7 @@ const meta: Meta<typeof LyricsDisplay> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<LyricsDisplayProps>;
 
 export const Idle: Story = {
   args: {

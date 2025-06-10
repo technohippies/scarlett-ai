@@ -1,7 +1,7 @@
 import { Context, Next } from 'hono';
 import { handleError } from '../utils/errors';
 
-export async function errorHandler(c: Context, next: Next) {
+export async function errorHandler(c: Context, next: Next): Promise<Response | void> {
   try {
     await next();
   } catch (error) {

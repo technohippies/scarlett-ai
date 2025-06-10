@@ -23,7 +23,7 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
     try {
       const module = await import(`./locales/${currentLocale}/index.ts`);
       setTranslations(module.default);
-    } catch (e) {
+    } catch (_e) {
       console.warn(`Failed to load locale ${currentLocale}, falling back to English`);
       const module = await import('./locales/en/index.ts');
       setTranslations(module.default);
@@ -48,7 +48,7 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
   };
 
   // Direction (for RTL languages in future)
-  const dir = () => locale() === 'ar' ? 'rtl' : 'ltr';
+  const dir = () => 'ltr'; // Only LTR languages supported currently
 
   // Number formatting
   const numberFormatter = createMemo(() => 

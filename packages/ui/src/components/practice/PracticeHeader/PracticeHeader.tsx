@@ -17,7 +17,7 @@ export const PracticeHeader: Component<PracticeHeaderProps> = (props) => {
         class="p-2 -ml-2 rounded-full hover:bg-highlight transition-colors"
         aria-label="Exit practice"
       >
-        <IconXRegular size={24} class="text-secondary" />
+        <IconXRegular class="text-secondary w-6 h-6" />
       </button>
       
       <Show when={props.title}>

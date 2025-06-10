@@ -16,6 +16,6 @@ export const withI18n = (Component: any) => {
       </I18nProvider>
     );
     
-    return solidStory(WrappedComponent)(props);
+    return solidStory(WrappedComponent);
   };
 };

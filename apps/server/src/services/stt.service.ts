@@ -127,7 +127,7 @@ export class STTService {
       throw new Error(`ElevenLabs API error: ${response.status} - ${error}`);
     }
 
-    const result = await response.json();
+    const result = await response.json() as { text?: string; confidence?: number; };
     return {
       transcript: result.text || '',
       confidence: result.confidence || 0,
@@ -172,9 +172,9 @@ export class STTService {
       throw new Error(`Forced alignment error: ${response.status} - ${error}`);
     }
 
-    const result = await response.json();
+    const result = await response.json() as { words?: Array<{ word: string; start: number; end: number; }> };
     return {
-      words: result.words || [],
+      words: (result.words || []).map(word => ({ ...word, confidence: 1.0 })),
     };
   }
 

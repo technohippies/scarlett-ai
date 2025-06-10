@@ -53,6 +53,8 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
   
   const handleSubmit = () => {
     const exercise = currentExercise();
+    if (!exercise) return;
+    
     const correct = userTranscript().toLowerCase().trim() === 
                    (exercise.correctAnswer || exercise.prompt).toLowerCase().trim();
     

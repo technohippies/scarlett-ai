@@ -31,4 +31,5 @@ const fixesNeeded = {
   ]
 };
 
+// eslint-disable-next-line no-undef
 module.exports = fixesNeeded;

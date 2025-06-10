@@ -1,10 +1,11 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { For } from 'solid-js';
-import { AppShell } from './AppShell';
+import { AppShell, type AppShellProps } from './AppShell';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof AppShell> = {
+const meta: Meta<AppShellProps> = {
   title: 'Layout/AppShell',
-  component: AppShell,
+  render: solidStory(AppShell),
   parameters: {
     layout: 'fullscreen',
   },
@@ -31,7 +32,7 @@ const meta: Meta<typeof AppShell> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<AppShellProps>;
 
 const DemoContent = () => {
   const sections = Array.from({ length: 20 }, (_, i) => i);
@@ -75,11 +76,11 @@ const FooterContent = () => (
 
 export const Default: Story = {
   args: {
-    children: () => <DemoContent />,
+    children: <DemoContent />,
     showHeader: true,
     showFooter: true,
-    headerContent: () => <HeaderContent />,
-    footerContent: () => <FooterContent />,
+    headerContent: <HeaderContent />,
+    footerContent: <FooterContent />,
     padding: 'md',
   },
 };
@@ -87,11 +88,11 @@ export const Default: Story = {
 export const MobileConstrained: Story = {
   args: {
     maxWidth: '420px',
-    children: () => <DemoContent />,
+    children: <DemoContent />,
     showHeader: true,
     showFooter: true,
-    headerContent: () => <HeaderContent />,
-    footerContent: () => <FooterContent />,
+    headerContent: <HeaderContent />,
+    footerContent: <FooterContent />,
     padding: 'md',
   },
   parameters: {
@@ -109,7 +110,7 @@ export const FarcasterFrame: Story = {
     padding: 'none',
     showHeader: false,
     showFooter: false,
-    children: () => (
+    children: (
       <div class="p-4 bg-base min-h-screen">
         <h2 class="text-xl font-bold mb-4 text-primary">Farcaster Frame</h2>
         <p class="text-secondary">
@@ -129,17 +130,17 @@ export const FarcasterFrame: Story = {
 
 export const HeaderOnly: Story = {
   args: {
-    children: () => <DemoContent />,
+    children: <DemoContent />,
     showHeader: true,
     showFooter: false,
-    headerContent: () => <HeaderContent />,
+    headerContent: <HeaderContent />,
     padding: 'lg',
   },
 };
 
 export const NoChrome: Story = {
   args: {
-    children: () => <DemoContent />,
+    children: <DemoContent />,
     showHeader: false,
     showFooter: false,
     padding: 'none',
@@ -154,42 +155,40 @@ export const NoChrome: Story = {
 };
 
 export const AllPaddingSizes: Story = {
-  render: () => {
-    return (
-      <div class="grid grid-cols-2 gap-4 h-screen p-4 bg-base">
-        <div class="border border-subtle rounded overflow-hidden">
-          <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: none</h3>
-          <div class="h-48 overflow-hidden">
-            <AppShell padding="none">
-              {() => <div class="bg-elevated h-full p-4 text-primary">No padding</div>}
-            </AppShell>
-          </div>
-        </div>
-        <div class="border border-subtle rounded overflow-hidden">
-          <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: sm</h3>
-          <div class="h-48 overflow-hidden">
-            <AppShell padding="sm">
-              {() => <div class="bg-elevated h-full p-4 text-primary">Small padding</div>}
-            </AppShell>
-          </div>
-        </div>
-        <div class="border border-subtle rounded overflow-hidden">
-          <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: md</h3>
-          <div class="h-48 overflow-hidden">
-            <AppShell padding="md">
-              {() => <div class="bg-elevated h-full p-4 text-primary">Medium padding</div>}
-            </AppShell>
-          </div>
-        </div>
-        <div class="border border-subtle rounded overflow-hidden">
-          <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: lg</h3>
-          <div class="h-48 overflow-hidden">
-            <AppShell padding="lg">
-              {() => <div class="bg-elevated h-full p-4 text-primary">Large padding</div>}
-            </AppShell>
-          </div>
+  render: () => solidStory(() => (
+    <div class="grid grid-cols-2 gap-4 h-screen p-4 bg-base">
+      <div class="border border-subtle rounded overflow-hidden">
+        <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: none</h3>
+        <div class="h-48 overflow-hidden">
+          <AppShell padding="none">
+            <div class="bg-elevated h-full p-4 text-primary">No padding</div>
+          </AppShell>
         </div>
       </div>
-    );
-  },
+      <div class="border border-subtle rounded overflow-hidden">
+        <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: sm</h3>
+        <div class="h-48 overflow-hidden">
+          <AppShell padding="sm">
+            <div class="bg-elevated h-full p-4 text-primary">Small padding</div>
+          </AppShell>
+        </div>
+      </div>
+      <div class="border border-subtle rounded overflow-hidden">
+        <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: md</h3>
+        <div class="h-48 overflow-hidden">
+          <AppShell padding="md">
+            <div class="bg-elevated h-full p-4 text-primary">Medium padding</div>
+          </AppShell>
+        </div>
+      </div>
+      <div class="border border-subtle rounded overflow-hidden">
+        <h3 class="p-2 bg-surface text-sm font-medium text-primary">Padding: lg</h3>
+        <div class="h-48 overflow-hidden">
+          <AppShell padding="lg">
+            <div class="bg-elevated h-full p-4 text-primary">Large padding</div>
+          </AppShell>
+        </div>
+      </div>
+    </div>
+  ))({}),
 };

@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { PracticeExercise } from './PracticeExercise';
+import { PracticeExercise, type PracticeExerciseProps } from './PracticeExercise';
 import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta = {
+const meta: Meta<PracticeExerciseProps> = {
   title: 'Practice/PracticeExercise',
   render: solidStory(PracticeExercise),
   parameters: {
@@ -21,44 +21,40 @@ const meta: Meta = {
       action: 'complete',
       description: 'Called when practice is completed',
     },
-    onPlayAudio: {
-      action: 'play-audio',
-      description: 'Called to play audio',
-    },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<PracticeExerciseProps>;
 
 const sampleExercises = [
   {
     id: '1',
-    type: 'say-it-back' as const,
+    type: 'read-aloud' as const,
     prompt: 'Hello, how are you today?',
     audioUrl: '/audio/hello.mp3',
   },
   {
     id: '2',
-    type: 'say-it-back' as const,
+    type: 'read-aloud' as const,
     prompt: 'The weather is nice today.',
     audioUrl: '/audio/weather.mp3',
   },
   {
     id: '3',
-    type: 'say-it-back' as const,
+    type: 'read-aloud' as const,
     prompt: 'I would like a cup of coffee.',
     audioUrl: '/audio/coffee.mp3',
   },
   {
     id: '4',
-    type: 'say-it-back' as const,
+    type: 'read-aloud' as const,
     prompt: 'Thank you very much.',
     audioUrl: '/audio/thanks.mp3',
   },
   {
     id: '5',
-    type: 'say-it-back' as const,
+    type: 'read-aloud' as const,
     prompt: 'See you tomorrow!',
     audioUrl: '/audio/tomorrow.mp3',
   },
@@ -69,7 +65,7 @@ export const Default: Story = {
     exercises: sampleExercises,
     currentIndex: 0,
     onExit: () => console.log('Exit practice'),
-    onComplete: (results) => console.log('Complete:', results),
+    onComplete: (results: { exerciseId: string; userResponse: string; isCorrect: boolean }[]) => console.log('Complete:', results),
   },
 };
 
@@ -78,7 +74,7 @@ export const MidProgress: Story = {
     exercises: sampleExercises,
     currentIndex: 2,
     onExit: () => console.log('Exit practice'),
-    onComplete: (results) => console.log('Complete:', results),
+    onComplete: (results: { exerciseId: string; userResponse: string; isCorrect: boolean }[]) => console.log('Complete:', results),
   },
 };
 
@@ -87,16 +83,16 @@ export const LastExercise: Story = {
     exercises: sampleExercises,
     currentIndex: 4,
     onExit: () => console.log('Exit practice'),
-    onComplete: (results) => console.log('Complete:', results),
+    onComplete: (results: { exerciseId: string; userResponse: string; isCorrect: boolean }[]) => console.log('Complete:', results),
   },
 };
 
 export const SingleExercise: Story = {
   args: {
-    exercises: [sampleExercises[0]],
+    exercises: [sampleExercises[0]!],
     currentIndex: 0,
     onExit: () => console.log('Exit practice'),
-    onComplete: (results) => console.log('Complete:', results),
+    onComplete: (results: { exerciseId: string; userResponse: string; isCorrect: boolean }[]) => console.log('Complete:', results),
   },
 };
 
@@ -105,6 +101,6 @@ export const MobileLayout: Story = {
     exercises: sampleExercises,
     currentIndex: 1,
     onExit: () => console.log('Exit practice'),
-    onComplete: (results) => console.log('Complete:', results),
+    onComplete: (results: { exerciseId: string; userResponse: string; isCorrect: boolean }[]) => console.log('Complete:', results),
   },
 };

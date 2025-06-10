@@ -2,7 +2,6 @@
 export * from './layout/AppShell';
 export * from './layout/MobileContainer';
 export * from './layout/Header';
-export * from './layout/Footer';
 
 // Display Components
 export * from './display/ScorePanel';

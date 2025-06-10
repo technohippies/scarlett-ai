@@ -23,10 +23,11 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(karaokeResponse.status).toBe(200);
-      const karaokeData = await karaokeResponse.json();
+      const karaokeData = await karaokeResponse.json() as any;
       
       // If no karaoke available, skip rest of test
       if (!karaokeData.hasKaraoke) {
+        // eslint-disable-next-line no-console
         console.log('No karaoke data available for test track');
         return;
       }
@@ -51,7 +52,7 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(startResponse.status).toBe(200);
-      const startData = await startResponse.json();
+      const startData = await startResponse.json() as any;
       expect(startData.sessionId).toBeTruthy();
 
       const sessionId = startData.sessionId;
@@ -76,7 +77,7 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(gradeResponse.status).toBe(200);
-      const gradeData = await gradeResponse.json();
+      const gradeData = await gradeResponse.json() as any;
       expect(gradeData.score).toBeGreaterThanOrEqual(0);
       expect(gradeData.score).toBeLessThanOrEqual(100);
       expect(gradeData.feedback).toBeTruthy();
@@ -92,7 +93,7 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(sessionResponse.status).toBe(200);
-      const sessionData = await sessionResponse.json();
+      const sessionData = await sessionResponse.json() as any;
       expect(sessionData.session.id).toBe(sessionId);
       expect(sessionData.session.lineScores).toHaveLength(1);
 
@@ -108,7 +109,7 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(completeResponse.status).toBe(200);
-      const completeData = await completeResponse.json();
+      const completeData = await completeResponse.json() as any;
       expect(completeData.overallScore).toBeDefined();
       expect(completeData.linesCompleted).toBe(1);
     });
@@ -135,7 +136,7 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(response.status).toBe(404);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.success).toBe(false);
       expect(data.error).toContain('not found');
     });
@@ -159,7 +160,7 @@ describe('Karaoke Integration Tests', () => {
       );
 
       expect(response.status).toBe(401);
-      const data = await response.json();
+      const data = await response.json() as any;
       expect(data.success).toBe(false);
     });
   });

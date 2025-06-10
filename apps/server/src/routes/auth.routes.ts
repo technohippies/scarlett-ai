@@ -10,7 +10,7 @@ const app = new Hono<{
   Bindings: Env;
   Variables: {
     user?: User;
-    validatedBody?: any;
+    validatedBody?: Record<string, unknown>;
   };
 }>();
 
@@ -74,7 +74,7 @@ app.post('/login', validateBody(loginSchema), async (c) => {
 
   // Find user by email or wallet
   let query = 'SELECT * FROM users WHERE ';
-  const params: any[] = [];
+  const params: (string | number)[] = [];
 
   if (data.email) {
     query += 'email = ?';

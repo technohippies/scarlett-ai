@@ -52,23 +52,23 @@ const Actions = () => (
 
 export const Default: Story = {
   args: {
-    logo: () => <Logo />,
-    actions: () => <Actions />,
+    logo: <Logo />,
+    actions: <Actions />,
   },
 };
 
 export const WithTitle: Story = {
   args: {
     title: 'Scarlett Karaoke',
-    actions: () => <Actions />,
+    actions: <Actions />,
   },
 };
 
 export const Minimal: Story = {
   args: {
     variant: 'minimal',
-    logo: () => <Logo />,
-    actions: () => (
+    logo: <Logo />,
+    actions: (
       <Button variant="primary" size="sm">
         Start Singing
       </Button>
@@ -80,8 +80,8 @@ export const Transparent: Story = {
   args: {
     variant: 'transparent',
     sticky: true,
-    logo: () => <Logo />,
-    actions: () => <Actions />,
+    logo: <Logo />,
+    actions: <Actions />,
   },
   decorators: [
     (Story) => {
@@ -105,8 +105,8 @@ export const Transparent: Story = {
 export const MobileMenu: Story = {
   args: {
     showMenuButton: true,
-    logo: () => <Logo />,
-    actions: () => (
+    logo: <Logo />,
+    actions: (
       <Button variant="primary" size="sm">
         Sign In
       </Button>
@@ -123,13 +123,13 @@ export const MobileMenu: Story = {
 export const ExtensionHeader: Story = {
   args: {
     variant: 'minimal',
-    logo: () => (
+    logo: (
       <div class="flex items-center gap-2">
         <div class="text-2xl">🎤</div>
         <span class="text-sm font-medium text-secondary">Scarlett Active</span>
       </div>
     ),
-    actions: () => (
+    actions: (
       <div class="flex items-center gap-2">
         <button class="p-1.5 rounded hover:bg-highlight transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,13 +157,13 @@ export const ExtensionHeader: Story = {
 export const FarcasterHeader: Story = {
   args: {
     variant: 'minimal',
-    logo: () => (
+    logo: (
       <div class="flex items-center gap-2">
         <div class="text-xl">🎵</div>
         <span class="text-sm font-semibold text-primary">Karaoke Frame</span>
       </div>
     ),
-    actions: () => (
+    actions: (
       <div class="flex items-center gap-1">
         <button class="p-2 text-sm text-secondary hover:text-primary transition-colors">
           Share

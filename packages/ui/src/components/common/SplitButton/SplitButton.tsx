@@ -22,7 +22,10 @@ export const SplitButton: Component<SplitButtonProps> = (props) => {
     e.stopPropagation();
     const nextIndex = (currentSpeedIndex() + 1) % speeds.length;
     setCurrentSpeedIndex(nextIndex);
-    props.onSpeedChange?.(speeds[nextIndex]);
+    const newSpeed = speeds[nextIndex];
+    if (newSpeed) {
+      props.onSpeedChange?.(newSpeed);
+    }
   };
 
   return (

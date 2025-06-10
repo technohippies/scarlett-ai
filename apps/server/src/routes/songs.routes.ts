@@ -8,7 +8,7 @@ import { paginationSchema } from '../utils/validation';
 const app = new Hono<{ 
   Bindings: Env;
   Variables: {
-    validatedQuery?: any;
+    validatedQuery?: Record<string, unknown>;
   };
 }>();
 

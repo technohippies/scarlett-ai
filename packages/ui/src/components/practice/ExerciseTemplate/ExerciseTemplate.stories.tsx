@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/html';
 import { render } from 'solid-js/web';
-import { ExerciseTemplate } from './ExerciseTemplate';
+import { ExerciseTemplate, type ExerciseTemplateProps } from './ExerciseTemplate';
 import { MCQ } from '../MCQ';
 import { ReadAloud } from '../ReadAloud';
 
-const meta: Meta = {
+const meta: Meta<ExerciseTemplateProps> = {
   title: 'Practice/ExerciseTemplate',
   parameters: {
     layout: 'fullscreen',
@@ -12,7 +12,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj;
+type Story = StoryObj<ExerciseTemplateProps>;
 
 const sampleMCQOptions = [
   { id: 'a', text: 'Bonjour, comment allez-vous?' },
@@ -30,7 +30,7 @@ export const WithMCQ: Story = {
           question='How do you say "Hello, how are you?" in French?'
           options={sampleMCQOptions}
           correctOptionId="a"
-          onComplete={(id, correct) => console.log('Selected:', id, 'Correct:', correct)}
+          onComplete={(id: string | number, correct: boolean) => console.log('Selected:', id, 'Correct:', correct)}
         />
       </ExerciseTemplate>
     ), container);

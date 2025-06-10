@@ -50,7 +50,7 @@ export function createMockDB(): D1Database {
       // Mock dump
       return new ArrayBuffer(0);
     },
-  } as D1Database;
+  } as unknown as D1Database;
 }
 
 // Create test user

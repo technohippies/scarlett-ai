@@ -2,6 +2,7 @@ import { Show, createMemo } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import type { PlaybackSpeed } from '../../common/SplitButton';
+import { Button } from '../../common/Button';
 import { useI18n } from '../../../i18n';
 
 export interface CompletionViewProps {
@@ -28,44 +29,51 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
   });
   
   return (
-    <div class={cn('flex flex-col items-center justify-center min-h-screen p-6 bg-base', props.class)}>
-      {/* Score */}
-      <div class="text-7xl font-mono font-bold text-accent-primary mb-3">
-        {formatNumber(props.score)}
-      </div>
-      <div class="text-lg text-secondary mb-10">{t('karaoke.scoring.score')}</div>
-      
-      {/* Stats row */}
-      <div class="flex gap-12 mb-12">
-        {/* Rank */}
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary mb-2">#{formatNumber(props.rank)}</div>
-          <div class="text-lg text-secondary">Rank</div>
+    <div class={cn('flex flex-col h-full bg-base', props.class)}>
+      {/* Main content area */}
+      <div class="flex-1 flex flex-col items-center justify-center p-6">
+        {/* Score */}
+        <div class="text-center flex flex-col mb-10">
+          <div class="text-lg text-secondary mb-3 order-1">{t('karaoke.scoring.score')}</div>
+          <div class="text-7xl font-mono font-bold text-accent-primary order-2">
+            {formatNumber(props.score)}
+          </div>
         </div>
         
-        {/* Speed */}
-        <div class="text-center">
-          <div class="text-3xl font-bold text-primary mb-2">{props.speed}</div>
-          <div class="text-lg text-secondary">{t('common.speed.label')}</div>
+        {/* Stats row */}
+        <div class="flex gap-12 mb-12">
+          {/* Rank */}
+          <div class="text-center flex flex-col">
+            <div class="text-lg text-secondary mb-2 order-1">Rank</div>
+            <div class="text-3xl font-bold text-primary order-2">#{formatNumber(props.rank)}</div>
+          </div>
+          
+          {/* Speed */}
+          <div class="text-center flex flex-col">
+            <div class="text-lg text-secondary mb-2 order-1">{t('common.speed.label')}</div>
+            <div class="text-3xl font-bold text-primary order-2">{props.speed}</div>
+          </div>
+        </div>
+        
+        {/* Feedback text */}
+        <div class="max-w-md text-center">
+          <p class="text-xl text-primary leading-relaxed">
+            {getFeedbackText()}
+          </p>
         </div>
       </div>
       
-      {/* Feedback text */}
-      <div class="max-w-md text-center">
-        <p class="text-xl text-primary leading-relaxed">
-          {getFeedbackText()}
-        </p>
-      </div>
-      
-      {/* Practice button - positioned at bottom */}
+      {/* Footer with practice button - fixed to bottom like other components */}
       <Show when={props.onPractice}>
-        <div class="absolute bottom-0 left-0 right-0 p-6">
-          <button
+        <div class="fixed bottom-0 left-0 right-0 p-4 bg-surface border-t border-subtle">
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
             onClick={props.onPractice}
-            class="w-full bg-accent py-4 px-6 rounded-full text-lg font-semibold text-white hover:bg-accent-hover transition-colors duration-200 shadow-lg"
           >
             Practice Errors
-          </button>
+          </Button>
         </div>
       </Show>
     </div>

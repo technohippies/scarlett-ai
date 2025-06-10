@@ -1,10 +1,11 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { For } from 'solid-js';
-import { MobileContainer } from './MobileContainer';
+import { MobileContainer, type MobileContainerProps } from './MobileContainer';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof MobileContainer> = {
+const meta: Meta<MobileContainerProps> = {
   title: 'Layout/MobileContainer',
-  component: MobileContainer,
+  render: solidStory(MobileContainer),
   parameters: {
     layout: 'fullscreen',
   },
@@ -30,7 +31,7 @@ const meta: Meta<typeof MobileContainer> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<MobileContainerProps>;
 
 const MobileContent = () => {
   return (
@@ -58,14 +59,14 @@ const MobileContent = () => {
 
 export const Default: Story = {
   args: {
-    children: () => <MobileContent />,
+    children: <MobileContent />,
     safeArea: true,
   },
 };
 
 export const MobileWeb: Story = {
   args: {
-    children: () => <MobileContent />,
+    children: <MobileContent />,
     maxWidth: '420px',
     safeArea: true,
   },
@@ -82,7 +83,7 @@ export const FarcasterFrame: Story = {
   args: {
     maxWidth: '424px',
     safeArea: false,
-    children: () => (
+    children: (
       <div class="bg-base text-white p-6 min-h-screen">
         <h2 class="text-xl font-bold mb-4 text-primary">Farcaster Frame</h2>
         <p class="mb-6 text-secondary">Exact 424px width for Farcaster compatibility</p>
@@ -105,7 +106,7 @@ export const FarcasterFrame: Story = {
 export const CenteredContent: Story = {
   args: {
     centerContent: true,
-    children: () => (
+    children: (
       <div class="text-center p-8">
         <div class="text-6xl mb-4 animate-pulse">🎤</div>
         <h2 class="text-2xl font-bold mb-2 text-primary">Ready to Sing?</h2>
@@ -143,42 +144,38 @@ const ScrollableList = () => {
 
 export const ScrollableContent: Story = {
   args: {
-    children: () => <ScrollableList />,
+    children: <ScrollableList />,
     maxWidth: '420px',
     safeArea: true,
   },
 };
 
 export const WithNotch: Story = {
-  render: () => {
-    return (
-      <div class="relative bg-black p-4 rounded-[3rem] mx-auto" style="width: 375px;">
-        {/* Notch simulation */}
-        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-2xl z-10" />
-        
-        <div class="bg-surface rounded-[2.5rem] overflow-hidden">
-          <MobileContainer safeArea={true} maxWidth="375px">
-            {() => (
-              <div class="bg-gradient-surface text-white p-6 min-h-[600px]">
-                <div class="pt-8">
-                  <h2 class="text-xl font-bold mb-4 text-primary">Safe Area Demo</h2>
-                  <p class="mb-4 text-secondary">
-                    This container respects the notch and home indicator areas.
-                  </p>
-                  <div class="bg-surface border border-subtle p-4 rounded-lg">
-                    <p class="text-secondary">Content is safely positioned away from system UI</p>
-                  </div>
-                </div>
+  render: () => solidStory(() => (
+    <div class="relative bg-black p-4 rounded-[3rem] mx-auto" style="width: 375px;">
+      {/* Notch simulation */}
+      <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-7 bg-black rounded-b-2xl z-10" />
+      
+      <div class="bg-surface rounded-[2.5rem] overflow-hidden">
+        <MobileContainer safeArea={true} maxWidth="375px">
+          <div class="bg-gradient-surface text-white p-6 min-h-[600px]">
+            <div class="pt-8">
+              <h2 class="text-xl font-bold mb-4 text-primary">Safe Area Demo</h2>
+              <p class="mb-4 text-secondary">
+                This container respects the notch and home indicator areas.
+              </p>
+              <div class="bg-surface border border-subtle p-4 rounded-lg">
+                <p class="text-secondary">Content is safely positioned away from system UI</p>
               </div>
-            )}
-          </MobileContainer>
-        </div>
-
-        {/* Home indicator */}
-        <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-400 rounded-full" />
+            </div>
+          </div>
+        </MobileContainer>
       </div>
-    );
-  },
+
+      {/* Home indicator */}
+      <div class="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-400 rounded-full" />
+    </div>
+  ))({}),
   parameters: {
     docs: {
       description: {

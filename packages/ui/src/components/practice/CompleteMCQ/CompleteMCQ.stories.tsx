@@ -1,4 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/html';
+
+// Props for demo stories
+interface DemoProps {}
 import { render } from 'solid-js/web';
 import { createSignal } from 'solid-js';
 import { ProgressBar } from '../../common/ProgressBar';
@@ -7,7 +10,7 @@ import { ExerciseTemplate } from '../ExerciseTemplate';
 import { MCQ } from '../MCQ';
 import { ResponseFooter } from '../ResponseFooter';
 
-const meta: Meta = {
+const meta: Meta<DemoProps> = {
   title: 'Practice/CompleteMCQ',
   parameters: {
     layout: 'fullscreen',
@@ -15,7 +18,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<DemoProps>;
 
 const sampleOptions = [
   { id: 'a', text: 'Bonjour, comment allez-vous?' },
@@ -106,7 +109,7 @@ export const BeforeFeedback: Story = {
               question='How do you say "Hello, how are you?" in French?'
               options={sampleOptions}
               correctOptionId="a"
-              onComplete={(id, correct) => console.log('Selected:', id, 'Correct:', correct)}
+              onComplete={(id: string | number, correct: boolean) => console.log('Selected:', id, 'Correct:', correct)}
             />
           </ExerciseTemplate>
         </main>

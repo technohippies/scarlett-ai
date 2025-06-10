@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { TextEffect } from './TextEffect';
-import { SimpleTest } from './SimpleTest';
+import type { Meta, StoryObj } from '@storybook/html';
+import { TextEffect, type TextEffectProps } from './TextEffect';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof TextEffect> = {
+const meta: Meta<TextEffectProps> = {
   title: 'Common/TextEffect',
-  component: TextEffect,
+  render: solidStory(TextEffect),
   parameters: {
     layout: 'centered',
   },
@@ -31,7 +31,7 @@ const meta: Meta<typeof TextEffect> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<TextEffectProps>;
 
 export const PerCharacter: Story = {
   args: {
@@ -79,17 +79,14 @@ export const WithDelay: Story = {
   },
 };
 
-export const SimpleAnimationTest = () => {
-  return <SimpleTest />;
-};
 
-export const DebugTextEffect = () => {
-  return (
+export const DebugTextEffect: Story = {
+  render: () => solidStory(() => (
     <div>
       <h3>Debug: Text should fade in</h3>
       <TextEffect per="char" preset="fade" className="text-lg">
         Hello, this text should animate!
       </TextEffect>
     </div>
-  );
+  ))({}),
 };

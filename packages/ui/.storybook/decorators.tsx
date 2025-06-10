@@ -20,5 +20,5 @@ export const withI18nDecorator = (Story: any, context: any) => {
     </I18nProvider>
   );
   
-  return solidStory(WrappedStory)();
+  return solidStory(WrappedStory);
 };

@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import type { Env, KaraokeSession, LineScore } from '../types';
-import { NotFoundError, ValidationError } from '../types';
+import { NotFoundError } from '../types';
 
 export class SessionService {
   constructor(private env: Env) {}
@@ -81,7 +81,7 @@ export class SessionService {
     status: 'active' | 'paused' | 'completed' | 'abandoned'
   ): Promise<void> {
     const updates: string[] = ['status = ?'];
-    const params: any[] = [status];
+    const params: (string | number)[] = [status];
 
     if (status === 'completed') {
       updates.push('completed_at = CURRENT_TIMESTAMP');
@@ -203,7 +203,7 @@ export class SessionService {
       )
         .bind(nanoid(), userId, songId, newScore, sessionId, newScore)
         .run();
-    } else if (newScore > existing.best_score) {
+    } else if (newScore > (existing.best_score as number)) {
       // New best score
       await this.env.DB.prepare(
         `UPDATE user_best_scores 
@@ -247,6 +247,6 @@ export class SessionService {
       .bind(sessionId)
       .all();
 
-    return results.results as LineScore[];
+    return results.results as unknown as LineScore[];
   }
 }

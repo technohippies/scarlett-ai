@@ -28,7 +28,9 @@ export default defineConfig({
     host_permissions: [
       '*://soundcloud.com/*',
       '*://soundcloak.com/*',
-      '*://your-server-domain.com/*',
+      '*://sc.maid.zone/*',
+      'http://localhost:*/*',
+      'https://localhost:*/*',
     ],
   },
   webExt: {

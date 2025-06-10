@@ -170,16 +170,16 @@ export class SongService {
       FROM song_catalog 
       WHERE total_attempts > 0`;
 
-    const countQuery = `
+    let countQuery = `
       SELECT COUNT(*) as total 
       FROM song_catalog 
       WHERE total_attempts > 0`;
 
-    const params: any[] = [];
+    const params: (string | number)[] = [];
 
     if (difficulty) {
       query += ' AND difficulty = ?';
-      countQuery + ' AND difficulty = ?';
+      countQuery += ' AND difficulty = ?';
       params.push(difficulty);
     }
 
@@ -194,11 +194,11 @@ export class SongService {
         .first(),
     ]);
 
-    const total = (count as any)?.total || 0;
+    const total = (count as { total: number })?.total || 0;
 
     return {
       success: true,
-      data: songs.results as Song[],
+      data: songs.results as unknown as Song[],
       pagination: {
         page,
         limit,
@@ -243,7 +243,7 @@ export class SongService {
 
     const result = await this.env.DB.prepare(query).bind(limit).all();
 
-    return result.results as Song[];
+    return result.results as unknown as Song[];
   }
 
   async getSongLeaderboard(
@@ -284,7 +284,14 @@ export class SongService {
 
     return {
       songId,
-      leaderboard: results.results as any[],
+      leaderboard: results.results as Array<{
+        rank: number;
+        userId: string;
+        displayName: string;
+        bestScore: number;
+        achievedAt: string;
+        totalAttempts: number;
+      }>,
     };
   }
 }
