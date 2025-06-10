@@ -144,9 +144,9 @@ export class ScoringService {
 
     return (
       primary1 === primary2 ||
-      (alternate1 && alternate1 === alternate2) ||
-      (alternate1 && alternate1 === primary2) ||
-      (alternate2 && primary1 === alternate2)
+      (typeof alternate1 === 'string' && alternate1 === alternate2) ||
+      (typeof alternate1 === 'string' && alternate1 === primary2) ||
+      (typeof alternate2 === 'string' && primary1 === alternate2)
     );
   }
 
@@ -207,7 +207,7 @@ export class ScoringService {
 
   generateFeedback(
     score: number,
-    expectedText: string,
+    _expectedText: string,
     transcribedText: string,
     attemptNumber: number
   ): string {

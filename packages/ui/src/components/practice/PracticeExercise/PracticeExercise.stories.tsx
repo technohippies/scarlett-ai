@@ -70,7 +70,6 @@ export const Default: Story = {
     currentIndex: 0,
     onExit: () => console.log('Exit practice'),
     onComplete: (results) => console.log('Complete:', results),
-    onPlayAudio: (url) => console.log('Play audio:', url),
   },
 };
 
@@ -80,7 +79,6 @@ export const MidProgress: Story = {
     currentIndex: 2,
     onExit: () => console.log('Exit practice'),
     onComplete: (results) => console.log('Complete:', results),
-    onPlayAudio: (url) => console.log('Play audio:', url),
   },
 };
 
@@ -90,7 +88,6 @@ export const LastExercise: Story = {
     currentIndex: 4,
     onExit: () => console.log('Exit practice'),
     onComplete: (results) => console.log('Complete:', results),
-    onPlayAudio: (url) => console.log('Play audio:', url),
   },
 };
 
@@ -100,7 +97,6 @@ export const SingleExercise: Story = {
     currentIndex: 0,
     onExit: () => console.log('Exit practice'),
     onComplete: (results) => console.log('Complete:', results),
-    onPlayAudio: (url) => console.log('Play audio:', url),
   },
 };
 
@@ -110,6 +106,5 @@ export const MobileLayout: Story = {
     currentIndex: 1,
     onExit: () => console.log('Exit practice'),
     onComplete: (results) => console.log('Complete:', results),
-    onPlayAudio: (url) => console.log('Play audio:', url),
   },
 };

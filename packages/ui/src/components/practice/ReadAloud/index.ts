@@ -1,2 +1,2 @@
-export { SayItBack } from './SayItBack';
-export type { SayItBackProps } from './SayItBack';
+export { ReadAloud } from './ReadAloud';
+export type { ReadAloudProps } from './ReadAloud';

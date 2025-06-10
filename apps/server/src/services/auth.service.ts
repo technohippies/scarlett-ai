@@ -16,7 +16,7 @@ export class AuthService {
       subscriptionStatus: user.subscriptionStatus,
       creditsRemaining: Math.max(0, user.creditsLimit - user.creditsUsed),
       type: 'extension_token',
-    } as JWTPayload)
+    })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('7d')

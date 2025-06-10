@@ -10,7 +10,7 @@ export type AuthContext = Context<{
   };
 }>;
 
-export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+export async function authMiddleware(c: Context<{ Bindings: Env; Variables: { user?: User } }>, next: Next) {
   const authHeader = c.req.header('Authorization');
   
   if (!authHeader) {
@@ -48,7 +48,7 @@ export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) 
 }
 
 // Optional auth middleware - doesn't fail if no token
-export async function optionalAuthMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+export async function optionalAuthMiddleware(c: Context<{ Bindings: Env; Variables: { user?: User } }>, next: Next) {
   const authHeader = c.req.header('Authorization');
   
   if (authHeader) {
@@ -92,6 +92,6 @@ export function requireCredits(amount: number = 1) {
       );
     }
 
-    await next();
+    return await next();
   };
 }

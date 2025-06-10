@@ -26,5 +26,5 @@ export * from './common/ProgressBar';
 export * from './practice/PracticeHeader';
 export * from './practice/ExerciseFooter';
 export * from './practice/ExerciseTemplate';
-export * from './practice/SayItBack';
+export * from './practice/ReadAloud';
 export * from './practice/PracticeExercise';

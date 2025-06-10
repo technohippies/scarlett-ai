@@ -4,14 +4,13 @@ import { ProgressBar } from '../../common/ProgressBar';
 import { PracticeHeader } from '../PracticeHeader';
 import { ExerciseFooter } from '../ExerciseFooter';
 import { ExerciseTemplate } from '../ExerciseTemplate';
-import { SayItBack } from '../SayItBack';
+import { ReadAloud } from '../ReadAloud';
 import { cn } from '../../../utils/cn';
 
 export interface Exercise {
   id: string;
-  type: 'say-it-back';
+  type: 'read-aloud';
   prompt: string;
-  audioUrl?: string;
   correctAnswer?: string;
 }
 
@@ -20,7 +19,6 @@ export interface PracticeExerciseProps {
   currentIndex: number;
   onExit: () => void;
   onComplete: (results: { exerciseId: string; userResponse: string; isCorrect: boolean }[]) => void;
-  onPlayAudio?: (audioUrl?: string) => void;
   class?: string;
 }
 
@@ -30,7 +28,6 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
   const [userTranscript, setUserTranscript] = createSignal('');
   const [isCorrect, setIsCorrect] = createSignal<boolean | undefined>(undefined);
   const [results, setResults] = createSignal<{ exerciseId: string; userResponse: string; isCorrect: boolean }[]>([]);
-  const [isPlaying, setIsPlaying] = createSignal(false);
   
   const currentExercise = () => props.exercises[props.currentIndex];
   const canSubmit = () => userTranscript().trim().length > 0;
@@ -88,12 +85,6 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
     setIsCorrect(undefined);
   };
   
-  const handlePlayAudio = () => {
-    setIsPlaying(true);
-    props.onPlayAudio?.(currentExercise().audioUrl);
-    // Simulate audio playback
-    setTimeout(() => setIsPlaying(false), 2000);
-  };
   
   return (
     <div class={cn('min-h-screen bg-base flex flex-col', props.class)}>
@@ -110,18 +101,11 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
       <main class="flex-1">
         <Show when={currentExercise()}>
           {(exercise) => (
-            <Show when={exercise().type === 'say-it-back'}>
-              <ExerciseTemplate instructionText="Listen and repeat:">
-                <SayItBack
+            <Show when={exercise().type === 'read-aloud'}>
+              <ExerciseTemplate instructionText="Read aloud:">
+                <ReadAloud
                   prompt={exercise().prompt}
-                  audioUrl={exercise().audioUrl}
-                  isPlaying={isPlaying()}
                   userTranscript={userTranscript()}
-                  isCorrect={isCorrect()}
-                  onPlayAudio={handlePlayAudio}
-                  isRecording={isRecording()}
-                  isProcessing={isProcessing()}
-                  canSubmit={canSubmit()}
                 />
               </ExerciseTemplate>
             </Show>

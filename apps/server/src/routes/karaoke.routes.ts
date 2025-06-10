@@ -151,7 +151,7 @@ app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
 // POST /api/karaoke/start - Start a karaoke session
 app.post('/start', authMiddleware, requireCredits(1), validateBody(createSessionSchema), async (c) => {
   const data = c.get('validatedBody') as z.infer<typeof createSessionSchema>;
-  const user = c.get('user');
+  const user = c.get('user')!;
 
   const sessionService = new SessionService(c.env);
   const authService = new AuthService(c.env);
@@ -180,7 +180,7 @@ app.post('/start', authMiddleware, requireCredits(1), validateBody(createSession
 // POST /api/karaoke/grade - Grade a single line
 app.post('/grade', authMiddleware, validateBody(gradeAudioSchema), async (c) => {
   const data = c.get('validatedBody') as z.infer<typeof gradeAudioSchema>;
-  const user = c.get('user');
+  const user = c.get('user')!;
 
   const sessionService = new SessionService(c.env);
   const sttService = new STTService(c.env);
@@ -239,7 +239,7 @@ app.post('/grade', authMiddleware, validateBody(gradeAudioSchema), async (c) => 
 // GET /api/karaoke/session/:sessionId - Get session details
 app.get('/session/:sessionId', authMiddleware, async (c) => {
   const sessionId = c.req.param('sessionId');
-  const user = c.get('user');
+  const user = c.get('user')!;
 
   const sessionService = new SessionService(c.env);
   
@@ -262,7 +262,7 @@ app.get('/session/:sessionId', authMiddleware, async (c) => {
 // POST /api/karaoke/session/:sessionId/complete - Complete a session
 app.post('/session/:sessionId/complete', authMiddleware, async (c) => {
   const sessionId = c.req.param('sessionId');
-  const user = c.get('user');
+  const user = c.get('user')!;
 
   const sessionService = new SessionService(c.env);
   
