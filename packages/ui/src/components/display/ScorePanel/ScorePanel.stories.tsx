@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { ScorePanel } from './ScorePanel';
+import type { Meta, StoryObj } from '@storybook/html';
+import { ScorePanel, type ScorePanelProps } from './ScorePanel';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof ScorePanel> = {
+const meta: Meta<ScorePanelProps> = {
   title: 'Display/ScorePanel',
-  component: ScorePanel,
+  render: solidStory(ScorePanel),
   parameters: {
     layout: 'fullscreen',
   },
@@ -20,7 +21,7 @@ const meta: Meta<typeof ScorePanel> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ScorePanelProps>;
 
 export const Default: Story = {
   args: {

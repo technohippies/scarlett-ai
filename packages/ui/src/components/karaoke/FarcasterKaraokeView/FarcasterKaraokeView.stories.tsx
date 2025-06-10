@@ -1,11 +1,12 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { FarcasterKaraokeView } from './FarcasterKaraokeView';
+import type { Meta, StoryObj } from '@storybook/html';
+import { FarcasterKaraokeView, type FarcasterKaraokeViewProps } from './FarcasterKaraokeView';
 import type { LyricLine } from '../LyricsDisplay';
 import type { LeaderboardEntry } from '../LeaderboardPanel';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof FarcasterKaraokeView> = {
+const meta: Meta<FarcasterKaraokeViewProps> = {
   title: 'Karaoke/FarcasterKaraokeView',
-  component: FarcasterKaraokeView,
+  render: solidStory(FarcasterKaraokeView),
   parameters: {
     layout: 'fullscreen',
   },
@@ -38,17 +39,17 @@ const meta: Meta<typeof FarcasterKaraokeView> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<FarcasterKaraokeViewProps>;
 
 const sampleLyrics: LyricLine[] = [
-  { text: "Is this the real life?", startTime: 0, endTime: 3 },
-  { text: "Is this just fantasy?", startTime: 3, endTime: 6 },
-  { text: "Caught in a landslide", startTime: 6, endTime: 9 },
-  { text: "No escape from reality", startTime: 9, endTime: 13 },
-  { text: "Open your eyes", startTime: 13, endTime: 16 },
-  { text: "Look up to the skies and see", startTime: 16, endTime: 21 },
-  { text: "I'm just a poor boy", startTime: 21, endTime: 24 },
-  { text: "I need no sympathy", startTime: 24, endTime: 27 },
+  { id: '1', text: "Is this the real life?", startTime: 0, duration: 3 },
+  { id: '2', text: "Is this just fantasy?", startTime: 3, duration: 3 },
+  { id: '3', text: "Caught in a landslide", startTime: 6, duration: 3 },
+  { id: '4', text: "No escape from reality", startTime: 9, duration: 4 },
+  { id: '5', text: "Open your eyes", startTime: 13, duration: 3 },
+  { id: '6', text: "Look up to the skies and see", startTime: 16, duration: 5 },
+  { id: '7', text: "I'm just a poor boy", startTime: 21, duration: 3 },
+  { id: '8', text: "I need no sympathy", startTime: 24, duration: 3 },
 ];
 
 const sampleLeaderboard: LeaderboardEntry[] = [
@@ -74,11 +75,19 @@ export const Default: Story = {
     onBack: () => console.log('Going back'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full h-screen max-w-[424px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full h-screen max-w-[424px] mx-auto bg-base';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
   ],
 };
 
@@ -95,11 +104,19 @@ export const Playing: Story = {
     onBack: () => console.log('Going back'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full h-screen max-w-[424px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full h-screen max-w-[424px] mx-auto bg-base';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
   ],
 };
 
@@ -115,10 +132,18 @@ export const LowScore: Story = {
     onBack: () => console.log('Going back'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full h-screen max-w-[424px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full h-screen max-w-[424px] mx-auto bg-base';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
   ],
 };

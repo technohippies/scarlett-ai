@@ -8,7 +8,7 @@ import { ReadAloud } from '../ReadAloud';
 import { ExerciseFooter } from '../ExerciseFooter';
 
 const meta: Meta = {
-  title: 'Practice/CompleteExercise',
+  title: 'Practice/CompleteReadAloud',
   parameters: {
     layout: 'fullscreen',
   },
@@ -17,7 +17,7 @@ const meta: Meta = {
 export default meta;
 type Story = StoryObj;
 
-const CompleteExerciseDemo = () => {
+const CompleteReadAloudDemo = () => {
   const [isRecording, setIsRecording] = createSignal(false);
   const [isProcessing, setIsProcessing] = createSignal(false);
   const [userTranscript, setUserTranscript] = createSignal('');
@@ -75,7 +75,7 @@ const CompleteExerciseDemo = () => {
 export const Default: Story = {
   render: () => {
     const container = document.createElement('div');
-    render(() => <CompleteExerciseDemo />, container);
+    render(() => <CompleteReadAloudDemo />, container);
     return container;
   },
 };
@@ -209,7 +209,7 @@ export const MobileLayout: Story = {
     const wrapper = document.createElement('div');
     wrapper.className = 'w-full max-w-[420px] mx-auto';
     
-    render(() => <CompleteExerciseDemo />, container);
+    render(() => <CompleteReadAloudDemo />, container);
     
     wrapper.appendChild(container);
     return wrapper;

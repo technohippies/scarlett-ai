@@ -25,6 +25,8 @@ export * from './common/ProgressBar';
 // Practice Components
 export * from './practice/PracticeHeader';
 export * from './practice/ExerciseFooter';
+export * from './practice/ResponseFooter';
 export * from './practice/ExerciseTemplate';
 export * from './practice/ReadAloud';
+export * from './practice/MCQ';
 export * from './practice/PracticeExercise';

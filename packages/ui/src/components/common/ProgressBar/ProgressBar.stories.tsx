@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { ProgressBar } from './ProgressBar';
+import { ProgressBar, type ProgressBarProps } from './ProgressBar';
 import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta = {
+const meta: Meta<ProgressBarProps> = {
   title: 'Common/ProgressBar',
   render: solidStory(ProgressBar),
   parameters: {
@@ -21,7 +21,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ProgressBarProps>;
 
 export const Default: Story = {
   args: {

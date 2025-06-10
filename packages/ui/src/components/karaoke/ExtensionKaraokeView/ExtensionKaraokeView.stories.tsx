@@ -1,11 +1,13 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { ExtensionKaraokeView } from './ExtensionKaraokeView';
+import type { Meta, StoryObj } from '@storybook/html';
+import { ExtensionKaraokeView, type ExtensionKaraokeViewProps } from './ExtensionKaraokeView';
 import type { LyricLine } from '../LyricsDisplay';
 import type { LeaderboardEntry } from '../LeaderboardPanel';
+import type { PlaybackSpeed } from '../../common/SplitButton';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof ExtensionKaraokeView> = {
+const meta: Meta<ExtensionKaraokeViewProps> = {
   title: 'Karaoke/ExtensionKaraokeView',
-  component: ExtensionKaraokeView,
+  render: solidStory(ExtensionKaraokeView),
   parameters: {
     layout: 'fullscreen',
   },
@@ -30,17 +32,17 @@ const meta: Meta<typeof ExtensionKaraokeView> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ExtensionKaraokeViewProps>;
 
 const sampleLyrics: LyricLine[] = [
-  { text: "Is this the real life?", startTime: 0, endTime: 3 },
-  { text: "Is this just fantasy?", startTime: 3, endTime: 6 },
-  { text: "Caught in a landslide", startTime: 6, endTime: 9 },
-  { text: "No escape from reality", startTime: 9, endTime: 13 },
-  { text: "Open your eyes", startTime: 13, endTime: 16 },
-  { text: "Look up to the skies and see", startTime: 16, endTime: 21 },
-  { text: "I'm just a poor boy", startTime: 21, endTime: 24 },
-  { text: "I need no sympathy", startTime: 24, endTime: 27 },
+  { id: '1', text: "Is this the real life?", startTime: 0, duration: 3 },
+  { id: '2', text: "Is this just fantasy?", startTime: 3, duration: 3 },
+  { id: '3', text: "Caught in a landslide", startTime: 6, duration: 3 },
+  { id: '4', text: "No escape from reality", startTime: 9, duration: 4 },
+  { id: '5', text: "Open your eyes", startTime: 13, duration: 3 },
+  { id: '6', text: "Look up to the skies and see", startTime: 16, duration: 5 },
+  { id: '7', text: "I'm just a poor boy", startTime: 21, duration: 3 },
+  { id: '8', text: "I need no sympathy", startTime: 24, duration: 3 },
 ];
 
 const sampleLeaderboard: LeaderboardEntry[] = [
@@ -48,62 +50,95 @@ const sampleLeaderboard: LeaderboardEntry[] = [
   { rank: 2, username: 'SongBird92', score: 11200 },
   { rank: 3, username: 'MelodyMaster', score: 10800 },
   { rank: 4, username: 'CurrentUser', score: 8750, isCurrentUser: true },
-  { rank: 5, username: 'RhythmRider', score: 8400 },
-  { rank: 6, username: 'BeatDropper', score: 7900 },
-  { rank: 7, username: 'VocalVirtuoso', score: 7500 },
-  { rank: 8, username: 'PitchPerfect', score: 7200 },
+  { rank: 5, username: 'VocalVirtuoso', score: 8200 },
 ];
 
 export const Default: Story = {
   args: {
-    score: 4735,
-    rank: 7,
+    score: 8750,
+    rank: 4,
     lyrics: sampleLyrics,
     leaderboard: sampleLeaderboard,
-    onStart: () => console.log('Starting karaoke'),
-    onSpeedChange: (speed) => console.log('Speed changed to:', speed),
-  },
-  decorators: [
-    (Story) => (
-      <div class="w-full h-screen max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
-  ],
-};
-
-export const Playing: Story = {
-  args: {
-    score: 4735,
-    rank: 7,
-    lyrics: sampleLyrics,
-    leaderboard: sampleLeaderboard,
-    currentTime: 10,
+    currentTime: 12,
     isPlaying: true,
+    onStart: () => console.log('Start karaoke!'),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full h-screen max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'h-screen w-screen bg-base';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
   ],
 };
 
-export const LowScore: Story = {
+export const NotPlaying: Story = {
   args: {
-    score: 1250,
-    rank: 42,
+    score: 8750,
+    rank: 4,
     lyrics: sampleLyrics,
     leaderboard: sampleLeaderboard,
-    onStart: () => console.log('Starting karaoke'),
-    onSpeedChange: (speed) => console.log('Speed changed to:', speed),
+    currentTime: 5,
+    isPlaying: false,
+    onStart: () => console.log('Start karaoke!'),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full h-screen max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'h-screen w-screen bg-base';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
+  ],
+};
+
+export const HighScore: Story = {
+  args: {
+    score: 12800,
+    rank: 1,
+    lyrics: sampleLyrics,
+    leaderboard: [
+      { rank: 1, username: 'CurrentUser', score: 12800, isCurrentUser: true },
+      { rank: 2, username: 'KaraokeKing', score: 12500 },
+      { rank: 3, username: 'SongBird92', score: 11200 },
+      { rank: 4, username: 'MelodyMaster', score: 10800 },
+      { rank: 5, username: 'VocalVirtuoso', score: 8200 },
+    ],
+    currentTime: 18,
+    isPlaying: true,
+    onStart: () => console.log('Start karaoke!'),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
+  },
+  decorators: [
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'h-screen w-screen bg-base';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
   ],
 };

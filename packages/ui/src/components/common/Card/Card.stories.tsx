@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/html'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, type CardProps } from './Card'
 import { Button } from '../Button'
 import { solidStory } from '../../../utils/storybook'
 
-const meta: Meta = {
+const meta: Meta<CardProps> = {
   title: 'Common/Card',
   render: solidStory(Card),
   argTypes: {
@@ -19,7 +19,7 @@ const meta: Meta = {
 }
 
 export default meta
-type Story = StoryObj<typeof Card>
+type Story = StoryObj<CardProps>
 
 export const Default: Story = {
   args: {

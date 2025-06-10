@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { CompletionView } from './CompletionView';
+import { CompletionView, type CompletionViewProps } from './CompletionView';
 import { withI18n } from '../../../utils/i18n-story';
 
-const meta: Meta<typeof CompletionView> = {
+const meta: Meta<CompletionViewProps> = {
   title: 'Karaoke/CompletionView',
   render: withI18n(CompletionView),
   parameters: {
@@ -34,7 +34,7 @@ const meta: Meta<typeof CompletionView> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<CompletionViewProps>;
 
 export const Default: Story = {
   args: {
@@ -44,11 +44,15 @@ export const Default: Story = {
     onPractice: () => console.log('Practice clicked!'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] mx-auto';
+      const storyElement = Story();
+      if (storyElement instanceof Node) {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -59,11 +63,15 @@ export const TopRank: Story = {
     speed: '1x',
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] mx-auto';
+      const storyElement = Story();
+      if (storyElement instanceof Node) {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -76,11 +84,15 @@ export const WithCustomFeedback: Story = {
     onPractice: () => console.log('Practice clicked!'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] mx-auto';
+      const storyElement = Story();
+      if (storyElement instanceof Node) {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -92,10 +104,14 @@ export const WithoutPracticeButton: Story = {
     // No onPractice prop - button won't show
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] mx-auto';
+      const storyElement = Story();
+      if (storyElement instanceof Node) {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };

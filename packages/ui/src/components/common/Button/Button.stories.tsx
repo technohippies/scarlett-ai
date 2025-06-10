@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/html'
-import { Button } from './Button'
+import { Button, type ButtonProps } from './Button'
 import { solidStory } from '../../../utils/storybook'
 import IconArrowRightRegular from 'phosphor-icons-solid/IconArrowRightRegular'
 import IconDownloadRegular from 'phosphor-icons-solid/IconDownloadRegular'
 import IconMusicNoteRegular from 'phosphor-icons-solid/IconMusicNoteRegular'
 
-const meta: Meta = {
+const meta: Meta<ButtonProps> = {
   title: 'Common/Button',
   render: solidStory(Button),
   argTypes: {
@@ -30,7 +30,7 @@ const meta: Meta = {
 }
 
 export default meta
-type Story = StoryObj<typeof Button>
+type Story = StoryObj<ButtonProps>
 
 export const Primary: Story = {
   args: {

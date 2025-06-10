@@ -31,7 +31,7 @@ export const Button = (props: ButtonProps) => {
     <button
       disabled={local.disabled || local.loading}
       class={cn(
-        'inline-flex items-center justify-center font-medium transition-all cursor-pointer border-none outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center font-medium transition-all cursor-pointer outline-none disabled:cursor-not-allowed disabled:opacity-50',
         {
           // Variants
           'bg-gradient-primary text-white hover:shadow-lg hover:scale-105 glow-primary':

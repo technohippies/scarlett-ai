@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { SplitButton } from './SplitButton';
+import type { Meta, StoryObj } from '@storybook/html';
+import { SplitButton, type SplitButtonProps, type PlaybackSpeed } from './SplitButton';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof SplitButton> = {
+const meta: Meta<SplitButtonProps> = {
   title: 'Common/SplitButton',
-  component: SplitButton,
+  render: solidStory(SplitButton),
   parameters: {
     layout: 'centered',
   },
@@ -16,12 +17,12 @@ const meta: Meta<typeof SplitButton> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<SplitButtonProps>;
 
 export const Default: Story = {
   args: {
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed) => console.log('Speed changed to:', speed),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
 };
 
@@ -29,37 +30,55 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed) => console.log('Speed changed to:', speed),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
 };
 
 export const InContext: Story = {
   args: {
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed) => console.log('Speed changed to:', speed),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] bg-base p-4">
-        <div class="bg-surface border-t border-subtle p-4">
-          {Story()}
-        </div>
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] bg-base p-4';
+      
+      const inner = document.createElement('div');
+      inner.className = 'bg-surface border-t border-subtle p-4';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        inner.innerHTML = storyElement;
+      } else {
+        inner.appendChild(storyElement);
+      }
+      
+      container.appendChild(inner);
+      return container;
+    },
   ],
 };
 
 export const FullWidth: Story = {
   args: {
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed) => console.log('Speed changed to:', speed),
+    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
     class: 'w-full',
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] bg-base p-4">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] bg-base p-4';
+      
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      
+      return container;
+    },
   ],
 };

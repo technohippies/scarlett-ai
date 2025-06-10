@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { ReadAloud } from './ReadAloud';
+import { ReadAloud, type ReadAloudProps } from './ReadAloud';
 import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta = {
+const meta: Meta<ReadAloudProps> = {
   title: 'Practice/ReadAloud',
   render: solidStory(ReadAloud),
   parameters: {
@@ -21,7 +21,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ReadAloudProps>;
 
 export const Default: Story = {
   args: {

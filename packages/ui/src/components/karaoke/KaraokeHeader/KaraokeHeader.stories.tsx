@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { KaraokeHeader } from './KaraokeHeader';
+import type { Meta, StoryObj } from '@storybook/html';
+import { KaraokeHeader, type KaraokeHeaderProps } from './KaraokeHeader';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof KaraokeHeader> = {
+const meta: Meta<KaraokeHeaderProps> = {
   title: 'Karaoke/KaraokeHeader',
-  component: KaraokeHeader,
+  render: solidStory(KaraokeHeader),
   parameters: {
     layout: 'fullscreen',
   },
@@ -20,7 +21,7 @@ const meta: Meta<typeof KaraokeHeader> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<KaraokeHeaderProps>;
 
 export const Default: Story = {
   args: {
@@ -29,11 +30,17 @@ export const Default: Story = {
     onBack: () => console.log('Going back'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[424px] mx-auto bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[424px] mx-auto bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -44,11 +51,17 @@ export const LongTitle: Story = {
     onBack: () => console.log('Going back'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[424px] mx-auto bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[424px] mx-auto bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -59,10 +72,16 @@ export const VeryLongTitle: Story = {
     onBack: () => console.log('Going back'),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[424px] mx-auto bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[424px] mx-auto bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };

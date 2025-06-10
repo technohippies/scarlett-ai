@@ -1,17 +1,17 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { LeaderboardPanel } from './LeaderboardPanel';
-import type { LeaderboardEntry } from './LeaderboardPanel';
+import type { Meta, StoryObj } from '@storybook/html';
+import { LeaderboardPanel, type LeaderboardPanelProps, type LeaderboardEntry } from './LeaderboardPanel';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof LeaderboardPanel> = {
+const meta: Meta<LeaderboardPanelProps> = {
   title: 'Karaoke/LeaderboardPanel',
-  component: LeaderboardPanel,
+  render: solidStory(LeaderboardPanel),
   parameters: {
     layout: 'centered',
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<LeaderboardPanelProps>;
 
 const sampleEntries: LeaderboardEntry[] = [
   { rank: 1, username: 'KaraokeKing', score: 12500 },
@@ -29,11 +29,17 @@ export const Default: Story = {
     entries: sampleEntries,
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -42,11 +48,17 @@ export const TopThree: Story = {
     entries: sampleEntries.slice(0, 3),
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -61,11 +73,17 @@ export const UserInTopThree: Story = {
     ],
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -74,10 +92,16 @@ export const Empty: Story = {
     entries: [],
   },
   decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] bg-base">
-        {Story()}
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-[420px] bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };

@@ -1,12 +1,4 @@
 {
-  "apps/server/**/*.{ts,tsx}": [
-    "cd apps/server && bun run lint:fix",
-    "cd apps/server && bun run type-check"
-  ],
-  "packages/**/*.{ts,tsx}": [
-    "turbo lint --filter=@scarlett/ui",
-    "turbo type-check --filter=@scarlett/ui"
-  ],
   "**/*.{js,ts,tsx,json,md}": [
     "prettier --write"
   ]

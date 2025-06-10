@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { PracticeHeader } from './PracticeHeader';
+import { PracticeHeader, type PracticeHeaderProps } from './PracticeHeader';
 import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta = {
+const meta: Meta<PracticeHeaderProps> = {
   title: 'Practice/PracticeHeader',
   render: solidStory(PracticeHeader),
   parameters: {
@@ -21,7 +21,7 @@ const meta: Meta = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<PracticeHeaderProps>;
 
 export const Default: Story = {
   args: {

@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { Footer } from './Footer';
+import type { Meta, StoryObj } from '@storybook/html';
+import { Footer, type FooterProps } from './Footer';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof Footer> = {
+const meta: Meta<FooterProps> = {
   title: 'Layout/Footer',
-  component: Footer,
+  render: solidStory(Footer),
   parameters: {
     layout: 'fullscreen',
   },
@@ -21,7 +22,7 @@ const meta: Meta<typeof Footer> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<FooterProps>;
 
 const footerSections = [
   {
@@ -143,15 +144,21 @@ export const WebAppFooter: Story = {
     socialLinks: () => <SocialLinks />,
   },
   decorators: [
-    (Story) => (
-      <div class="min-h-screen bg-base flex flex-col">
-        <div class="flex-1 p-8">
-          <h1 class="text-2xl font-bold text-primary mb-4">Main Content</h1>
-          <p class="text-secondary">The footer stays at the bottom of the page.</p>
-        </div>
-        <Story />
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'min-h-screen bg-base flex flex-col';
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'flex-1 p-8';
+      contentDiv.innerHTML = '<h1 class="text-2xl font-bold text-primary mb-4">Main Content</h1><p class="text-secondary">The footer stays at the bottom of the page.</p>';
+      container.appendChild(contentDiv);
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML += storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
 };
 
@@ -168,14 +175,21 @@ export const FarcasterFooter: Story = {
     ),
   },
   decorators: [
-    (Story) => (
-      <div class="max-w-[424px] mx-auto bg-base min-h-[600px] flex flex-col">
-        <div class="flex-1 p-4">
-          <h2 class="text-lg font-bold text-primary">Farcaster Frame Content</h2>
-        </div>
-        <Story />
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'max-w-[424px] mx-auto bg-base min-h-[600px] flex flex-col';
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'flex-1 p-4';
+      contentDiv.innerHTML = '<h2 class="text-lg font-bold text-primary">Farcaster Frame Content</h2>';
+      container.appendChild(contentDiv);
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML += storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
   parameters: {
     docs: {

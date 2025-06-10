@@ -1,10 +1,11 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { Header } from './Header';
+import type { Meta, StoryObj } from '@storybook/html';
+import { Header, type HeaderProps } from './Header';
 import { Button } from '../../common/Button';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof Header> = {
+const meta: Meta<HeaderProps> = {
   title: 'Layout/Header',
-  component: Header,
+  render: solidStory(Header),
   parameters: {
     layout: 'fullscreen',
   },
@@ -30,7 +31,7 @@ const meta: Meta<typeof Header> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<HeaderProps>;
 
 const Logo = () => (
   <div class="flex items-center gap-2">
@@ -83,17 +84,21 @@ export const Transparent: Story = {
     actions: () => <Actions />,
   },
   decorators: [
-    (Story) => (
-      <div class="min-h-[200vh] bg-gradient-surface">
-        <Story />
-        <div class="p-8">
-          <h2 class="text-2xl font-bold text-primary mb-4">Scroll to see sticky effect</h2>
-          <p class="text-secondary">
-            The transparent header will blur and add a background when you scroll down.
-          </p>
-        </div>
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'min-h-[200vh] bg-gradient-surface';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'p-8';
+      contentDiv.innerHTML = '<h2 class="text-2xl font-bold text-primary mb-4">Scroll to see sticky effect</h2><p class="text-secondary">The transparent header will blur and add a background when you scroll down.</p>';
+      container.appendChild(contentDiv);
+      return container;
+    },
   ],
 };
 
@@ -170,11 +175,17 @@ export const FarcasterHeader: Story = {
     ),
   },
   decorators: [
-    (Story) => (
-      <div class="max-w-[424px] mx-auto bg-base">
-        <Story />
-      </div>
-    ),
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'max-w-[424px] mx-auto bg-base';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
   ],
   parameters: {
     docs: {

@@ -1,28 +1,28 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
+import type { Meta, StoryObj } from '@storybook/html';
+import { Tabs, TabsList, TabsTrigger, TabsContent, type TabsProps } from './Tabs';
 import { Card } from '../Card';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof Tabs> = {
+const meta: Meta<TabsProps> = {
   title: 'Common/Tabs',
-  component: Tabs,
+  render: solidStory(Tabs),
   parameters: {
     layout: 'centered',
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<TabsProps>;
 
 export const Default: Story = {
-  render: () => (
-    <div class="w-full max-w-md">
-      <Tabs 
-        tabs={[
-          { id: 'lyrics', label: 'Lyrics' },
-          { id: 'leaderboard', label: 'Leaderboard' }
-        ]}
-        defaultTab="lyrics"
-      >
+  args: {
+    tabs: [
+      { id: 'lyrics', label: 'Lyrics' },
+      { id: 'leaderboard', label: 'Leaderboard' }
+    ],
+    defaultTab: 'lyrics',
+    children: (
+      <>
         <TabsList>
           <TabsTrigger value="lyrics">Lyrics</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
@@ -39,22 +39,34 @@ export const Default: Story = {
             <p class="text-secondary">Top scores would appear here</p>
           </Card>
         </TabsContent>
-      </Tabs>
-    </div>
-  ),
+      </>
+    ),
+  },
+  decorators: [
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-md';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
+  ],
 };
 
 export const ThreeTabs: Story = {
-  render: () => (
-    <div class="w-full max-w-md">
-      <Tabs 
-        tabs={[
-          { id: 'account', label: 'Account' },
-          { id: 'security', label: 'Security' },
-          { id: 'notifications', label: 'Notifications' }
-        ]}
-        defaultTab="account"
-      >
+  args: {
+    tabs: [
+      { id: 'account', label: 'Account' },
+      { id: 'security', label: 'Security' },
+      { id: 'notifications', label: 'Notifications' }
+    ],
+    defaultTab: 'account',
+    children: (
+      <>
         <TabsList>
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="security">Security</TabsTrigger>
@@ -78,23 +90,35 @@ export const ThreeTabs: Story = {
             <p class="text-secondary">Configure your notifications</p>
           </Card>
         </TabsContent>
-      </Tabs>
-    </div>
-  ),
+      </>
+    ),
+  },
+  decorators: [
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-md';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
+  ],
 };
 
 export const FullWidth: Story = {
-  render: () => (
-    <div class="w-full max-w-2xl">
-      <Tabs 
-        tabs={[
-          { id: 'overview', label: 'Overview' },
-          { id: 'analytics', label: 'Analytics' },
-          { id: 'reports', label: 'Reports' },
-          { id: 'settings', label: 'Settings' }
-        ]}
-        defaultTab="overview"
-      >
+  args: {
+    tabs: [
+      { id: 'overview', label: 'Overview' },
+      { id: 'analytics', label: 'Analytics' },
+      { id: 'reports', label: 'Reports' },
+      { id: 'settings', label: 'Settings' }
+    ],
+    defaultTab: 'overview',
+    children: (
+      <>
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -125,7 +149,20 @@ export const FullWidth: Story = {
             <p class="text-secondary">Configuration options</p>
           </Card>
         </TabsContent>
-      </Tabs>
-    </div>
-  ),
+      </>
+    ),
+  },
+  decorators: [
+    (Story) => {
+      const container = document.createElement('div');
+      container.className = 'w-full max-w-2xl';
+      const storyElement = Story();
+      if (typeof storyElement === 'string') {
+        container.innerHTML = storyElement;
+      } else {
+        container.appendChild(storyElement);
+      }
+      return container;
+    },
+  ],
 };
