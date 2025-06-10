@@ -31,11 +31,8 @@ app.use('*', requestId);
 app.use('*', logger());
 app.use('*', errorHandler);
 
-// CORS middleware - use both library and manual headers for reliability
-app.use('*', async (c, next) => {
-  const corsMiddleware = createCorsMiddleware(c.env);
-  await corsMiddleware(c, next);
-});
+// CORS middleware - use only the manual headers implementation
+// This avoids conflicts with OPTIONS handling
 app.use('*', corsHeaders);
 
 // Root endpoint

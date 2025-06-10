@@ -74,7 +74,7 @@ app.get('/*', async (c) => {
 
     let geniusMatch;
     try {
-      geniusMatch = await geniusService.findVideoMatch(searchQuery, trackId);
+      geniusMatch = await geniusService.findSongMatch(searchQuery, trackId);
     } catch (error) {
       console.log('[Karaoke] Genius API error (continuing with LRCLib only):', error instanceof Error ? error.message : 'Unknown error');
       console.log('[Karaoke] This is OK - the system will still search for lyrics using LRCLib');
@@ -121,31 +121,23 @@ app.get('/*', async (c) => {
     if (lyricsResult.type === 'none') {
       console.log('[Karaoke] Trying direct LRCLib search...');
 
-      const titleVariants = [
-        trackTitle.replace(/\([^)]*\)/g, '').trim(), // "Superman"
-        trackTitle.split('(')[0].trim(), // "Superman"
-        trackTitle, // "Superman (feat. Dina Rae)"
-      ];
+      // Only try the cleanest version first to reduce API calls
+      const cleanTitle = trackTitle.replace(/\([^)]*\)/g, '').trim();
+      
+      try {
+        lyricsResult = await lrcLibService.getBestLyrics({
+          track_name: cleanTitle,
+          artist_name: foundArtist,
+        });
 
-      for (const title of titleVariants) {
-        if (title) {
-          try {
-            lyricsResult = await lrcLibService.getBestLyrics({
-              track_name: title,
-              artist_name: foundArtist,
-            });
-
-            if (lyricsResult.type !== 'none') {
-              foundTitle = title;
-              console.log(
-                `[Karaoke] Found lyrics directly: ${foundArtist} - ${title}`
-              );
-              break;
-            }
-          } catch (searchError) {
-            console.log(`[Karaoke] Search failed for "${foundArtist}" - "${title}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
-          }
+        if (lyricsResult.type !== 'none') {
+          foundTitle = cleanTitle;
+          console.log(
+            `[Karaoke] Found lyrics directly: ${foundArtist} - ${cleanTitle}`
+          );
         }
+      } catch (searchError) {
+        console.log(`[Karaoke] Direct search failed for "${foundArtist}" - "${cleanTitle}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
       }
     }
 

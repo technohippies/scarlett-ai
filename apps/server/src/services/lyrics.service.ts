@@ -15,6 +15,9 @@ interface LRCLine {
 }
 
 export class LyricsService {
+  private static failureCache = new Map<string, number>();
+  private static CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
   constructor() {}
 
   async searchLyrics(params: LRCLibSearchParams): Promise<{
@@ -22,41 +25,16 @@ export class LyricsService {
     lyrics: LRCLine[];
     metadata?: { duration?: number };
   }> {
+    // Check failure cache first
+    const cacheKey = `${params.artist_name}:${params.track_name}`.toLowerCase();
+    const cachedFailure = LyricsService.failureCache.get(cacheKey);
+    if (cachedFailure && Date.now() - cachedFailure < LyricsService.CACHE_DURATION) {
+      console.log(`[LyricsService] Skipping search for "${params.track_name}" - recently failed`);
+      return { type: 'none', lyrics: [] };
+    }
+
     try {
-      // Try to get synced lyrics first
-      const syncedResult = await findLyrics(params);
-      if (syncedResult && syncedResult.syncedLyrics) {
-        const parsed = this.parseLRCString(syncedResult.syncedLyrics);
-        if (parsed.length > 0) {
-          return {
-            type: 'synced',
-            lyrics: parsed,
-            metadata: { duration: syncedResult.duration },
-          };
-        }
-      }
-
-      // Try variations of the track name
-      const titleVariants = this.createTitleVariants(params.track_name);
-      for (const title of titleVariants) {
-        const variantResult = await findLyrics({
-          ...params,
-          track_name: title,
-        });
-
-        if (variantResult?.syncedLyrics) {
-          const parsed = this.parseLRCString(variantResult.syncedLyrics);
-          if (parsed.length > 0) {
-            return {
-              type: 'synced',
-              lyrics: parsed,
-              metadata: { duration: variantResult.duration },
-            };
-          }
-        }
-      }
-
-      // Try search endpoint as fallback
+      // Try search endpoint first - it's more flexible than exact match
       const searchResults = await searchLyrics(params);
       if (searchResults && searchResults.length > 0) {
         const bestMatch = searchResults[0];
@@ -89,9 +67,30 @@ export class LyricsService {
         }
       }
 
+      // Only try exact match if search didn't work
+      const syncedResult = await findLyrics(params);
+      if (syncedResult && syncedResult.syncedLyrics) {
+        const parsed = this.parseLRCString(syncedResult.syncedLyrics);
+        if (parsed.length > 0) {
+          return {
+            type: 'synced',
+            lyrics: parsed,
+            metadata: { duration: syncedResult.duration },
+          };
+        }
+      }
+
+      // Cache this failure
+      LyricsService.failureCache.set(cacheKey, Date.now());
       return { type: 'none', lyrics: [] };
     } catch (error) {
-      console.error('[LyricsService] Error fetching lyrics:', error);
+      // Don't log full error objects to reduce noise
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (!errorMessage.includes("Track wasn't found")) {
+        console.error('[LyricsService] Unexpected error:', errorMessage);
+      }
+      // Cache this failure
+      LyricsService.failureCache.set(cacheKey, Date.now());
       return { type: 'none', lyrics: [] };
     }
   }
