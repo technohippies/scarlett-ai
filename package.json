@@ -6,9 +6,12 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:check": "turbo dev type-check --parallel",
     "lint": "turbo lint",
     "test": "turbo test",
     "type-check": "turbo type-check",
+    "type-check:watch": "turbo type-check:watch --parallel",
+    "check-all": "turbo lint type-check --parallel",
     "storybook": "turbo storybook --filter=@scarlett/ui",
     "build-storybook": "turbo build-storybook --filter=@scarlett/ui",
     "prepare": "husky"

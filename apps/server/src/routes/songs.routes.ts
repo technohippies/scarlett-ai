@@ -5,7 +5,12 @@ import { SongService } from '../services/song.service';
 import { validateQuery } from '../middleware/validation.middleware';
 import { paginationSchema } from '../utils/validation';
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ 
+  Bindings: Env;
+  Variables: {
+    validatedQuery?: any;
+  };
+}>();
 
 // GET /api/songs/popular - Get popular songs
 app.get('/popular', validateQuery(paginationSchema.extend({

@@ -128,7 +128,7 @@ app.post('/login', validateBody(loginSchema), async (c) => {
 
 // GET /auth/me
 app.get('/me', authMiddleware, async (c) => {
-  const user = c.get('user');
+  const user = c.get('user')!; // Safe because authMiddleware ensures user exists
 
   return c.json({
     success: true,
@@ -151,9 +151,9 @@ app.get('/me', authMiddleware, async (c) => {
 });
 
 // POST /auth/refresh
-app.post('/refresh', authMiddleware, async (c: AuthContext) => {
+app.post('/refresh', authMiddleware, async (c) => {
   const authService = new AuthService(c.env);
-  const user = c.user!;
+  const user = c.get('user')!;
 
   // Generate new token
   const token = await authService.generateExtensionToken(user);
@@ -169,9 +169,9 @@ app.post('/refresh', authMiddleware, async (c: AuthContext) => {
 app.post('/verify-unlock', authMiddleware, validateBody(z.object({
   lockAddress: z.string(),
   keyId: z.string(),
-})), async (c: AuthContext) => {
+})), async (c) => {
   const data = c.get('validatedBody') as { lockAddress: string; keyId: string };
-  const user = c.user!;
+  const user = c.get('user')!;
 
   // TODO: Verify with Unlock Protocol API
   // For now, just update the user record

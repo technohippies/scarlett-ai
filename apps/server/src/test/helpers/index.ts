@@ -16,7 +16,7 @@ export function createTestEnv(): Env {
 }
 
 // Create mock D1 database
-export function createMockDB() {
+export function createMockDB(): D1Database {
   return {
     prepare: (_query: string) => ({
       bind: (..._params: any[]) => ({
@@ -38,7 +38,19 @@ export function createMockDB() {
       // Mock batch operations
       return statements.map(() => ({ success: true }));
     },
-  };
+    exec: async (_query: string) => {
+      // Mock exec
+      return { count: 0, duration: 0 };
+    },
+    withSession: async <T>(fn: (tx: D1Database) => Promise<T>) => {
+      // Mock session - just run the function with the same DB
+      return fn(createMockDB());
+    },
+    dump: async () => {
+      // Mock dump
+      return new ArrayBuffer(0);
+    },
+  } as D1Database;
 }
 
 // Create test user
@@ -55,8 +67,8 @@ export function createTestUser(overrides?: Partial<User>): User {
     creditsUsed: 0,
     creditsLimit: 100,
     creditsResetAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    unlockKeyId: null,
-    unlockLockAddress: null,
+    unlockKeyId: undefined,
+    unlockLockAddress: undefined,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     lastLogin: new Date().toISOString(),

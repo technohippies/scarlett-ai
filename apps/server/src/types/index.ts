@@ -6,7 +6,7 @@ export interface Env {
   DB: D1Database;
   
   // Environment variables
-  ENVIRONMENT: 'development' | 'production';
+  ENVIRONMENT: 'development' | 'production' | 'test';
   
   // Secrets
   JWT_SECRET: string;

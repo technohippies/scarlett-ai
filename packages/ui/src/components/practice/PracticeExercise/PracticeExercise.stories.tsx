@@ -112,11 +112,4 @@ export const MobileLayout: Story = {
     onComplete: (results) => console.log('Complete:', results),
     onPlayAudio: (url) => console.log('Play audio:', url),
   },
-  decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
-  ],
 };

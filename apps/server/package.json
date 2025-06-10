@@ -9,6 +9,7 @@
     "deploy:prod": "wrangler deploy --env production",
     "build": "tsc",
     "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
     "test": "vitest",

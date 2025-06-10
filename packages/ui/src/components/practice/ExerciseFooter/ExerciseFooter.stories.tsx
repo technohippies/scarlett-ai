@@ -81,15 +81,4 @@ export const InMobileLayout: Story = {
     onStop: () => console.log('Stop clicked'),
     onSubmit: () => console.log('Submit clicked'),
   },
-  decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto bg-base min-h-screen relative">
-        <div class="p-4 pb-24">
-          <h2 class="text-xl font-semibold mb-4">Say It Back</h2>
-          <p class="text-lg">Listen to the phrase and repeat it back.</p>
-        </div>
-        {Story()}
-      </div>
-    ),
-  ],
 };
