@@ -49,6 +49,7 @@ app.get('/', (c) => {
 
 // Handle OPTIONS for karaoke routes specifically (before mounting)
 app.options('/api/karaoke/*', (c) => {
+  // eslint-disable-next-line no-console
   console.log('[CORS] Handling OPTIONS for karaoke route');
   return c.text('', 
     // @ts-expect-error - Hono type issue with status codes

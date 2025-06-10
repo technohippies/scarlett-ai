@@ -1,32 +1,11 @@
+/* eslint-disable no-console, @typescript-eslint/no-explicit-any */
 import { Hono } from 'hono';
-import { z } from 'zod';
-import type { Env, User } from '../types';
-import { NotFoundError } from '../types';
-import { 
-  AuthService, 
-  SessionService, 
-  SongService, 
-  LyricsService, 
-  GeniusService,
-  ScoringService,
-  STTService 
-} from '../services';
-import { authMiddleware, requireCredits } from '../middleware';
-import { validateBody, validateQuery } from '../middleware';
-import { 
-  createSessionSchema, 
-  songQuerySchema,
-  gradeAudioSchema
-} from '../utils/validation';
+import type { Env } from '../types';
+import { GeniusService } from '../services/genius.service';
+import { LyricsService } from '../services/lyrics.service';
 
 const app = new Hono<{ 
   Bindings: Env;
-  Variables: {
-    user?: User;
-    validatedBody?: Record<string, unknown>;
-    validatedQuery?: Record<string, unknown>;
-    validatedParams?: Record<string, unknown>;
-  };
 }>();
 
 // Handle all OPTIONS requests immediately
@@ -34,292 +13,449 @@ app.options('*', (_c) => {
   return new Response(null, { status: 204 });
 });
 
-// GET /api/karaoke/* - Get karaoke data for a track (supports complex trackIds)
-app.get('/*', validateQuery(songQuerySchema), async (c) => {
-  // Extract track ID from the full path, removing the leading slash
-  const fullPath = c.req.path.replace('/api/karaoke/', '');
-  const [trackId] = fullPath.split('?'); // Remove query parameters if any
-  const query = c.get('validatedQuery') as z.infer<typeof songQuerySchema> | undefined;
-  const { title = '', artist = '' } = query || {};
+// Core karaoke endpoint - check if track has karaoke data
+app.get('/*', async (c) => {
+  // Extract track ID from the full path, removing the '/api/karaoke/' prefix
+  const fullPath = c.req.url.split('/api/karaoke/')[1];
+  const [trackId] = fullPath.split('?'); // Remove query parameters
+  const trackTitle = c.req.query('title') || '';
+  const artistName = c.req.query('artist') || '';
 
-  console.log(`[Karaoke] Processing request for trackId: ${trackId}, title: ${title}, artist: ${artist}`);
-
-  // Check if database is available
-  if (!c.env.DB) {
-    console.log('[Karaoke] No database available - returning mock response');
-    return c.json({
-      success: false,
-      track_id: trackId,
-      has_karaoke: false,
-      error: 'Database not configured - API is working!',
-      api_connected: true,
-      message: `✅ API Connected! Track detected: ${artist} - ${title}. Database setup needed for lyrics.`
-    });
-  }
-
-  const songService = new SongService(c.env);
-  const lyricsService = new LyricsService();
-  const geniusService = new GeniusService(c.env.GENIUS_API_KEY || '');
-
-  // Check if song exists in catalog
-  let song;
   try {
-    song = await songService.getSongByTrackId(trackId);
-  } catch (dbError) {
-    console.log('[Karaoke] Database error:', dbError);
-    return c.json({
-      success: false,
+    console.log(
+      `[Karaoke] Processing track: ${trackId}, title: "${trackTitle}", artist: "${artistName}"`
+    );
+
+    // Use artist from query param if provided, otherwise fall back to extracting from trackId
+    let foundArtist = artistName;
+    if (!foundArtist) {
+      // Extract artist information from trackId (e.g., "beyonce/beyonce-amen" -> "beyonce")
+      const trackParts = trackId.split('/');
+      foundArtist = trackParts[0] || '';
+    }
+
+    // Create a more complete search query by combining artist and title
+    let searchQuery = trackTitle;
+    if (
+      foundArtist &&
+      !trackTitle.toLowerCase().includes(foundArtist.toLowerCase())
+    ) {
+      // Add artist to search query if not already present
+      searchQuery = `${foundArtist} ${trackTitle}`;
+    }
+
+    console.log(`[Karaoke] Searching for: "${foundArtist}" - "${trackTitle}"`);
+
+    // Step 1: Try Genius first to check for SoundCloud URL match (high confidence)
+    const geniusService = new GeniusService(c.env);
+    const lyricsService = new LyricsService();
+
+    let geniusMatch;
+    try {
+      geniusMatch = await geniusService.findSongMatch(searchQuery, trackId);
+    } catch (error) {
+      console.log('[Karaoke] Genius API unavailable, skipping:', error instanceof Error ? error.message : 'Unknown error');
+      geniusMatch = { found: false, song: null, confidence: 0 };
+    }
+
+    let lyricsResult: any = { type: 'none' };
+    let foundTitle = '';
+    // foundArtist is already set above from query param or trackId
+    foundArtist = foundArtist.replace(/official|music/gi, '').trim();
+    let song: any = null;
+
+    if (geniusMatch.found && geniusMatch.song && geniusMatch.confidence > 0.9) {
+      // High confidence Genius match (likely SoundCloud URL match)
+      console.log(
+        `[Karaoke] High confidence Genius match: ${geniusMatch.song.primary_artist.name} - ${geniusMatch.song.title}`
+      );
+      song = geniusMatch.song;
+
+      // Get full song details for media links
+      const fullSong = await geniusService.getSongById(song.id);
+      if (fullSong) {
+        song = fullSong;
+      }
+
+      // Try to get lyrics from LRCLib using Genius-validated info
+      // Include album if available for better matching
+      const lrcQuery: any = {
+        track_name: song.title,
+        artist_name: song.primary_artist.name,
+      };
+
+      if (song.album?.name) {
+        lrcQuery.album_name = song.album.name;
+        console.log(
+          `[Karaoke] Including album in search: "${song.album.name}"`
+        );
+      }
+
+      lyricsResult = await lyricsService.searchLyrics(lrcQuery);
+    }
+
+    // Step 2: If no high-confidence Genius match, try LRCLib directly
+    if (lyricsResult.type === 'none') {
+      console.log('[Karaoke] Trying direct LRCLib search...');
+
+      // Create multiple search variations
+      const titleVariants = [
+        trackTitle.replace(/\([^)]*\)/g, '').trim(), // Remove parentheses
+        trackTitle.split('(')[0].trim(), // Split on first parenthesis
+        trackTitle.replace(/\s*-\s*/, ' '), // Replace dashes with spaces
+        trackTitle.replace(/\s+/g, ' ').trim(), // Normalize whitespace
+        trackTitle, // Original title
+      ];
+
+      const artistVariants = [
+        foundArtist,
+        foundArtist.replace(/\s+/g, ''), // Remove spaces
+        foundArtist.toLowerCase(),
+        // Try without artist (sometimes helps)
+        '',
+      ];
+
+      // Try different combinations
+      for (const title of titleVariants) {
+        if (!title) continue;
+        
+        for (const artist of artistVariants) {
+          try {
+            console.log(`[Karaoke] Searching: "${artist}" - "${title}"`);
+            
+            lyricsResult = await lyricsService.searchLyrics({
+              track_name: title,
+              artist_name: artist,
+            });
+
+            if (lyricsResult.type !== 'none') {
+              foundTitle = title;
+              console.log(
+                `[Karaoke] ✅ Found lyrics: ${artist || 'unknown'} - ${title}`
+              );
+              // Update foundArtist if we found with a different artist variant
+              if (artist && artist !== foundArtist) {
+                foundArtist = artist;
+              }
+              break;
+            }
+          } catch (searchError) {
+            console.log(`[Karaoke] Search failed for "${artist}" - "${title}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
+          }
+        }
+        
+        if (lyricsResult.type !== 'none') break;
+      }
+    }
+
+    // Step 3: Last resort - try lower confidence Genius matches
+    if (lyricsResult.type === 'none' && geniusMatch.found && geniusMatch.song) {
+      console.log(
+        '[Karaoke] Trying lower confidence Genius match as last resort...'
+      );
+      song = geniusMatch.song;
+
+      const fullSong = await geniusService.getSongById(song.id);
+      if (fullSong) {
+        song = fullSong;
+      }
+
+      lyricsResult = await lyricsService.searchLyrics({
+        track_name: song.title,
+        artist_name: song.primary_artist.name,
+      });
+    }
+
+    if (lyricsResult.type === 'none') {
+      return c.json({
+        track_id: trackId,
+        has_karaoke: false,
+        song: song
+          ? {
+              title: song.title,
+              artist: song.primary_artist.name,
+              genius_id: song.id.toString(),
+              genius_url: song.url,
+            }
+          : {
+              title: foundTitle || trackTitle,
+              artist: foundArtist,
+            },
+        message: song
+          ? `Song found but no lyrics available: ${song.primary_artist.name} - ${song.title}`
+          : `No lyrics found for: ${foundArtist} - ${trackTitle}`,
+        status: 'no_lyrics',
+        genius_confidence: song ? 0.5 : 0,
+      });
+    }
+
+    // Step 4: Format lyrics for karaoke with intelligent timing fixes
+    console.log(
+      '[LRCLib] Raw lyrics result:',
+      { type: lyricsResult.type, count: lyricsResult.lyrics?.length || 0 }
+    );
+
+    const rawLyrics = lyricsResult.lyrics || [];
+    let formattedLyrics: any[] = [];
+
+    if (lyricsResult.type === 'synced' && rawLyrics.length > 0) {
+      // Process synced lyrics with timing improvements
+      formattedLyrics = lyricsService.processSyncedLyrics(rawLyrics).map((line, index) => ({
+        id: index,
+        timestamp: line.timestamp,
+        text: line.text,
+        duration: line.duration,
+        startTime: line.timestamp / 1000,
+        endTime: (line.timestamp + (line.duration || 0)) / 1000,
+      }));
+
+      // Check if all timestamps are 0 (invalid synced lyrics)
+      const hasValidTimestamps = formattedLyrics.some(
+        (line) => line.timestamp > 0
+      );
+      if (!hasValidTimestamps) {
+        console.log(
+          '[Karaoke] WARNING: All timestamps are 0, treating as no karaoke available'
+        );
+        return c.json({
+          track_id: trackId,
+          has_karaoke: false,
+          song: song
+            ? {
+                title: song.title,
+                artist: song.primary_artist.name,
+                genius_id: song.id.toString(),
+                genius_url: song.url,
+              }
+            : {
+                title: foundTitle || trackTitle,
+                artist: foundArtist,
+              },
+          message:
+            'Lyrics found but no synchronized timing available for karaoke',
+          status: 'no_synced_lyrics',
+          genius_confidence: song ? 0.5 : 0,
+        });
+      }
+    } else if (lyricsResult.type === 'unsynced' && rawLyrics.length > 0) {
+      // Unsynced lyrics - we don't support karaoke without timestamps
+      console.log(
+        '[Karaoke] Found unsynced lyrics, but karaoke requires synchronized timing'
+      );
+      return c.json({
+        track_id: trackId,
+        has_karaoke: false,
+        song: song
+          ? {
+              title: song.title,
+              artist: song.primary_artist.name,
+              genius_id: song.id.toString(),
+              genius_url: song.url,
+            }
+          : {
+              title: foundTitle || trackTitle,
+              artist: foundArtist,
+            },
+        message:
+          'Lyrics found but no synchronized timing available for karaoke',
+        status: 'unsynced_lyrics',
+        genius_confidence: song ? 0.5 : 0,
+      });
+    } else {
+      // No lyrics available
+      formattedLyrics = [];
+    }
+
+    console.log(
+      `[Timing] Processed ${formattedLyrics.length} lines with improved timing`
+    );
+
+    // Step 5: Track successful song match in database (optional)
+    let isNewDiscovery = false;
+    let catalogId: string | null = null;
+
+    if (c.env.DB) {
+      try {
+        // Check if this song already exists in our catalog
+        const existingSong = await c.env.DB.prepare(
+          'SELECT id FROM song_catalog WHERE track_id = ?'
+        )
+          .bind(trackId)
+          .first();
+
+        if (existingSong) {
+          catalogId = existingSong.id as string;
+
+          // Update existing song stats
+          await c.env.DB.prepare(
+            `
+            UPDATE song_catalog 
+            SET total_attempts = total_attempts + 1,
+                last_played_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+          `
+          )
+            .bind(catalogId)
+            .run();
+
+          console.log(`[Song Tracking] Updated existing song: ${catalogId}`);
+        } else {
+          // Create new song catalog entry
+          catalogId = crypto.randomUUID();
+          isNewDiscovery = true;
+
+          const finalTitle = song ? song.title : foundTitle || trackTitle;
+          const finalArtist = song ? song.primary_artist.name : foundArtist;
+          const difficulty =
+            formattedLyrics.length > 50
+              ? 'advanced'
+              : formattedLyrics.length > 25
+                ? 'intermediate'
+                : 'beginner';
+
+          await c.env.DB.prepare(
+            `
+            INSERT INTO song_catalog (
+              id, track_id, title, artist, album, duration_ms, difficulty,
+              genius_id, genius_url, genius_confidence, soundcloud_match, artwork_url,
+              lyrics_source, lyrics_type, lyrics_lines_count, total_attempts,
+              unique_users_attempted, last_played_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, CURRENT_TIMESTAMP)
+          `
+          )
+            .bind(
+              catalogId,
+              trackId,
+              finalTitle,
+              finalArtist,
+              song?.album?.name || null,
+              lyricsResult.metadata?.duration
+                ? lyricsResult.metadata.duration * 1000
+                : null,
+              difficulty,
+              song ? song.id.toString() : null,
+              song?.url || null,
+              song ? geniusMatch.confidence || 0.5 : 0,
+              geniusMatch.confidence > 0.9 ? true : false,
+              song?.song_art_image_url || null,
+              'lrclib',
+              lyricsResult.type,
+              formattedLyrics.length
+            )
+            .run();
+
+          console.log(
+            `[Song Tracking] Created new song catalog entry: ${catalogId}`
+          );
+        }
+
+        // Log the match event
+        const matchEventId = crypto.randomUUID();
+        await c.env.DB.prepare(
+          `
+          INSERT INTO song_match_events (
+            id, track_id, song_catalog_id, search_query, genius_confidence,
+            soundcloud_match, match_method, success, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, true, CURRENT_TIMESTAMP)
+        `
+        )
+          .bind(
+            matchEventId,
+            trackId,
+            catalogId,
+            searchQuery,
+            song ? geniusMatch.confidence || 0.5 : 0,
+            geniusMatch.confidence > 0.9 ? true : false,
+            song
+              ? geniusMatch.confidence > 0.9
+                ? 'genius_soundcloud'
+                : 'genius_similarity'
+              : 'lrclib_direct'
+          )
+          .run();
+
+        console.log(`[Song Tracking] Logged match event: ${matchEventId}`);
+      } catch (trackingError) {
+        console.error(
+          '[Song Tracking] Error tracking song match:',
+          trackingError
+        );
+        // Continue with response even if tracking fails
+      }
+    }
+
+    // Step 6: Build final response
+    const trackStartTime = 0;
+
+    const songData = {
       track_id: trackId,
-      has_karaoke: false,
-      error: 'Database connection failed - API is working!',
-      api_connected: true,
-      message: `✅ API Connected! Track detected: ${artist} - ${title}. Database connection needed.`
-    });
-  }
-  if (song && song.lyricsType === 'synced') {
-    return c.json({
-      success: true,
-      trackId,
-      hasKaraoke: true,
-      song: {
-        id: song.id,
-        title: song.title,
-        artist: song.artist,
-        album: song.album,
-        artworkUrl: song.artworkUrl,
-        duration: song.durationMs,
-        difficulty: song.difficulty,
+      has_karaoke: true,
+      song: song
+        ? {
+            title: song.title,
+            artist: song.primary_artist.name,
+            genius_id: song.id.toString(),
+            genius_url: song.url,
+            album: song.album?.name,
+            artwork_url: song.song_art_image_url,
+            duration: lyricsResult.metadata?.duration
+              ? lyricsResult.metadata.duration * 1000
+              : null,
+            difficulty:
+              formattedLyrics.length > 50
+                ? 'advanced'
+                : formattedLyrics.length > 25
+                  ? 'intermediate'
+                  : 'beginner',
+            start_time: trackStartTime,
+          }
+        : {
+            title: foundTitle || trackTitle,
+            artist: foundArtist,
+            duration: lyricsResult.metadata?.duration
+              ? lyricsResult.metadata.duration * 1000
+              : null,
+            difficulty:
+              formattedLyrics.length > 50
+                ? 'advanced'
+                : formattedLyrics.length > 25
+                  ? 'intermediate'
+                  : 'beginner',
+            start_time: trackStartTime,
+          },
+      lyrics: {
+        source: 'lrclib',
+        type: lyricsResult.type,
+        lines: formattedLyrics,
+        total_lines: formattedLyrics.length,
       },
-      cached: true,
-    });
+      cache_hit: false,
+      genius_confidence: song ? geniusMatch.confidence || 0.5 : 0,
+      message: song
+        ? `Karaoke ready: ${song.primary_artist.name} - ${song.title}`
+        : `Karaoke ready: ${foundArtist} - ${foundTitle || trackTitle}`,
+      status: 'success',
+      // New tracking metadata
+      song_catalog_id: catalogId,
+      is_new_discovery: isNewDiscovery,
+      match_tracked: !!c.env.DB,
+    };
+
+    return c.json(songData);
+  } catch (error) {
+    console.error('[Karaoke] Error processing track:', error);
+    return c.json(
+      {
+        track_id: trackId,
+        has_karaoke: false,
+        message: 'Error processing karaoke request',
+        status: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      500
+    );
   }
-
-  // Search for lyrics
-  const searchQuery = artist && title ? `${artist} ${title}` : title || trackId;
-  
-  // Try Genius for metadata
-  const geniusMatch = await geniusService.findSongMatch(searchQuery, trackId);
-  
-  // Search lyrics
-  const lyricsResult = await lyricsService.searchLyrics({
-    track_name: geniusMatch.song?.title || title,
-    artist_name: geniusMatch.song?.primary_artist.name || artist,
-    album_name: geniusMatch.song?.album?.name,
-  });
-
-  if (lyricsResult.type === 'none') {
-    return c.json({
-      success: true,
-      trackId,
-      hasKaraoke: false,
-      message: 'No lyrics found for this track',
-    });
-  }
-
-  if (lyricsResult.type === 'unsynced') {
-    return c.json({
-      success: true,
-      trackId,
-      hasKaraoke: false,
-      message: 'Lyrics found but no synchronized timing available',
-    });
-  }
-
-  // Process synced lyrics
-  const processedLyrics = lyricsService.processSyncedLyrics(lyricsResult.lyrics);
-
-  // Create or update song in catalog
-  const songData = {
-    title: geniusMatch.song?.title || title,
-    artist: geniusMatch.song?.primary_artist.name || artist,
-    album: geniusMatch.song?.album?.name,
-    durationMs: lyricsResult.metadata?.duration ? lyricsResult.metadata.duration * 1000 : undefined,
-    difficulty: (processedLyrics.length > 50 ? 'advanced' : processedLyrics.length > 25 ? 'intermediate' : 'beginner') as 'beginner' | 'intermediate' | 'advanced',
-    geniusId: geniusMatch.song?.id.toString(),
-    geniusUrl: geniusMatch.song?.url,
-    geniusConfidence: geniusMatch.confidence,
-    soundcloudMatch: geniusMatch.confidence > 0.9,
-    artworkUrl: geniusMatch.song?.song_art_image_url,
-    lyricsSource: 'lrclib' as const,
-    lyricsType: 'synced' as const,
-    lyricsLinesCount: processedLyrics.length,
-  };
-
-  song = await songService.createOrUpdateSong(trackId, songData);
-
-  // Log the match
-  await songService.logSongMatch(
-    trackId,
-    song.id,
-    searchQuery,
-    geniusMatch.confidence,
-    geniusMatch.confidence > 0.9,
-    geniusMatch.confidence > 0.9 ? 'genius_soundcloud' : 'lrclib_direct'
-  );
-
-  return c.json({
-    success: true,
-    trackId,
-    hasKaraoke: true,
-    song: {
-      id: song.id,
-      title: song.title,
-      artist: song.artist,
-      album: song.album,
-      artworkUrl: song.artworkUrl,
-      duration: song.durationMs,
-      difficulty: song.difficulty,
-      geniusId: song.geniusId,
-      geniusUrl: song.geniusUrl,
-    },
-    lyrics: {
-      source: 'lrclib',
-      type: 'synced',
-      lines: processedLyrics,
-      totalLines: processedLyrics.length,
-    },
-    cached: false,
-    geniusConfidence: geniusMatch.confidence,
-  });
-});
-
-// POST /api/karaoke/start - Start a karaoke session
-app.post('/start', authMiddleware, requireCredits(1), validateBody(createSessionSchema), async (c) => {
-  const data = c.get('validatedBody') as z.infer<typeof createSessionSchema>;
-  const user = c.get('user')!;
-
-  const sessionService = new SessionService(c.env);
-  const authService = new AuthService(c.env);
-
-  // Create session
-  const session = await sessionService.createSession(user.id, data.trackId, data.songData);
-
-  // Deduct credits
-  await authService.useCredits(user.id, 1);
-
-  return c.json({
-    success: true,
-    sessionId: session.id,
-    message: `Karaoke session started for ${session.songArtist} - ${session.songTitle}`,
-    session: {
-      id: session.id,
-      trackId: session.trackId,
-      songTitle: session.songTitle,
-      songArtist: session.songArtist,
-      status: session.status,
-      createdAt: session.createdAt,
-    },
-  });
-});
-
-// POST /api/karaoke/grade - Grade a single line
-app.post('/grade', authMiddleware, validateBody(gradeAudioSchema), async (c) => {
-  const data = c.get('validatedBody') as z.infer<typeof gradeAudioSchema>;
-  const user = c.get('user')!;
-
-  const sessionService = new SessionService(c.env);
-  const sttService = new STTService(c.env);
-  const scoringService = new ScoringService();
-
-  // Verify session exists and belongs to user
-  const session = await sessionService.getSession(data.sessionId, user.id);
-  if (!session) {
-    throw new NotFoundError('Session');
-  }
-
-  // Decode and transcribe audio
-  const audioBuffer = Uint8Array.from(atob(data.audioData), (c) => c.charCodeAt(0));
-  const transcriptionResult = await sttService.transcribeAudio(audioBuffer, data.expectedText);
-
-  // Calculate score
-  const { finalScore, wordScores } = scoringService.calculateKaraokeScore(
-    data.expectedText,
-    transcriptionResult.transcript,
-    transcriptionResult.words,
-    data.attemptNumber
-  );
-
-  const feedback = scoringService.generateFeedback(
-    finalScore,
-    data.expectedText,
-    transcriptionResult.transcript,
-    data.attemptNumber
-  );
-
-  // Record line score
-  await sessionService.recordLineScore(data.sessionId, {
-    lineIndex: data.lineIndex,
-    expectedText: data.expectedText,
-    transcribedText: transcriptionResult.transcript,
-    score: finalScore,
-    feedback,
-    attemptNumber: data.attemptNumber,
-    confidence: transcriptionResult.confidence,
-    wordScores,
-  });
-
-  return c.json({
-    success: true,
-    sessionId: data.sessionId,
-    lineIndex: data.lineIndex,
-    score: finalScore,
-    feedback,
-    transcribedText: transcriptionResult.transcript,
-    wordTimings: transcriptionResult.words,
-    wordScores,
-    confidence: transcriptionResult.confidence,
-  });
-});
-
-// GET /api/karaoke/session/:sessionId - Get session details
-app.get('/session/:sessionId', authMiddleware, async (c) => {
-  const sessionId = c.req.param('sessionId');
-  const user = c.get('user')!;
-
-  const sessionService = new SessionService(c.env);
-  
-  const session = await sessionService.getSession(sessionId, user.id);
-  if (!session) {
-    throw new NotFoundError('Session');
-  }
-
-  const lineScores = await sessionService.getSessionLineScores(sessionId);
-
-  return c.json({
-    success: true,
-    session: {
-      ...session,
-      lineScores,
-    },
-  });
-});
-
-// POST /api/karaoke/session/:sessionId/complete - Complete a session
-app.post('/session/:sessionId/complete', authMiddleware, async (c) => {
-  const sessionId = c.req.param('sessionId');
-  const user = c.get('user')!;
-
-  const sessionService = new SessionService(c.env);
-  
-  const session = await sessionService.getSession(sessionId, user.id);
-  if (!session) {
-    throw new NotFoundError('Session');
-  }
-
-  const lineScores = await sessionService.getSessionLineScores(sessionId);
-  const overallScore = lineScores.length > 0
-    ? Math.round(lineScores.reduce((sum, ls) => sum + ls.score, 0) / lineScores.length)
-    : 0;
-
-  await sessionService.completeSession(sessionId, lineScores.length, overallScore);
-
-  return c.json({
-    success: true,
-    sessionId,
-    overallScore,
-    linesCompleted: lineScores.length,
-    message: 'Session completed successfully',
-  });
 });
 
 export default app;

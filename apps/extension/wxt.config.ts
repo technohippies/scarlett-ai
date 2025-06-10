@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { resolve } from 'node:path';
 import { defineConfig } from 'wxt';
 import solid from 'vite-plugin-solid';
 
