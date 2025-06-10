@@ -11,7 +11,7 @@
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "postinstall": "wxt prepare"
   },
   "dependencies": {

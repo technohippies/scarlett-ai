@@ -38,11 +38,14 @@ export default [
       '@typescript-eslint': typescript,
     },
     rules: {
-      // Override shared config rules for extension
+      // Start with TypeScript recommended rules
+      ...typescript.configs.recommended.rules,
+      // Override specific rules for extension development
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
       'no-console': 'off', // Extensions need console for debugging
-      'no-undef': 'error',
+      'no-undef': 'off', // TypeScript handles this
     },
   },
 ];

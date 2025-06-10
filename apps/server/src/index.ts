@@ -50,7 +50,10 @@ app.get('/', (c) => {
 // Handle OPTIONS for karaoke routes specifically (before mounting)
 app.options('/api/karaoke/*', (c) => {
   console.log('[CORS] Handling OPTIONS for karaoke route');
-  return c.text('', 204);
+  return c.text('', 
+    // @ts-expect-error - Hono type issue with status codes
+    204
+  );
 });
 
 // Mount routes

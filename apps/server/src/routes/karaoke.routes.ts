@@ -30,7 +30,7 @@ const app = new Hono<{
 }>();
 
 // Handle all OPTIONS requests immediately
-app.options('*', (c) => {
+app.options('*', (_c) => {
   return new Response(null, { status: 204 });
 });
 
