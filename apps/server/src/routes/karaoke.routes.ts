@@ -33,18 +33,7 @@ function processSyncedLyrics(rawLyrics: any[]): any[] {
   return lyricsService.processSyncedLyrics(rawLyrics);
 }
 
-// Handle all OPTIONS requests immediately
-app.options('*', (c) => {
-  console.log('[Karaoke] Handling OPTIONS request');
-  // Set CORS headers explicitly
-  c.header('Access-Control-Allow-Origin', '*');
-  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  return c.text('', 
-    // @ts-expect-error - Hono type issue with status codes
-    204
-  );
-});
+// OPTIONS handled by global CORS middleware
 
 // Core karaoke endpoint - check if track has karaoke data
 app.get('/*', async (c) => {

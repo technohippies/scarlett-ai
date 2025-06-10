@@ -1,3 +1,5 @@
+import js from '@eslint/js';
+
 export default [
   {
     ignores: [
@@ -8,15 +10,14 @@ export default [
       '**/*.d.ts',
     ],
   },
+  js.configs.recommended,
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     rules: {
-      // Disable all rules that cause issues
+      // Override all problematic rules
       'no-console': 'off',
       'no-undef': 'off',
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
     },
   },
 ];
