@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env } from '../types';
 import { SongService } from '../services/song.service';
-import { validateQuery, validateParams } from '../middleware/validation.middleware';
+import { validateQuery } from '../middleware/validation.middleware';
 import { paginationSchema } from '../utils/validation';
 
 const app = new Hono<{ Bindings: Env }>();

@@ -15,7 +15,6 @@ import { authMiddleware, requireCredits, type AuthContext } from '../middleware'
 import { validateBody, validateQuery } from '../middleware';
 import { 
   createSessionSchema, 
-  gradeAudioSchema, 
   songQuerySchema
 } from '../utils/validation';
 

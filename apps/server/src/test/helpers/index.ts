@@ -17,11 +17,9 @@ export function createTestEnv(): Env {
 
 // Create mock D1 database
 export function createMockDB() {
-  const storage = new Map<string, any[]>();
-  
   return {
-    prepare: (query: string) => ({
-      bind: (...params: any[]) => ({
+    prepare: (_query: string) => ({
+      bind: (..._params: any[]) => ({
         first: async () => {
           // Mock implementation
           return null;
