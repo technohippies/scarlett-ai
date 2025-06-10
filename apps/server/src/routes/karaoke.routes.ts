@@ -34,8 +34,16 @@ function processSyncedLyrics(rawLyrics: any[]): any[] {
 }
 
 // Handle all OPTIONS requests immediately
-app.options('*', (_c) => {
-  return new Response(null, { status: 204 });
+app.options('*', (c) => {
+  console.log('[Karaoke] Handling OPTIONS request');
+  // Set CORS headers explicitly
+  c.header('Access-Control-Allow-Origin', '*');
+  c.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return c.text('', 
+    // @ts-expect-error - Hono type issue with status codes
+    204
+  );
 });
 
 // Core karaoke endpoint - check if track has karaoke data
@@ -72,14 +80,15 @@ app.get('/*', async (c) => {
     console.log(`[Karaoke] Searching for: "${foundArtist}" - "${trackTitle}"`);
 
     // Step 1: Try Genius first to check for SoundCloud URL match (high confidence)
-    const geniusService = new GeniusService(c.env);
+    const geniusService = new GeniusService(c.env.GENIUS_API_KEY || '');
     const lrcLibService = new LRCLibService();
 
     let geniusMatch;
     try {
-      geniusMatch = await geniusService.findSongMatch(searchQuery, trackId);
+      geniusMatch = await geniusService.findVideoMatch(searchQuery, trackId);
     } catch (error) {
-      console.log('[Karaoke] Genius API unavailable, continuing with LRCLib only:', error instanceof Error ? error.message : 'Unknown error');
+      console.log('[Karaoke] Genius API error (continuing with LRCLib only):', error instanceof Error ? error.message : 'Unknown error');
+      console.log('[Karaoke] This is OK - the system will still search for lyrics using LRCLib');
       geniusMatch = { found: false, song: null, confidence: 0 };
     }
 

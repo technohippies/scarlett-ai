@@ -132,6 +132,45 @@ export class GeniusService {
     return { found: true, song: firstSong, confidence: 0.7 };
   }
 
+  async findVideoMatch(
+    query: string,
+    trackId: string
+  ): Promise<{
+    found: boolean;
+    song: GeniusSong | null;
+    confidence: number;
+  }> {
+    const songs = await this.searchSongs(query);
+    if (songs.length === 0) {
+      return { found: false, song: null, confidence: 0 };
+    }
+
+    // Need to get full song details to check media links
+    for (const searchResult of songs.slice(0, 5)) { // Check top 5 results
+      const fullSong = await this.getSongById(searchResult.id);
+      if (fullSong && fullSong.media) {
+        const soundcloudMatch = fullSong.media.some(
+          (media) =>
+            media.provider === 'soundcloud' &&
+            media.url &&
+            (media.url.includes(trackId) || trackId.includes(media.url))
+        );
+
+        if (soundcloudMatch) {
+          return { found: true, song: fullSong, confidence: 0.95 };
+        }
+      }
+    }
+
+    // Return first result with lower confidence
+    const firstSong = songs[0];
+    if (this.isLikelyTranslation(firstSong.title, query)) {
+      return { found: false, song: null, confidence: 0 };
+    }
+
+    return { found: true, song: firstSong, confidence: 0.7 };
+  }
+
   private isLikelyTranslation(title: string, query: string): boolean {
     const translationKeywords = [
       'translation',
