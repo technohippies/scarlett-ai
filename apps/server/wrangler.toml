@@ -37,5 +37,4 @@ database_id = "YOUR_PROD_DB_ID" # Set via deployment script
 # - JWT_SECRET: JWT signing secret
 # - GENIUS_API_KEY: Genius API key for lyrics
 # - ELEVENLABS_API_KEY: ElevenLabs API key for TTS/STT
-# - DEEPGRAM_API_KEY: Deepgram API key for STT
 # - VENICE_API_KEY: Venice AI API key for coaching

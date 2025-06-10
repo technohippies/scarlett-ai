@@ -8,6 +8,31 @@ const app = new Hono<{
   Bindings: Env;
 }>();
 
+// Simple LRCLibService wrapper to match the working implementation
+class LRCLibService {
+  async getBestLyrics(params: {
+    track_name: string;
+    artist_name: string;
+    album_name?: string;
+  }) {
+    const lyricsService = new LyricsService();
+    return await lyricsService.searchLyrics(params);
+  }
+}
+
+// Helper functions from working implementation
+function cleanLyricsText(text: string): string {
+  return text
+    .replace(/\([^)]*\)/g, '') // Remove parenthetical content
+    .replace(/\[[^\]]*\]/g, '') // Remove bracketed content
+    .trim();
+}
+
+function processSyncedLyrics(rawLyrics: any[]): any[] {
+  const lyricsService = new LyricsService();
+  return lyricsService.processSyncedLyrics(rawLyrics);
+}
+
 // Handle all OPTIONS requests immediately
 app.options('*', (_c) => {
   return new Response(null, { status: 204 });
@@ -48,13 +73,13 @@ app.get('/*', async (c) => {
 
     // Step 1: Try Genius first to check for SoundCloud URL match (high confidence)
     const geniusService = new GeniusService(c.env);
-    const lyricsService = new LyricsService();
+    const lrcLibService = new LRCLibService();
 
     let geniusMatch;
     try {
       geniusMatch = await geniusService.findSongMatch(searchQuery, trackId);
     } catch (error) {
-      console.log('[Karaoke] Genius API unavailable, skipping:', error instanceof Error ? error.message : 'Unknown error');
+      console.log('[Karaoke] Genius API unavailable, continuing with LRCLib only:', error instanceof Error ? error.message : 'Unknown error');
       geniusMatch = { found: false, song: null, confidence: 0 };
     }
 
@@ -91,60 +116,38 @@ app.get('/*', async (c) => {
         );
       }
 
-      lyricsResult = await lyricsService.searchLyrics(lrcQuery);
+      lyricsResult = await lrcLibService.getBestLyrics(lrcQuery);
     }
 
     // Step 2: If no high-confidence Genius match, try LRCLib directly
     if (lyricsResult.type === 'none') {
       console.log('[Karaoke] Trying direct LRCLib search...');
 
-      // Create multiple search variations
       const titleVariants = [
-        trackTitle.replace(/\([^)]*\)/g, '').trim(), // Remove parentheses
-        trackTitle.split('(')[0].trim(), // Split on first parenthesis
-        trackTitle.replace(/\s*-\s*/, ' '), // Replace dashes with spaces
-        trackTitle.replace(/\s+/g, ' ').trim(), // Normalize whitespace
-        trackTitle, // Original title
+        trackTitle.replace(/\([^)]*\)/g, '').trim(), // "Superman"
+        trackTitle.split('(')[0].trim(), // "Superman"
+        trackTitle, // "Superman (feat. Dina Rae)"
       ];
 
-      const artistVariants = [
-        foundArtist,
-        foundArtist.replace(/\s+/g, ''), // Remove spaces
-        foundArtist.toLowerCase(),
-        // Try without artist (sometimes helps)
-        '',
-      ];
-
-      // Try different combinations
       for (const title of titleVariants) {
-        if (!title) continue;
-        
-        for (const artist of artistVariants) {
+        if (title) {
           try {
-            console.log(`[Karaoke] Searching: "${artist}" - "${title}"`);
-            
-            lyricsResult = await lyricsService.searchLyrics({
+            lyricsResult = await lrcLibService.getBestLyrics({
               track_name: title,
-              artist_name: artist,
+              artist_name: foundArtist,
             });
 
             if (lyricsResult.type !== 'none') {
               foundTitle = title;
               console.log(
-                `[Karaoke] ✅ Found lyrics: ${artist || 'unknown'} - ${title}`
+                `[Karaoke] Found lyrics directly: ${foundArtist} - ${title}`
               );
-              // Update foundArtist if we found with a different artist variant
-              if (artist && artist !== foundArtist) {
-                foundArtist = artist;
-              }
               break;
             }
           } catch (searchError) {
-            console.log(`[Karaoke] Search failed for "${artist}" - "${title}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
+            console.log(`[Karaoke] Search failed for "${foundArtist}" - "${title}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
           }
         }
-        
-        if (lyricsResult.type !== 'none') break;
       }
     }
 
@@ -160,7 +163,7 @@ app.get('/*', async (c) => {
         song = fullSong;
       }
 
-      lyricsResult = await lyricsService.searchLyrics({
+      lyricsResult = await lrcLibService.getBestLyrics({
         track_name: song.title,
         artist_name: song.primary_artist.name,
       });
@@ -190,23 +193,34 @@ app.get('/*', async (c) => {
     }
 
     // Step 4: Format lyrics for karaoke with intelligent timing fixes
+    // Debug: Check raw LRCLib data structure
     console.log(
-      '[LRCLib] Raw lyrics result:',
-      { type: lyricsResult.type, count: lyricsResult.lyrics?.length || 0 }
+      '[LRCLib] First few raw lyrics:',
+      lyricsResult.lyrics?.slice(0, 3)
     );
 
     const rawLyrics = lyricsResult.lyrics || [];
     let formattedLyrics: any[] = [];
 
     if (lyricsResult.type === 'synced' && rawLyrics.length > 0) {
+      // Additional debug logging before processing
+      console.log('[Debug] Raw lyrics structure check:', {
+        firstLine: rawLyrics[0],
+        hasStartTime: 'startTime' in rawLyrics[0],
+        startTimeValue: rawLyrics[0]?.startTime,
+        allKeys: Object.keys(rawLyrics[0] || {}),
+      });
+
       // Process synced lyrics with timing improvements
-      formattedLyrics = lyricsService.processSyncedLyrics(rawLyrics).map((line, index) => ({
+      formattedLyrics = processSyncedLyrics(rawLyrics).map((line, index) => ({
         id: index,
         timestamp: line.timestamp,
-        text: line.text,
+        text: cleanLyricsText(line.text),
         duration: line.duration,
         startTime: line.timestamp / 1000,
         endTime: (line.timestamp + (line.duration || 0)) / 1000,
+        recordingStart: line.recordingStart,
+        recordingEnd: line.recordingEnd,
       }));
 
       // Check if all timestamps are 0 (invalid synced lyrics)
@@ -270,7 +284,7 @@ app.get('/*', async (c) => {
       `[Timing] Processed ${formattedLyrics.length} lines with improved timing`
     );
 
-    // Step 5: Track successful song match in database (optional)
+    // Step 5: Track successful song match in database (optional - only if DB exists)
     let isNewDiscovery = false;
     let catalogId: string | null = null;
 
@@ -385,7 +399,7 @@ app.get('/*', async (c) => {
       }
     }
 
-    // Step 6: Build final response
+    // Step 6: No video start time for soundcloak tracks, set to 0
     const trackStartTime = 0;
 
     const songData = {
