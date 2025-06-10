@@ -1,4 +1,4 @@
-import { createSignal, For, Show, children } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import type { Component, JSX } from 'solid-js';
 import { cn } from '../../../utils/cn';
 
@@ -32,17 +32,24 @@ export interface TabsContentProps {
   children: JSX.Element;
 }
 
-// Context for managing active tab
-let activeTabContext: () => string;
-let setActiveTabContext: (id: string) => void;
+// Global state for the current tabs instance
+let currentTabsState: {
+  activeTab: () => string;
+  setActiveTab: (id: string) => void;
+} | null = null;
 
 export const Tabs: Component<TabsProps> = (props) => {
   const [activeTab, setActiveTab] = createSignal(props.defaultTab || props.tabs[0]?.id || '');
   
-  activeTabContext = activeTab;
-  setActiveTabContext = (id: string) => {
+  const handleTabChange = (id: string) => {
     setActiveTab(id);
     props.onTabChange?.(id);
+  };
+
+  // Set the global state for child components to access
+  currentTabsState = {
+    activeTab,
+    setActiveTab: handleTabChange
   };
 
   return (
@@ -67,11 +74,11 @@ export const TabsList: Component<TabsListProps> = (props) => {
 };
 
 export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
-  const isActive = () => activeTabContext() === props.value;
+  const isActive = () => currentTabsState?.activeTab() === props.value;
 
   return (
     <button
-      onClick={() => setActiveTabContext(props.value)}
+      onClick={() => currentTabsState?.setActiveTab(props.value)}
       class={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5',
         'text-sm font-medium ring-offset-base transition-all',
@@ -91,7 +98,7 @@ export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
 
 export const TabsContent: Component<TabsContentProps> = (props) => {
   return (
-    <Show when={activeTabContext() === props.value}>
+    <Show when={currentTabsState?.activeTab() === props.value}>
       <div
         class={cn(
           'mt-2 ring-offset-base',
