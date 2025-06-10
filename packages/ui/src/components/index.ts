@@ -20,3 +20,10 @@ export * from './common/Button';
 export * from './common/Card';
 export * from './common/Tabs';
 export * from './common/SplitButton';
+export * from './common/ProgressBar';
+
+// Practice Components
+export * from './practice/PracticeHeader';
+export * from './practice/ExerciseFooter';
+export * from './practice/SayItBack';
+export * from './practice/PracticeExercise';
