@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { ProgressBar } from './ProgressBar';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof ProgressBar> = {
+const meta: Meta = {
   title: 'Common/ProgressBar',
-  component: ProgressBar,
+  render: solidStory(ProgressBar),
   parameters: {
     layout: 'fullscreen',
   },
@@ -55,14 +56,4 @@ export const InMobileLayout: Story = {
     current: 7,
     total: 15,
   },
-  decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-        <div class="p-4">
-          <p class="text-center text-lg">Content below progress bar</p>
-        </div>
-      </div>
-    ),
-  ],
 };

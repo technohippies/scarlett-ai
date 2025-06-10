@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { ExerciseFooter } from './ExerciseFooter';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof ExerciseFooter> = {
+const meta: Meta = {
   title: 'Practice/ExerciseFooter',
-  component: ExerciseFooter,
+  render: solidStory(ExerciseFooter),
   parameters: {
     layout: 'fullscreen',
   },

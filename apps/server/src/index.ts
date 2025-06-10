@@ -19,7 +19,12 @@ import sttRoutes from './routes/stt.routes';
 import docsApp from './docs/openapi';
 
 // Create app
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ 
+  Bindings: Env;
+  Variables: {
+    requestId?: string;
+  };
+}>();
 
 // Global middleware
 app.use('*', requestId);
@@ -54,7 +59,7 @@ app.use('/docs/*', async (c, next) => {
   if (c.env.ENVIRONMENT === 'production') {
     return c.notFound();
   }
-  await next();
+  return await next();
 });
 app.route('/docs', docsApp);
 

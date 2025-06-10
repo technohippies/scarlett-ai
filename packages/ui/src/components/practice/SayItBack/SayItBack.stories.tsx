@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { SayItBack } from './SayItBack';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof SayItBack> = {
+const meta: Meta = {
   title: 'Practice/SayItBack',
-  component: SayItBack,
+  render: solidStory(SayItBack),
   parameters: {
     layout: 'padded',
   },

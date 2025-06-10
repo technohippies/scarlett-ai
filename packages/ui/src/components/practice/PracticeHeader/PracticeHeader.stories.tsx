@@ -1,9 +1,10 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { PracticeHeader } from './PracticeHeader';
+import { solidStory } from '../../../utils/storybook';
 
-const meta: Meta<typeof PracticeHeader> = {
+const meta: Meta = {
   title: 'Practice/PracticeHeader',
-  component: PracticeHeader,
+  render: solidStory(PracticeHeader),
   parameters: {
     layout: 'fullscreen',
   },
@@ -40,14 +41,4 @@ export const InMobileLayout: Story = {
     title: 'Say It Back',
     onExit: () => console.log('Exit clicked'),
   },
-  decorators: [
-    (Story) => (
-      <div class="w-full max-w-[420px] mx-auto bg-base min-h-screen">
-        {Story()}
-        <div class="p-4">
-          <p class="text-center">Content below header</p>
-        </div>
-      </div>
-    ),
-  ],
 };
