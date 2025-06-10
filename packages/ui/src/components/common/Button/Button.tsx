@@ -31,16 +31,16 @@ export const Button = (props: ButtonProps) => {
     <button
       disabled={local.disabled || local.loading}
       class={cn(
-        'inline-flex items-center justify-center font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+        'inline-flex items-center justify-center font-medium transition-all cursor-pointer border-none outline-none disabled:cursor-not-allowed disabled:opacity-50',
         {
           // Variants
-          'bg-violet-600 text-white hover:bg-violet-700 focus-visible:ring-violet-600':
+          'bg-gradient-primary text-white hover:shadow-lg hover:scale-105 glow-primary':
             variant() === 'primary',
-          'bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-400':
+          'bg-surface text-primary border border-default hover:bg-elevated hover:border-strong':
             variant() === 'secondary',
-          'hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-gray-400':
+          'text-secondary hover:text-primary hover:bg-surface':
             variant() === 'ghost',
-          'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600':
+          'bg-red-600 text-white hover:bg-red-700 hover:shadow-lg':
             variant() === 'danger',
           // Sizes
           'h-8 px-3 text-sm rounded-md gap-1.5': size() === 'sm',

@@ -24,9 +24,9 @@ export const Card = (props: CardProps) => {
         'rounded-xl transition-all',
         {
           // Variants
-          'bg-white border border-gray-200': variant() === 'default',
-          'bg-transparent border-2 border-gray-300': variant() === 'outlined',
-          'bg-white shadow-lg hover:shadow-xl': variant() === 'elevated',
+          'bg-surface border border-subtle': variant() === 'default',
+          'bg-transparent border-2 border-default': variant() === 'outlined',
+          'bg-elevated shadow-xl hover:shadow-2xl hover:translate-y-[-2px]': variant() === 'elevated',
           // Padding
           'p-0': padding() === 'none',
           'p-3': padding() === 'sm',
@@ -64,7 +64,7 @@ export const CardTitle = (props: CardTitleProps) => {
 
   return (
     <h3
-      class={cn('text-xl font-semibold text-gray-900', local.class)}
+      class={cn('text-xl font-semibold text-primary', local.class)}
       {...others}
     >
       {local.children}
@@ -79,7 +79,7 @@ export const CardDescription = (props: CardDescriptionProps) => {
 
   return (
     <p
-      class={cn('text-sm text-gray-600 mt-1', local.class)}
+      class={cn('text-sm text-secondary mt-1', local.class)}
       {...others}
     >
       {local.children}

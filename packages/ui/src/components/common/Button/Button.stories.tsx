@@ -1,7 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/html'
 import { Button } from './Button'
 import { solidStory } from '../../../utils/storybook'
-import { FiArrowRight, FiDownload, FiMusic } from 'solid-icons/fi'
+import IconArrowRightRegular from 'phosphor-icons-solid/IconArrowRightRegular'
+import IconDownloadRegular from 'phosphor-icons-solid/IconDownloadRegular'
+import IconMusicNoteRegular from 'phosphor-icons-solid/IconMusicNoteRegular'
 
 const meta: Meta = {
   title: 'Common/Button',
@@ -61,14 +63,14 @@ export const Danger: Story = {
 export const WithIcons: Story = {
   args: {
     children: 'Continue',
-    rightIcon: FiArrowRight({}),
+    rightIcon: <IconArrowRightRegular />,
   },
 }
 
 export const WithLeftIcon: Story = {
   args: {
     children: 'Download',
-    leftIcon: FiDownload({}),
+    leftIcon: <IconDownloadRegular />,
     variant: 'secondary',
   },
 }
@@ -117,7 +119,7 @@ export const AllVariants: Story = {
 export const KaraokeButton: Story = {
   args: {
     children: 'Start Singing',
-    leftIcon: FiMusic({}),
+    leftIcon: <IconMusicNoteRegular />,
     size: 'lg',
     variant: 'primary',
   },

@@ -1,0 +1,1 @@
+export { MobileContainer, type MobileContainerProps } from './MobileContainer';

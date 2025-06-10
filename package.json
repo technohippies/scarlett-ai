@@ -2,6 +2,7 @@
   "name": "scarlett-turbo-v2",
   "private": true,
   "type": "module",
+  "packageManager": "bun@1.1.45",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",

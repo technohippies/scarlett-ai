@@ -1,6 +1,5 @@
 // Utils
 export * from './utils/cn'
 
-// Common Components
-export * from './components/common/Button'
-export * from './components/common/Card'
+// Components - re-export everything from the components index
+export * from './components'
