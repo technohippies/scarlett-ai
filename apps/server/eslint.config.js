@@ -3,16 +3,19 @@ import typescript from "@typescript-eslint/eslint-plugin";
 import typescriptParser from "@typescript-eslint/parser";
 
 export default [
-  js.configs.recommended,
   {
-    files: ["**/*.ts", "**/*.tsx"],
     ignores: [
-      ".wrangler/**",
+      ".wrangler/**/*",
       "dist/**",
       "node_modules/**",
       "**/*.d.ts",
       "coverage/**",
+      ".turbo/**",
     ],
+  },
+  js.configs.recommended,
+  {
+    files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -45,6 +48,8 @@ export default [
         crypto: "readonly",
         Crypto: "readonly",
         SubtleCrypto: "readonly",
+        atob: "readonly",
+        btoa: "readonly",
         // Cloudflare specific
         D1Database: "readonly",
         KVNamespace: "readonly",
