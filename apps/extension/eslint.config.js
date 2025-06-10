@@ -28,15 +28,20 @@ export default [
         HTMLElement: 'readonly',
         __dirname: 'readonly',
         fetch: 'readonly',
+        history: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setTimeout: 'readonly',
       },
     },
     plugins: {
       '@typescript-eslint': typescript,
     },
     rules: {
+      // Override shared config rules for extension
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-console': 'off',
+      'no-console': 'off', // Extensions need console for debugging
       'no-undef': 'error',
     },
   },

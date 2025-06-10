@@ -27,14 +27,11 @@ const app = new Hono<{
     validatedQuery?: Record<string, unknown>;
     validatedParams?: Record<string, unknown>;
   };
-}());
+}>();
 
-// Handle OPTIONS requests first, before any validation
-app.use('*', async (c, next) => {
-  if (c.req.method === 'OPTIONS') {
-    return c.text('', 204);
-  }
-  await next();
+// Handle all OPTIONS requests immediately
+app.options('*', (c) => {
+  return new Response(null, { status: 204 });
 });
 
 // GET /api/karaoke/* - Get karaoke data for a track (supports complex trackIds)
@@ -45,12 +42,40 @@ app.get('/*', validateQuery(songQuerySchema), async (c) => {
   const query = c.get('validatedQuery') as z.infer<typeof songQuerySchema> | undefined;
   const { title = '', artist = '' } = query || {};
 
+  console.log(`[Karaoke] Processing request for trackId: ${trackId}, title: ${title}, artist: ${artist}`);
+
+  // Check if database is available
+  if (!c.env.DB) {
+    console.log('[Karaoke] No database available - returning mock response');
+    return c.json({
+      success: false,
+      track_id: trackId,
+      has_karaoke: false,
+      error: 'Database not configured - API is working!',
+      api_connected: true,
+      message: `✅ API Connected! Track detected: ${artist} - ${title}. Database setup needed for lyrics.`
+    });
+  }
+
   const songService = new SongService(c.env);
   const lyricsService = new LyricsService();
   const geniusService = new GeniusService(c.env.GENIUS_API_KEY || '');
 
   // Check if song exists in catalog
-  let song = await songService.getSongByTrackId(trackId);
+  let song;
+  try {
+    song = await songService.getSongByTrackId(trackId);
+  } catch (dbError) {
+    console.log('[Karaoke] Database error:', dbError);
+    return c.json({
+      success: false,
+      track_id: trackId,
+      has_karaoke: false,
+      error: 'Database connection failed - API is working!',
+      api_connected: true,
+      message: `✅ API Connected! Track detected: ${artist} - ${title}. Database connection needed.`
+    });
+  }
   if (song && song.lyricsType === 'synced') {
     return c.json({
       success: true,

@@ -1,7 +1,9 @@
 export interface KaraokeData {
   success: boolean;
-  trackId: string;
-  hasKaraoke: boolean;
+  track_id?: string;
+  trackId?: string;
+  has_karaoke?: boolean;
+  hasKaraoke?: boolean;
   song?: {
     id: string;
     title: string;
@@ -65,9 +67,10 @@ export class KaraokeApiService {
       
       const response = await fetch(url, {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        // Remove Content-Type header to avoid CORS preflight
+        // headers: {
+        //   'Content-Type': 'application/json',
+        // },
       });
 
       if (!response.ok) {
@@ -83,9 +86,9 @@ export class KaraokeApiService {
         console.log('[KaraokeApi] Server error (but API is reachable):', data.error);
         return {
           success: false,
-          hasKaraoke: false,
+          has_karaoke: false,
           error: data.error,
-          trackId: trackId,
+          track_id: trackId,
           api_connected: true
         };
       }

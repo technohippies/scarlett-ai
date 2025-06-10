@@ -47,6 +47,12 @@ app.get('/', (c) => {
   });
 });
 
+// Handle OPTIONS for karaoke routes specifically (before mounting)
+app.options('/api/karaoke/*', (c) => {
+  console.log('[CORS] Handling OPTIONS for karaoke route');
+  return c.text('', 204);
+});
+
 // Mount routes
 app.route('/api/health', healthRoutes);
 app.route('/auth', authRoutes);

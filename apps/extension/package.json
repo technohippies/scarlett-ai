@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
-    "@scarlett/eslint-config": "workspace:*",
     "@scarlett/typescript-config": "workspace:*",
     "@types/chrome": "^0.0.280",
     "@types/webextension-polyfill": "^0.12.1",
