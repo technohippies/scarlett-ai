@@ -27,16 +27,21 @@ const app = new Hono<{
     validatedQuery?: Record<string, unknown>;
     validatedParams?: Record<string, unknown>;
   };
-}>();
+}());
 
-// OPTIONS /api/karaoke/:trackId - Handle CORS preflight
-app.options('/:trackId', (_c) => {
-  return new Response(null, { status: 204 });
+// Handle OPTIONS requests first, before any validation
+app.use('*', async (c, next) => {
+  if (c.req.method === 'OPTIONS') {
+    return c.text('', 204);
+  }
+  await next();
 });
 
-// GET /api/karaoke/:trackId - Get karaoke data for a track
-app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
-  const trackId = c.req.param('trackId');
+// GET /api/karaoke/* - Get karaoke data for a track (supports complex trackIds)
+app.get('/*', validateQuery(songQuerySchema), async (c) => {
+  // Extract track ID from the full path, removing the leading slash
+  const fullPath = c.req.path.replace('/api/karaoke/', '');
+  const [trackId] = fullPath.split('?'); // Remove query parameters if any
   const query = c.get('validatedQuery') as z.infer<typeof songQuerySchema> | undefined;
   const { title = '', artist = '' } = query || {};
 

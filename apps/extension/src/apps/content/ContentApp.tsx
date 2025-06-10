@@ -44,7 +44,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
         track.artist
       );
 
-      if (data && data.has_karaoke) {
+      if (data && data.hasKaraoke) {
         setKaraokeData(data);
         console.log('[ContentApp] Karaoke data loaded:', data);
       } else if (data?.api_connected) {
@@ -107,7 +107,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
       };
     }
 
-    if (error() || !data?.has_karaoke) {
+    if (error() || !data?.hasKaraoke) {
       const errorMessage = error() || 'No karaoke available for this track';
       const isApiConnected = errorMessage.includes('Cannot read properties') || errorMessage.includes('prepare');
       

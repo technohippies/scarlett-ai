@@ -18,6 +18,8 @@ export interface KaraokeData {
     totalLines: number;
   };
   message?: string;
+  error?: string;
+  api_connected?: boolean;
 }
 
 export interface LyricLine {
@@ -81,9 +83,9 @@ export class KaraokeApiService {
         console.log('[KaraokeApi] Server error (but API is reachable):', data.error);
         return {
           success: false,
-          has_karaoke: false,
+          hasKaraoke: false,
           error: data.error,
-          track_id: trackId,
+          trackId: trackId,
           api_connected: true
         };
       }
