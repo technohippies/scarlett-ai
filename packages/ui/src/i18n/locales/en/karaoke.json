@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "Karaoke Session",
+    "subtitle": "Sing along and have fun!",
+    "songBy": "by {{artist}}"
+  },
+  "lyrics": {
+    "loading": "Loading lyrics...",
+    "noLyrics": "No lyrics available",
+    "scrollPrompt": "Scroll to see more"
+  },
+  "recording": {
+    "listening": "Listening...",
+    "speak": "Start singing!",
+    "processing": "Processing your performance..."
+  },
+  "scoring": {
+    "perfect": "Perfect! You nailed every note!",
+    "excellent": "Excellent performance!",
+    "great": "Great job!",
+    "good": "Good performance!",
+    "keepPracticing": "Keep practicing!",
+    "score": "Score",
+    "accuracy": "Accuracy",
+    "timing": "Timing"
+  },
+  "completion": {
+    "title": "Performance Complete!",
+    "performanceComplete": "You've completed the song!",
+    "yourScore": "Your score: {{score}}",
+    "sharePrompt": "Share your performance",
+    "shareMessage": "I just scored {{score}} on {{song}} by {{artist}}! 🎤",
+    "playAgain": "Play Again",
+    "tryAnotherSong": "Try Another Song",
+    "downloadRecording": "Download Recording"
+  },
+  "leaderboard": {
+    "title": "Leaderboard",
+    "topPerformers": "Top Performers",
+    "yourRank": "Your Rank: #{{rank}}",
+    "anonymous": "Anonymous"
+  }
+}

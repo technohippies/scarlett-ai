@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/html';
-import '../src/styles/globals.css'
+import '../src/styles/globals.css';
 
 const preview: Preview = {
   parameters: {
@@ -18,6 +18,22 @@ const preview: Preview = {
       ],
     },
   },
-}
+  globalTypes: {
+    locale: {
+      name: 'Locale',
+      description: 'Internationalization locale',
+      defaultValue: 'en',
+      toolbar: {
+        icon: 'globe',
+        items: [
+          { value: 'en', title: 'English', right: '🇺🇸' },
+          { value: 'zh-CN', title: '简体中文', right: '🇨🇳' },
+        ],
+        showName: true,
+      },
+    },
+  },
+  // Remove global decorator - we'll add i18n to individual stories that need it
+};
 
-export default preview
+export default preview;

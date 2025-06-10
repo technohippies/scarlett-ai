@@ -20,4 +20,3 @@ export * from './common/Button';
 export * from './common/Card';
 export * from './common/Tabs';
 export * from './common/SplitButton';
-export * from './common/ShimmerText';

@@ -1,0 +1,8 @@
+{
+  "scorePanel": {
+    "currentScore": "当前得分",
+    "bestScore": "最高得分",
+    "streak": "连击",
+    "multiplier": "{{value}}倍加成"
+  }
+}

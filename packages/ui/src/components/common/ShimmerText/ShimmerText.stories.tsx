@@ -13,10 +13,6 @@ const meta: Meta<typeof ShimmerText> = {
       control: 'text',
       description: 'Text to display with shimmer effect',
     },
-    speed: {
-      control: { type: 'range', min: 20, max: 100, step: 10 },
-      description: 'Milliseconds per character',
-    },
     shimmer: {
       control: 'boolean',
       description: 'Enable shimmer effect',
@@ -30,22 +26,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     text: 'Your performance was absolutely stellar! Keep up the amazing work.',
-    class: 'text-lg',
-  },
-};
-
-export const Faster: Story = {
-  args: {
-    text: 'This text streams a bit faster for quick feedback.',
-    speed: 30,
-    class: 'text-lg',
-  },
-};
-
-export const Slower: Story = {
-  args: {
-    text: 'This text streams more slowly for dramatic effect.',
-    speed: 120,
     class: 'text-lg',
   },
 };
@@ -67,19 +47,22 @@ export const StreamingSimulation: Story = {
     ];
     
     const [text, setText] = createSignal('');
-    let index = 0;
+    const [index, setIndex] = createSignal(0);
     
     // Simulate streaming text
-    const interval = setInterval(() => {
-      if (index < messages.length) {
-        setText(messages[index]);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 2000);
+    setTimeout(() => {
+      const interval = setInterval(() => {
+        const currentIndex = index();
+        if (currentIndex < messages.length) {
+          setText(messages[currentIndex]);
+          setIndex(currentIndex + 1);
+        } else {
+          clearInterval(interval);
+        }
+      }, 3000);
+    }, 500);
     
-    return (
+    return () => (
       <ShimmerText text={text()} class="text-lg" />
     );
   },

@@ -1,10 +1,10 @@
-import { createSignal, onMount } from 'solid-js';
-import type { Meta, StoryObj } from 'storybook-solidjs';
+import type { Meta, StoryObj } from '@storybook/html';
 import { CompletionView } from './CompletionView';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<typeof CompletionView> = {
   title: 'Karaoke/CompletionView',
-  component: CompletionView,
+  render: withI18n(CompletionView),
   parameters: {
     layout: 'fullscreen',
   },
@@ -24,7 +24,11 @@ const meta: Meta<typeof CompletionView> = {
     },
     feedbackText: {
       control: 'text',
-      description: 'LLM feedback text',
+      description: 'Custom feedback text (optional)',
+    },
+    onPractice: {
+      action: 'practice-clicked',
+      description: 'Callback when practice button is clicked',
     },
   },
 };
@@ -32,12 +36,12 @@ const meta: Meta<typeof CompletionView> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const HighScore: Story = {
+export const Default: Story = {
   args: {
-    score: 8750,
+    score: 87,
     rank: 7,
     speed: '1x',
-    feedbackText: 'Outstanding performance! Your rhythm was perfectly on point and your pitch accuracy was exceptional.',
+    onPractice: () => console.log('Practice clicked!'),
   },
   decorators: [
     (Story) => (
@@ -50,10 +54,9 @@ export const HighScore: Story = {
 
 export const TopRank: Story = {
   args: {
-    score: 12500,
+    score: 98,
     rank: 1,
     speed: '1x',
-    feedbackText: 'Absolutely incredible! You just set a new record. Your vocal control and timing were flawless.',
   },
   decorators: [
     (Story) => (
@@ -64,71 +67,33 @@ export const TopRank: Story = {
   ],
 };
 
-export const SlowSpeed: Story = {
+export const WithCustomFeedback: Story = {
   args: {
-    score: 6200,
-    rank: 23,
+    score: 75,
+    rank: 15,
+    speed: '0.75x',
+    feedbackText: 'Great job! Your rhythm was on point and you hit those high notes perfectly.',
+    onPractice: () => console.log('Practice clicked!'),
+  },
+  decorators: [
+    (Story) => (
+      <div class="w-full max-w-[420px] mx-auto">
+        {Story()}
+      </div>
+    ),
+  ],
+};
+
+export const WithoutPracticeButton: Story = {
+  args: {
+    score: 50,
+    rank: 42,
     speed: '0.5x',
-    feedbackText: 'Great job practicing at a slower speed! Keep working on your timing and you\'ll be ready for full speed.',
+    // No onPractice prop - button won't show
   },
   decorators: [
     (Story) => (
       <div class="w-full max-w-[420px] mx-auto">
-        {Story()}
-      </div>
-    ),
-  ],
-};
-
-export const StreamingFeedback: Story = {
-  render: () => {
-    const [feedbackText, setFeedbackText] = createSignal('');
-    
-    onMount(() => {
-      const fullText = 'Amazing work! Your vocal technique has really improved and your emotional delivery was spot on. Keep practicing and you\'ll be a karaoke superstar!';
-      
-      // Simulate streaming from LLM - text arrives in chunks
-      const chunks = [
-        'Amazing work!',
-        'Amazing work! Your vocal technique has really improved',
-        'Amazing work! Your vocal technique has really improved and your emotional delivery was spot on.',
-        'Amazing work! Your vocal technique has really improved and your emotional delivery was spot on. Keep practicing and you\'ll be a karaoke superstar!',
-      ];
-      
-      let index = 0;
-      const interval = setInterval(() => {
-        if (index < chunks.length) {
-          setFeedbackText(chunks[index]);
-          index++;
-        } else {
-          clearInterval(interval);
-        }
-      }, 1500);
-    });
-    
-    return (
-      <div class="w-full max-w-[420px] mx-auto">
-        <CompletionView
-          score={9250}
-          rank={4}
-          speed="0.75x"
-          feedbackText={feedbackText()}
-        />
-      </div>
-    );
-  },
-};
-
-export const FarcasterView: Story = {
-  args: {
-    score: 7800,
-    rank: 12,
-    speed: '1x',
-    feedbackText: 'Solid performance! Your consistency throughout the song was impressive. Try pushing your range a bit more next time.',
-  },
-  decorators: [
-    (Story) => (
-      <div class="w-full max-w-[424px] mx-auto">
         {Story()}
       </div>
     ),

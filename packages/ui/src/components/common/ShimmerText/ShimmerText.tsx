@@ -4,14 +4,14 @@ import { cn } from '../../../utils/cn';
 
 export interface ShimmerTextProps {
   text: string;
-  speed?: number; // ms per character (always character-based now)
+  speed?: number; // ms per character
   shimmer?: boolean;
   class?: string;
 }
 
 export const ShimmerText: Component<ShimmerTextProps> = (props) => {
   const [displayedText, setDisplayedText] = createSignal('');
-  const [isStreaming, setIsStreaming] = createSignal(false);
+  const [isComplete, setIsComplete] = createSignal(false);
   
   const speed = () => props.speed || 80; // Default human-readable pace
   const shimmer = () => props.shimmer !== false;
@@ -20,33 +20,34 @@ export const ShimmerText: Component<ShimmerTextProps> = (props) => {
   createEffect(() => {
     if (!props.text) {
       setDisplayedText('');
-      setIsStreaming(false);
+      setIsComplete(false);
       return;
     }
     
     // Reset if text changes completely
     if (!props.text.startsWith(displayedText())) {
       setDisplayedText('');
+      setIsComplete(false);
     }
     
     const currentLength = displayedText().length;
     if (currentLength >= props.text.length) {
-      setIsStreaming(false);
+      setIsComplete(true);
       return;
     }
     
-    setIsStreaming(true);
+    setIsComplete(false);
     
     const interval = setInterval(() => {
       const current = displayedText();
       
       if (current.length >= props.text.length) {
-        setIsStreaming(false);
+        setIsComplete(true);
         clearInterval(interval);
         return;
       }
       
-      // Always stream character by character for smooth effect
+      // Stream character by character
       setDisplayedText(props.text.slice(0, current.length + 1));
     }, speed());
     
@@ -60,11 +61,11 @@ export const ShimmerText: Component<ShimmerTextProps> = (props) => {
         {props.text}
       </div>
       
-      {/* Visible streaming text positioned absolutely */}
+      {/* Visible streaming text */}
       <div 
         class={cn(
           'absolute inset-0 whitespace-pre-wrap',
-          shimmer() && isStreaming() && 'animate-shimmer-text'
+          shimmer() && !isComplete() && 'animate-shimmer-text'
         )}
       >
         {displayedText()}

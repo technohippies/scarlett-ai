@@ -1,0 +1,8 @@
+{
+  "scorePanel": {
+    "currentScore": "Current Score",
+    "bestScore": "Best Score",
+    "streak": "Streak",
+    "multiplier": "{{value}}x Multiplier"
+  }
+}

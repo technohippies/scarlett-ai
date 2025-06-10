@@ -1,0 +1,43 @@
+{
+  "header": {
+    "title": "卡拉OK时间",
+    "subtitle": "跟着唱，享受乐趣！",
+    "songBy": "演唱：{{artist}}"
+  },
+  "lyrics": {
+    "loading": "歌词加载中...",
+    "noLyrics": "暂无歌词",
+    "scrollPrompt": "滚动查看更多"
+  },
+  "recording": {
+    "listening": "聆听中...",
+    "speak": "开始唱歌吧！",
+    "processing": "正在处理您的表演..."
+  },
+  "scoring": {
+    "perfect": "完美！每个音符都唱对了！",
+    "excellent": "表现出色！",
+    "great": "唱得很棒！",
+    "good": "表现不错！",
+    "keepPracticing": "继续加油！",
+    "score": "得分",
+    "accuracy": "准确度",
+    "timing": "节奏感"
+  },
+  "completion": {
+    "title": "演唱完成！",
+    "performanceComplete": "您已完成这首歌！",
+    "yourScore": "您的得分：{{score}}",
+    "sharePrompt": "分享您的表演",
+    "shareMessage": "我刚在《{{song}}》（{{artist}}）中获得了{{score}}分！🎤",
+    "playAgain": "再唱一次",
+    "tryAnotherSong": "换首歌试试",
+    "downloadRecording": "下载录音"
+  },
+  "leaderboard": {
+    "title": "排行榜",
+    "topPerformers": "最佳表演者",
+    "yourRank": "您的排名：第{{rank}}名",
+    "anonymous": "匿名用户"
+  }
+}

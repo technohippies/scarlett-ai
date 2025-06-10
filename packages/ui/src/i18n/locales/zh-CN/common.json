@@ -1,0 +1,28 @@
+{
+  "buttons": {
+    "start": "开始",
+    "stop": "停止",
+    "continue": "继续",
+    "cancel": "取消",
+    "back": "返回",
+    "next": "下一步",
+    "skip": "跳过",
+    "save": "保存",
+    "share": "分享"
+  },
+  "status": {
+    "loading": "加载中...",
+    "ready": "准备就绪",
+    "recording": "录音中",
+    "processing": "处理中...",
+    "error": "错误",
+    "success": "成功",
+    "offline": "离线"
+  },
+  "speed": {
+    "label": "速度",
+    "slow": "慢速",
+    "normal": "正常",
+    "fast": "快速"
+  }
+}

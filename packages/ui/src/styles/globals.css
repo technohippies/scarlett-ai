@@ -155,7 +155,8 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: shimmer-text 2.5s infinite;
+    animation: shimmer-text 3s ease-in-out infinite;
+    background-position: 100% 0;
   }
   
   .animate-cursor-blink {

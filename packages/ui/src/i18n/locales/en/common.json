@@ -1,0 +1,28 @@
+{
+  "buttons": {
+    "start": "Start",
+    "stop": "Stop",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "save": "Save",
+    "share": "Share"
+  },
+  "status": {
+    "loading": "Loading...",
+    "ready": "Ready",
+    "recording": "Recording",
+    "processing": "Processing...",
+    "error": "Error",
+    "success": "Success",
+    "offline": "Offline"
+  },
+  "speed": {
+    "label": "Speed",
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast"
+  }
+}
