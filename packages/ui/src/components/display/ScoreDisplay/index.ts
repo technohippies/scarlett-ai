@@ -1,1 +1,0 @@
-export { ScoreDisplay, type ScoreDisplayProps } from './ScoreDisplay';

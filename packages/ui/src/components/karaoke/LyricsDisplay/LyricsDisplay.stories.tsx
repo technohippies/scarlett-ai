@@ -1,0 +1,65 @@
+import type { Meta, StoryObj } from 'storybook-solidjs';
+import { LyricsDisplay } from './LyricsDisplay';
+
+const mockLyrics = [
+  { id: '1', text: "Never gonna give you up", startTime: 0, duration: 3000 },
+  { id: '2', text: "Never gonna let you down", startTime: 3000, duration: 3000 },
+  { id: '3', text: "Never gonna run around and desert you", startTime: 6000, duration: 4000 },
+  { id: '4', text: "Never gonna make you cry", startTime: 10000, duration: 3000 },
+  { id: '5', text: "Never gonna say goodbye", startTime: 13000, duration: 3000 },
+  { id: '6', text: "Never gonna tell a lie and hurt you", startTime: 16000, duration: 4000 },
+];
+
+const meta: Meta<typeof LyricsDisplay> = {
+  title: 'Karaoke/LyricsDisplay',
+  component: LyricsDisplay,
+  parameters: {
+    layout: 'fullscreen',
+  },
+  decorators: [
+    (Story) => (
+      <div class="bg-base h-screen p-8">
+        <div class="max-w-2xl mx-auto h-full bg-surface rounded-lg overflow-hidden">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
+  argTypes: {
+    currentTime: {
+      control: { type: 'range', min: 0, max: 20000, step: 100 },
+      description: 'Current playback time in milliseconds',
+    },
+    isPlaying: {
+      control: 'boolean',
+      description: 'Whether the karaoke is playing',
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Idle: Story = {
+  args: {
+    lyrics: mockLyrics,
+    currentTime: 0,
+    isPlaying: false,
+  },
+};
+
+export const Playing: Story = {
+  args: {
+    lyrics: mockLyrics,
+    currentTime: 7000,
+    isPlaying: true,
+  },
+};
+
+export const EmptyState: Story = {
+  args: {
+    lyrics: [],
+    currentTime: 0,
+    isPlaying: false,
+  },
+};

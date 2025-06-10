@@ -1,4 +1,4 @@
-import LRCLib from 'lrclib-api';
+import { findLyrics, searchLyrics } from 'lrclib-api';
 import type { LyricsLine } from '../types';
 
 interface LRCLibSearchParams {
@@ -16,8 +16,8 @@ interface LRCLibLyrics {
   albumName: string;
   duration: number;
   instrumental: boolean;
-  plainLyrics: string;
-  syncedLyrics: string;
+  plainLyrics: string | null;
+  syncedLyrics: string | null;
 }
 
 interface LRCLine {
@@ -26,11 +26,7 @@ interface LRCLine {
 }
 
 export class LyricsService {
-  private lrclib: LRCLib;
-
-  constructor() {
-    this.lrclib = new LRCLib();
-  }
+  constructor() {}
 
   async searchLyrics(params: LRCLibSearchParams): Promise<{
     type: 'synced' | 'unsynced' | 'none';
@@ -39,8 +35,8 @@ export class LyricsService {
   }> {
     try {
       // Try to get synced lyrics first
-      const syncedResult = await this.lrclib.get(params);
-      if (syncedResult) {
+      const syncedResult = await findLyrics(params);
+      if (syncedResult && syncedResult.syncedLyrics) {
         const parsed = this.parseLRCString(syncedResult.syncedLyrics);
         if (parsed.length > 0) {
           return {
@@ -54,7 +50,7 @@ export class LyricsService {
       // Try variations of the track name
       const titleVariants = this.createTitleVariants(params.track_name);
       for (const title of titleVariants) {
-        const variantResult = await this.lrclib.get({
+        const variantResult = await findLyrics({
           ...params,
           track_name: title,
         });
@@ -72,7 +68,7 @@ export class LyricsService {
       }
 
       // Try search endpoint as fallback
-      const searchResults = await this.lrclib.search(params);
+      const searchResults = await searchLyrics(params);
       if (searchResults && searchResults.length > 0) {
         const bestMatch = searchResults[0];
         if (bestMatch.syncedLyrics) {

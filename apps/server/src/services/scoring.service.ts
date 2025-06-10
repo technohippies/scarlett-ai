@@ -1,7 +1,5 @@
-import { DoubleMetaphone } from 'double-metaphone';
+import { doubleMetaphone } from 'double-metaphone';
 import type { WordScore } from '../types';
-
-const metaphone = new DoubleMetaphone();
 
 export class ScoringService {
   calculateKaraokeScore(
@@ -141,8 +139,8 @@ export class ScoringService {
       return word1 === word2;
     }
 
-    const [primary1, alternate1] = metaphone.process(word1);
-    const [primary2, alternate2] = metaphone.process(word2);
+    const [primary1, alternate1] = doubleMetaphone(word1);
+    const [primary2, alternate2] = doubleMetaphone(word2);
 
     return (
       primary1 === primary2 ||

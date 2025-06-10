@@ -1,0 +1,1 @@
+export { LyricsDisplay, type LyricsDisplayProps, type LyricLine } from './LyricsDisplay';

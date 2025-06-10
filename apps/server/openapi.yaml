@@ -1,0 +1,616 @@
+openapi: 3.0.0
+info:
+  title: Scarlett Karaoke API
+  description: AI-powered karaoke coaching platform API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@scarlettx.xyz
+
+servers:
+  - url: http://localhost:8787
+    description: Development server
+  - url: https://api.scarlettx.xyz
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User authentication and management
+  - name: Karaoke
+    description: Karaoke session management and grading
+  - name: Songs
+    description: Song catalog and metadata
+  - name: Tutor
+    description: AI tutoring and coaching
+  - name: System
+    description: System health and status
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Extension token (scarlett_*) or API key (sk_live_*)
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Invalid request"
+        code:
+          type: string
+          example: "VALIDATION_ERROR"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+        subscriptionStatus:
+          type: string
+          enum: [trial, active, expired, cancelled]
+        creditsRemaining:
+          type: integer
+          minimum: 0
+
+    Song:
+      type: object
+      properties:
+        id:
+          type: string
+        trackId:
+          type: string
+        title:
+          type: string
+        artist:
+          type: string
+        album:
+          type: string
+        difficulty:
+          type: string
+          enum: [beginner, intermediate, advanced]
+        artworkUrl:
+          type: string
+          format: uri
+
+    LyricsLine:
+      type: object
+      properties:
+        id:
+          type: integer
+        timestamp:
+          type: integer
+        text:
+          type: string
+        duration:
+          type: integer
+        startTime:
+          type: number
+        endTime:
+          type: number
+
+paths:
+  # Authentication endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                walletAddress:
+                  type: string
+                  pattern: '^0x[a-fA-F0-9]{40}$'
+                displayName:
+                  type: string
+                  minLength: 1
+                  maxLength: 50
+      responses:
+        '200':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+                    example: "scarlett_eyJhbGc..."
+        '409':
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              oneOf:
+                - required: [email]
+                - required: [walletAddress]
+              properties:
+                email:
+                  type: string
+                  format: email
+                walletAddress:
+                  type: string
+                  pattern: '^0x[a-fA-F0-9]{40}$'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  user:
+                    $ref: '#/components/schemas/User'
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/me:
+    get:
+      tags:
+        - Authentication
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  user:
+                    allOf:
+                      - $ref: '#/components/schemas/User'
+                      - type: object
+                        properties:
+                          walletAddress:
+                            type: string
+                          avatarUrl:
+                            type: string
+                          creditsUsed:
+                            type: integer
+                          creditsLimit:
+                            type: integer
+                          createdAt:
+                            type: string
+                            format: date-time
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Karaoke endpoints
+  /api/karaoke/{trackId}:
+    get:
+      tags:
+        - Karaoke
+      summary: Get karaoke data for a track
+      parameters:
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Track identifier
+        - name: title
+          in: query
+          schema:
+            type: string
+          description: Song title for better matching
+        - name: artist
+          in: query
+          schema:
+            type: string
+          description: Artist name for better matching
+      responses:
+        '200':
+          description: Karaoke data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  trackId:
+                    type: string
+                  hasKaraoke:
+                    type: boolean
+                  song:
+                    $ref: '#/components/schemas/Song'
+                  lyrics:
+                    type: object
+                    properties:
+                      source:
+                        type: string
+                        enum: [genius, lrclib]
+                      type:
+                        type: string
+                        enum: [synced, unsynced]
+                      lines:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/LyricsLine'
+                      totalLines:
+                        type: integer
+                  cached:
+                    type: boolean
+
+  /api/karaoke/start:
+    post:
+      tags:
+        - Karaoke
+      summary: Start a karaoke session
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - trackId
+                - songData
+              properties:
+                trackId:
+                  type: string
+                songData:
+                  type: object
+                  required:
+                    - title
+                    - artist
+                  properties:
+                    title:
+                      type: string
+                    artist:
+                      type: string
+                    geniusId:
+                      type: string
+                    duration:
+                      type: integer
+      responses:
+        '200':
+          description: Session created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  sessionId:
+                    type: string
+                    format: uuid
+                  message:
+                    type: string
+                  session:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      trackId:
+                        type: string
+                      songTitle:
+                        type: string
+                      songArtist:
+                        type: string
+                      status:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+        '402':
+          description: Insufficient credits
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Error'
+                  - type: object
+                    properties:
+                      creditsRequired:
+                        type: integer
+                      creditsRemaining:
+                        type: integer
+
+  /api/karaoke/grade:
+    post:
+      tags:
+        - Karaoke
+      summary: Grade a karaoke line
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sessionId
+                - lineIndex
+                - audioData
+                - expectedText
+                - attemptNumber
+              properties:
+                sessionId:
+                  type: string
+                  format: uuid
+                lineIndex:
+                  type: integer
+                  minimum: 0
+                audioData:
+                  type: string
+                  description: Base64 encoded audio
+                expectedText:
+                  type: string
+                attemptNumber:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Line graded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  sessionId:
+                    type: string
+                  lineIndex:
+                    type: integer
+                  score:
+                    type: integer
+                    minimum: 0
+                    maximum: 100
+                  feedback:
+                    type: string
+                  transcribedText:
+                    type: string
+                  wordScores:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        word:
+                          type: string
+                        score:
+                          type: integer
+                        matched:
+                          type: boolean
+                        phoneticMatch:
+                          type: boolean
+                  confidence:
+                    type: number
+
+  # Songs endpoints
+  /api/songs/popular:
+    get:
+      tags:
+        - Songs
+      summary: Get popular songs
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+            enum: [beginner, intermediate, advanced]
+      responses:
+        '200':
+          description: Popular songs list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Song'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      hasMore:
+                        type: boolean
+
+  /api/songs/{songId}/leaderboard:
+    get:
+      tags:
+        - Songs
+      summary: Get song leaderboard
+      parameters:
+        - name: songId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        '200':
+          description: Song leaderboard
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  songId:
+                    type: string
+                  leaderboard:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rank:
+                          type: integer
+                        userId:
+                          type: string
+                        displayName:
+                          type: string
+                        bestScore:
+                          type: integer
+                        achievedAt:
+                          type: string
+                          format: date-time
+                        totalAttempts:
+                          type: integer
+
+  # System endpoints
+  /api/health:
+    get:
+      tags:
+        - System
+      summary: Health check
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, degraded, unhealthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+                  environment:
+                    type: string
+                  services:
+                    type: object
+                    properties:
+                      database:
+                        type: string
+                      genius:
+                        type: string
+                      elevenlabs:
+                        type: string
+                      deepgram:
+                        type: string
+                      venice:
+                        type: string
+
+  /api/speech-to-text:
+    post:
+      tags:
+        - System
+      summary: Convert speech to text
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file (WAV, WebM, MP3)
+      responses:
+        '200':
+          description: Transcription result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  text:
+                    type: string
+                  confidence:
+                    type: number
+                  provider:
+                    type: string
+                    enum: [deepgram, elevenlabs]

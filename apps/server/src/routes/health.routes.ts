@@ -8,8 +8,12 @@ app.get('/', async (c) => {
   // Check database connectivity
   let dbStatus = 'unknown';
   try {
-    const result = await c.env.DB.prepare('SELECT 1 as healthy').first();
-    dbStatus = result ? 'healthy' : 'unhealthy';
+    if (c.env.DB) {
+      const result = await c.env.DB.prepare('SELECT 1 as healthy').first();
+      dbStatus = result ? 'healthy' : 'unhealthy';
+    } else {
+      dbStatus = 'not configured';
+    }
   } catch (error) {
     dbStatus = 'error';
     console.error('[Health] Database check failed:', error);

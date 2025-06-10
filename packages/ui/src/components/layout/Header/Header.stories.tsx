@@ -43,12 +43,6 @@ const Logo = () => (
 
 const Actions = () => (
   <>
-    <Button variant="ghost" size="sm">
-      Songs
-    </Button>
-    <Button variant="ghost" size="sm">
-      Leaderboard
-    </Button>
     <Button variant="primary" size="sm">
       Sign In
     </Button>

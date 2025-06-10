@@ -1,0 +1,1 @@
+export { ScorePanel, type ScorePanelProps } from './ScorePanel';

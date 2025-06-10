@@ -1,0 +1,1 @@
+export { KaraokeHeader, type KaraokeHeaderProps } from './KaraokeHeader';

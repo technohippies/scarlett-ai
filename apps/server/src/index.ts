@@ -16,6 +16,7 @@ import healthRoutes from './routes/health.routes';
 import karaokeRoutes from './routes/karaoke.routes';
 import songsRoutes from './routes/songs.routes';
 import sttRoutes from './routes/stt.routes';
+import docsApp from './docs/openapi';
 
 // Create app
 const app = new Hono<{ Bindings: Env }>();
@@ -47,6 +48,15 @@ app.route('/auth', authRoutes);
 app.route('/api/karaoke', karaokeRoutes);
 app.route('/api/songs', songsRoutes);
 app.route('/api/speech-to-text', sttRoutes);
+
+// Documentation (only in development)
+app.use('/docs/*', async (c, next) => {
+  if (c.env.ENVIRONMENT === 'production') {
+    return c.notFound();
+  }
+  await next();
+});
+app.route('/docs', docsApp);
 
 // 404 handler
 app.notFound((c) => {

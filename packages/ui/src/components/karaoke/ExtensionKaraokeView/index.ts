@@ -1,0 +1,1 @@
+export { ExtensionKaraokeView, type ExtensionKaraokeViewProps } from './ExtensionKaraokeView';

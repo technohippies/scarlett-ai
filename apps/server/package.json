@@ -10,6 +10,12 @@
     "build": "tsc",
     "type-check": "tsc --noEmit",
     "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "docs:generate": "tsx scripts/generate-openapi.ts",
+    "docs:serve": "npx @redocly/cli preview-docs openapi.yaml",
     "db:migrate": "wrangler d1 execute scarlett-dev --file=./schema/migrations/001_initial.sql",
     "db:migrate:prod": "wrangler d1 execute scarlett-prod --env production --file=./schema/migrations/001_initial.sql"
   },
@@ -24,13 +30,19 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241218.0",
-    "@scarlett/eslint-config": "workspace:*",
-    "@scarlett/typescript-config": "workspace:*",
+    "@scalar/hono-api-reference": "^0.5.0",
     "@types/node": "^22.10.2",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
     "eslint": "^9.16.0",
+    "js-yaml": "^4.1.0",
+    "miniflare": "^3.0.0",
+    "msw": "^2.7.0",
+    "tsx": "^4.0.0",
     "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
     "wrangler": "4"
   }
 }
