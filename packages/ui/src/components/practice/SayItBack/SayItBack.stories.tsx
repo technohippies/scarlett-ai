@@ -5,7 +5,7 @@ const meta: Meta<typeof SayItBack> = {
   title: 'Practice/SayItBack',
   component: SayItBack,
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
   },
   argTypes: {
     prompt: {

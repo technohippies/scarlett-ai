@@ -3,6 +3,7 @@ import type { Component } from 'solid-js';
 import { ProgressBar } from '../../common/ProgressBar';
 import { PracticeHeader } from '../PracticeHeader';
 import { ExerciseFooter } from '../ExerciseFooter';
+import { ExerciseTemplate } from '../ExerciseTemplate';
 import { SayItBack } from '../SayItBack';
 import { cn } from '../../../utils/cn';
 
@@ -106,18 +107,23 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
         onExit={props.onExit} 
       />
       
-      <main class="flex-1 flex items-center justify-center pb-24">
+      <main class="flex-1">
         <Show when={currentExercise()}>
           {(exercise) => (
             <Show when={exercise().type === 'say-it-back'}>
-              <SayItBack
-                prompt={exercise().prompt}
-                audioUrl={exercise().audioUrl}
-                isPlaying={isPlaying()}
-                userTranscript={userTranscript()}
-                isCorrect={isCorrect()}
-                onPlayAudio={handlePlayAudio}
-              />
+              <ExerciseTemplate instructionText="Listen and repeat:">
+                <SayItBack
+                  prompt={exercise().prompt}
+                  audioUrl={exercise().audioUrl}
+                  isPlaying={isPlaying()}
+                  userTranscript={userTranscript()}
+                  isCorrect={isCorrect()}
+                  onPlayAudio={handlePlayAudio}
+                  isRecording={isRecording()}
+                  isProcessing={isProcessing()}
+                  canSubmit={canSubmit()}
+                />
+              </ExerciseTemplate>
             </Show>
           )}
         </Show>

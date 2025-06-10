@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import type { Env } from '../types';
+import type { Env, User } from '../types';
 import { NotFoundError } from '../types';
 import { 
   AuthService, 
@@ -11,7 +11,7 @@ import {
   ScoringService,
   STTService 
 } from '../services';
-import { authMiddleware, requireCredits, type AuthContext } from '../middleware';
+import { authMiddleware, requireCredits } from '../middleware';
 import { validateBody, validateQuery } from '../middleware';
 import { 
   createSessionSchema, 
@@ -19,7 +19,15 @@ import {
   gradeAudioSchema
 } from '../utils/validation';
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ 
+  Bindings: Env;
+  Variables: {
+    user?: User;
+    validatedBody?: any;
+    validatedQuery?: any;
+    validatedParams?: any;
+  };
+}>();
 
 // GET /api/karaoke/:trackId - Get karaoke data for a track
 app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
@@ -141,9 +149,9 @@ app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
 });
 
 // POST /api/karaoke/start - Start a karaoke session
-app.post('/start', authMiddleware as any, requireCredits(1), validateBody(createSessionSchema), async (c: AuthContext) => {
+app.post('/start', authMiddleware, requireCredits(1), validateBody(createSessionSchema), async (c) => {
   const data = c.get('validatedBody') as z.infer<typeof createSessionSchema>;
-  const user = c.user!;
+  const user = c.get('user');
 
   const sessionService = new SessionService(c.env);
   const authService = new AuthService(c.env);
@@ -170,9 +178,9 @@ app.post('/start', authMiddleware as any, requireCredits(1), validateBody(create
 });
 
 // POST /api/karaoke/grade - Grade a single line
-app.post('/grade', authMiddleware as any, validateBody(gradeAudioSchema), async (c: AuthContext) => {
+app.post('/grade', authMiddleware, validateBody(gradeAudioSchema), async (c) => {
   const data = c.get('validatedBody') as z.infer<typeof gradeAudioSchema>;
-  const user = c.user!;
+  const user = c.get('user');
 
   const sessionService = new SessionService(c.env);
   const sttService = new STTService(c.env);
@@ -229,9 +237,9 @@ app.post('/grade', authMiddleware as any, validateBody(gradeAudioSchema), async 
 });
 
 // GET /api/karaoke/session/:sessionId - Get session details
-app.get('/session/:sessionId', authMiddleware as any, async (c: AuthContext) => {
+app.get('/session/:sessionId', authMiddleware, async (c) => {
   const sessionId = c.req.param('sessionId');
-  const user = c.user!;
+  const user = c.get('user');
 
   const sessionService = new SessionService(c.env);
   
@@ -252,9 +260,9 @@ app.get('/session/:sessionId', authMiddleware as any, async (c: AuthContext) => 
 });
 
 // POST /api/karaoke/session/:sessionId/complete - Complete a session
-app.post('/session/:sessionId/complete', authMiddleware as any, async (c: AuthContext) => {
+app.post('/session/:sessionId/complete', authMiddleware, async (c) => {
   const sessionId = c.req.param('sessionId');
-  const user = c.user!;
+  const user = c.get('user');
 
   const sessionService = new SessionService(c.env);
   

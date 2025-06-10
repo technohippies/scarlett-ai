@@ -1,12 +1,18 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import type { Env } from '../types';
+import type { Env, User } from '../types';
 import { AuthService } from '../services/auth.service';
-import { authMiddleware, type AuthContext } from '../middleware/auth.middleware';
+import { authMiddleware } from '../middleware/auth.middleware';
 import { validateBody } from '../middleware/validation.middleware';
 import { emailSchema, walletAddressSchema } from '../utils/validation';
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ 
+  Bindings: Env;
+  Variables: {
+    user?: User;
+    validatedBody?: any;
+  };
+}>();
 
 // Validation schemas
 const registerSchema = z.object({
@@ -121,8 +127,8 @@ app.post('/login', validateBody(loginSchema), async (c) => {
 });
 
 // GET /auth/me
-app.get('/me', authMiddleware, async (c: AuthContext) => {
-  const user = c.user!;
+app.get('/me', authMiddleware, async (c) => {
+  const user = c.get('user');
 
   return c.json({
     success: true,

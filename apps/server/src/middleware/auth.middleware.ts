@@ -3,12 +3,14 @@ import type { Env, User } from '../types';
 import { AuthenticationError } from '../types';
 import { AuthService } from '../services/auth.service';
 
-export interface AuthContext extends Context {
-  env: Env;
-  user?: User;
-}
+export type AuthContext = Context<{
+  Bindings: Env;
+  Variables: {
+    user: User;
+  };
+}>;
 
-export async function authMiddleware(c: AuthContext, next: Next) {
+export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
   const authHeader = c.req.header('Authorization');
   
   if (!authHeader) {
@@ -34,7 +36,7 @@ export async function authMiddleware(c: AuthContext, next: Next) {
     await authService.updateLastLogin(user.id);
 
     // Attach user to context
-    c.user = user;
+    c.set('user', user);
     
     await next();
   } catch (error) {
@@ -46,7 +48,7 @@ export async function authMiddleware(c: AuthContext, next: Next) {
 }
 
 // Optional auth middleware - doesn't fail if no token
-export async function optionalAuthMiddleware(c: AuthContext, next: Next) {
+export async function optionalAuthMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
   const authHeader = c.req.header('Authorization');
   
   if (authHeader) {
@@ -57,7 +59,7 @@ export async function optionalAuthMiddleware(c: AuthContext, next: Next) {
       const user = await authService.getUserById(payload.userId);
       
       if (user && user.isActive) {
-        c.user = user;
+        c.set('user', user);
       }
     } catch {
       // Ignore auth errors for optional auth
@@ -68,14 +70,15 @@ export async function optionalAuthMiddleware(c: AuthContext, next: Next) {
 }
 
 // Credits check middleware
-export async function requireCredits(amount: number = 1) {
-  return async (c: AuthContext, next: Next) => {
-    if (!c.user) {
+export function requireCredits(amount: number = 1) {
+  return async (c: Context<{ Bindings: Env; Variables: { user: User } }>, next: Next) => {
+    const user = c.get('user');
+    if (!user) {
       throw new AuthenticationError();
     }
 
     const authService = new AuthService(c.env);
-    const hasCredits = await authService.checkCredits(c.user.id, amount);
+    const hasCredits = await authService.checkCredits(user.id, amount);
     
     if (!hasCredits) {
       return c.json(
@@ -83,7 +86,7 @@ export async function requireCredits(amount: number = 1) {
           success: false,
           error: 'Insufficient credits',
           creditsRequired: amount,
-          creditsRemaining: Math.max(0, c.user.creditsLimit - c.user.creditsUsed),
+          creditsRemaining: Math.max(0, user.creditsLimit - user.creditsUsed),
         },
         402 // Payment Required
       );

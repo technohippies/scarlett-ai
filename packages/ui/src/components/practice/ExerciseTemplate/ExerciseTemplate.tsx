@@ -1,5 +1,4 @@
-import { JSX } from 'solid-js';
-import type { Component } from 'solid-js';
+import type { Component, JSX } from 'solid-js';
 import { cn } from '../../../utils/cn';
 
 export interface ExerciseTemplateProps {

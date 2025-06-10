@@ -11,6 +11,12 @@ export interface SayItBackProps {
   userTranscript?: string;
   isCorrect?: boolean;
   onPlayAudio?: () => void;
+  onRecord?: () => void;
+  onStop?: () => void;
+  onSubmit?: () => void;
+  isRecording?: boolean;
+  isProcessing?: boolean;
+  canSubmit?: boolean;
   class?: string;
 }
 
@@ -23,51 +29,37 @@ export const SayItBack: Component<SayItBackProps> = (props) => {
   };
   
   return (
-    <div class={cn('flex flex-col items-center justify-center min-h-[400px] p-6', props.class)}>
-      <div class="text-center space-y-8 max-w-[500px]">
-        <h2 class="text-2xl font-semibold text-primary">
-          Say It Back
-        </h2>
-        
-        <p class="text-lg text-secondary">
-          Listen to the phrase and repeat it back
-        </p>
-        
-        <div class="flex justify-center">
-          <Button
-            variant={hasPlayed() ? 'secondary' : 'primary'}
-            size="lg"
-            onClick={handlePlayAudio}
-            disabled={props.isPlaying}
-            class="min-w-[140px]"
-          >
-            <IconSpeakerHighRegular size={24} class="mr-2" />
-            {props.isPlaying ? 'Playing...' : hasPlayed() ? 'Play Again' : 'Play'}
-          </Button>
-        </div>
-        
-        <Show when={props.prompt}>
-          <div class="bg-highlight rounded-lg p-4">
-            <p class="text-lg font-medium text-primary">
-              {props.prompt}
-            </p>
-          </div>
-        </Show>
-        
-        <Show when={props.userTranscript}>
-          <div class={cn(
-            'rounded-lg p-4 transition-colors',
-            props.isCorrect === true && 'bg-green-500/20 border border-green-500/40',
-            props.isCorrect === false && 'bg-red-500/20 border border-red-500/40',
-            props.isCorrect === undefined && 'bg-highlight'
-          )}>
-            <p class="text-sm text-secondary mb-1">Your response:</p>
-            <p class="text-lg font-medium text-primary">
-              {props.userTranscript}
-            </p>
-          </div>
-        </Show>
+    <div class={cn('space-y-6', props.class)}>
+      <p class="text-xl md:text-2xl text-left">
+        {props.prompt}
+      </p>
+      
+      <div class="flex justify-start">
+        <Button
+          variant={hasPlayed() ? 'secondary' : 'primary'}
+          size="lg"
+          onClick={handlePlayAudio}
+          disabled={props.isPlaying}
+          class="min-w-[140px]"
+        >
+          <IconSpeakerHighRegular size={24} class="mr-2" />
+          {props.isPlaying ? 'Playing...' : hasPlayed() ? 'Play Again' : 'Play'}
+        </Button>
       </div>
+      
+      <Show when={props.userTranscript}>
+        <div class={cn(
+          'rounded-lg p-4 transition-colors',
+          props.isCorrect === true && 'bg-green-500/20 border border-green-500/40',
+          props.isCorrect === false && 'bg-red-500/20 border border-red-500/40',
+          props.isCorrect === undefined && 'bg-highlight'
+        )}>
+          <p class="text-sm text-secondary mb-1">Your response:</p>
+          <p class="text-lg font-medium text-primary">
+            {props.userTranscript}
+          </p>
+        </div>
+      </Show>
     </div>
   );
 };
