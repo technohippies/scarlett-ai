@@ -79,23 +79,8 @@ app.get('/*', async (c) => {
       });
 
       if (lyricsResult.type !== 'none') {
-        // Fast path - skip all the other steps
+        // Fast path - skip all the other steps including Genius API
         console.log(`[Karaoke] Found lyrics using cached params in fast path`);
-        
-        // Still need to get Genius data if available for metadata
-        let song = null;
-        try {
-          const geniusService = new GeniusService(c.env.GENIUS_API_KEY || '');
-          const geniusMatch = await geniusService.findSongMatch(
-            `${cachedParams.artist} ${cachedParams.title}`, 
-            trackId
-          );
-          if (geniusMatch.found && geniusMatch.song) {
-            song = await geniusService.getSongById(geniusMatch.song.id);
-          }
-        } catch (e) {
-          // Ignore Genius errors in fast path
-        }
 
         // Process and return lyrics (jump to formatting section)
         const rawLyrics = lyricsResult.lyrics || [];
@@ -122,17 +107,7 @@ app.get('/*', async (c) => {
             return c.json({
               track_id: trackId,
               has_karaoke: true,
-              song: song ? {
-                title: song.title,
-                artist: song.primary_artist.name,
-                genius_id: song.id.toString(),
-                genius_url: song.url,
-                album: song.album?.name,
-                artwork_url: song.song_art_image_url,
-                duration: lyricsResult.metadata?.duration ? lyricsResult.metadata.duration * 1000 : null,
-                difficulty: formattedLyrics.length > 50 ? 'advanced' : formattedLyrics.length > 25 ? 'intermediate' : 'beginner',
-                start_time: 0,
-              } : {
+              song: {
                 title: cachedParams.title,
                 artist: cachedParams.artist,
                 duration: lyricsResult.metadata?.duration ? lyricsResult.metadata.duration * 1000 : null,
