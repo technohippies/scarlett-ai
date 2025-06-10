@@ -14,23 +14,41 @@ interface LRCLine {
   text: string;
 }
 
+interface SuccessInfo {
+  method: 'direct' | 'genius';
+  timestamp: number;
+  metadata?: {
+    geniusId?: string;
+    artistName?: string;
+    trackName?: string;
+  };
+}
+
 export class LyricsService {
   private static failureCache = new Map<string, number>();
+  private static successCache = new Map<string, SuccessInfo>();
   private static CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private static SUCCESS_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for successful lookups
 
   constructor() {}
 
-  async searchLyrics(params: LRCLibSearchParams): Promise<{
+  async searchLyrics(params: LRCLibSearchParams, options?: { skipCache?: boolean }): Promise<{
     type: 'synced' | 'unsynced' | 'none';
     lyrics: LRCLine[];
     metadata?: { duration?: number };
+    fromCache?: boolean;
   }> {
-    // Check failure cache first
+    // Generate cache key
     const cacheKey = `${params.artist_name}:${params.track_name}`.toLowerCase();
-    const cachedFailure = LyricsService.failureCache.get(cacheKey);
-    if (cachedFailure && Date.now() - cachedFailure < LyricsService.CACHE_DURATION) {
-      console.log(`[LyricsService] Skipping search for "${params.track_name}" - recently failed`);
-      return { type: 'none', lyrics: [] };
+    
+    // Check caches unless explicitly skipped
+    if (!options?.skipCache) {
+      // Check failure cache first
+      const cachedFailure = LyricsService.failureCache.get(cacheKey);
+      if (cachedFailure && Date.now() - cachedFailure < LyricsService.CACHE_DURATION) {
+        console.log(`[LyricsService] Skipping search for "${params.track_name}" - recently failed`);
+        return { type: 'none', lyrics: [], fromCache: true };
+      }
     }
 
     try {
@@ -41,6 +59,8 @@ export class LyricsService {
         if (bestMatch.syncedLyrics) {
           const parsed = this.parseLRCString(bestMatch.syncedLyrics);
           if (parsed.length > 0) {
+            // Cache successful direct search
+            this.cacheSuccess(cacheKey, 'direct');
             return {
               type: 'synced',
               lyrics: parsed,
@@ -59,6 +79,8 @@ export class LyricsService {
               text: text.trim(),
             }));
 
+          // Cache successful direct search
+          this.cacheSuccess(cacheKey, 'direct');
           return {
             type: 'unsynced',
             lyrics: lines,
@@ -72,6 +94,8 @@ export class LyricsService {
       if (syncedResult && syncedResult.syncedLyrics) {
         const parsed = this.parseLRCString(syncedResult.syncedLyrics);
         if (parsed.length > 0) {
+          // Cache successful direct search
+          this.cacheSuccess(cacheKey, 'direct');
           return {
             type: 'synced',
             lyrics: parsed,
@@ -84,11 +108,18 @@ export class LyricsService {
       LyricsService.failureCache.set(cacheKey, Date.now());
       return { type: 'none', lyrics: [] };
     } catch (error) {
-      // Don't log full error objects to reduce noise
+      // Better error logging to diagnose the "Unknown error" issue
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorDetails = error instanceof Error ? {
+        message: error.message,
+        stack: error.stack?.split('\n')[0],
+        name: error.name
+      } : { raw: error };
+      
       if (!errorMessage.includes("Track wasn't found")) {
-        console.error('[LyricsService] Unexpected error:', errorMessage);
+        console.error('[LyricsService] Unexpected error:', errorDetails);
       }
+      
       // Cache this failure
       LyricsService.failureCache.set(cacheKey, Date.now());
       return { type: 'none', lyrics: [] };
@@ -216,5 +247,38 @@ export class LyricsService {
 
     // Re-index the lines
     return merged.map((line, index) => ({ ...line, id: index }));
+  }
+
+  private cacheSuccess(cacheKey: string, method: 'direct' | 'genius', metadata?: SuccessInfo['metadata']): void {
+    LyricsService.successCache.set(cacheKey, {
+      method,
+      timestamp: Date.now(),
+      metadata
+    });
+    // Also remove from failure cache if present
+    LyricsService.failureCache.delete(cacheKey);
+    console.log(`[LyricsService] Cached successful ${method} lookup for key: ${cacheKey}`);
+  }
+
+  static getSuccessInfo(artist: string, track: string): SuccessInfo | null {
+    const cacheKey = `${artist}:${track}`.toLowerCase();
+    const cached = LyricsService.successCache.get(cacheKey);
+    
+    if (cached && Date.now() - cached.timestamp < LyricsService.SUCCESS_CACHE_DURATION) {
+      return cached;
+    }
+    
+    // Clean up expired entry
+    if (cached) {
+      LyricsService.successCache.delete(cacheKey);
+    }
+    
+    return null;
+  }
+
+  static cacheGeniusSuccess(artist: string, track: string, metadata?: SuccessInfo['metadata']): void {
+    const cacheKey = `${artist}:${track}`.toLowerCase();
+    const service = new LyricsService();
+    service.cacheSuccess(cacheKey, 'genius', metadata);
   }
 }

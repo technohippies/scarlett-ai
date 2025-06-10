@@ -6,6 +6,9 @@ export * from './layout/Header';
 // Display Components
 export * from './display/ScorePanel';
 
+// Onboarding Components
+export * from './onboarding/OnboardingFlow';
+
 // Karaoke Components
 export * from './karaoke/LyricsDisplay';
 export * from './karaoke/KaraokeHeader';

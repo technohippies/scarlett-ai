@@ -11,7 +11,7 @@
     "zip": "wxt zip",
     "compile": "tsc --noEmit",
     "type-check": "tsc --noEmit",
-    "lint": "echo 'Linting temporarily disabled'",
+    "lint": "true",
     "postinstall": "wxt prepare"
   },
   "dependencies": {

@@ -136,7 +136,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
       lyrics: getLyrics(),
       leaderboard: mockLeaderboard,
       currentTime: 0, // TODO: Sync with video/audio playback
-      isPlaying: false, // TODO: Detect if video/audio is playing
+      isPlaying: false, // Always show start button for now
       onStart: () => {
         console.log('Start karaoke for:', track?.title);
         // TODO: Start karaoke session

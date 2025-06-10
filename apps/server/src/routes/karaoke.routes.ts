@@ -10,6 +10,9 @@ const app = new Hono<{
 
 // Simple LRCLibService wrapper to match the working implementation
 class LRCLibService {
+  private static successCache = new Map<string, { artist: string; title: string; album?: string }>();
+  private static CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
   async getBestLyrics(params: {
     track_name: string;
     artist_name: string;
@@ -17,6 +20,22 @@ class LRCLibService {
   }) {
     const lyricsService = new LyricsService();
     return await lyricsService.searchLyrics(params);
+  }
+
+  // Cache successful search parameters
+  static cacheSuccess(trackId: string, params: { artist: string; title: string; album?: string }) {
+    this.successCache.set(trackId, { ...params, timestamp: Date.now() });
+    console.log(`[Karaoke] Cached successful search params for: ${trackId}`);
+  }
+
+  // Get cached successful search parameters
+  static getCachedSuccess(trackId: string): { artist: string; title: string; album?: string } | null {
+    const cached = this.successCache.get(trackId);
+    if (cached && Date.now() - (cached as any).timestamp < this.CACHE_DURATION) {
+      console.log(`[Karaoke] Using cached search params for: ${trackId}`);
+      return cached;
+    }
+    return null;
   }
 }
 
@@ -47,6 +66,94 @@ app.get('/*', async (c) => {
     console.log(
       `[Karaoke] Processing track: ${trackId}, title: "${trackTitle}", artist: "${artistName}"`
     );
+
+    // Check if we have cached successful search parameters
+    const cachedParams = LRCLibService.getCachedSuccess(trackId);
+    if (cachedParams) {
+      // Skip directly to the successful search
+      const lrcLibService = new LRCLibService();
+      const lyricsResult = await lrcLibService.getBestLyrics({
+        track_name: cachedParams.title,
+        artist_name: cachedParams.artist,
+        album_name: cachedParams.album,
+      });
+
+      if (lyricsResult.type !== 'none') {
+        // Fast path - skip all the other steps
+        console.log(`[Karaoke] Found lyrics using cached params in fast path`);
+        
+        // Still need to get Genius data if available for metadata
+        let song = null;
+        try {
+          const geniusService = new GeniusService(c.env.GENIUS_API_KEY || '');
+          const geniusMatch = await geniusService.findSongMatch(
+            `${cachedParams.artist} ${cachedParams.title}`, 
+            trackId
+          );
+          if (geniusMatch.found && geniusMatch.song) {
+            song = await geniusService.getSongById(geniusMatch.song.id);
+          }
+        } catch (e) {
+          // Ignore Genius errors in fast path
+        }
+
+        // Process and return lyrics (jump to formatting section)
+        const rawLyrics = lyricsResult.lyrics || [];
+        let formattedLyrics: any[] = [];
+
+        if (lyricsResult.type === 'synced' && rawLyrics.length > 0) {
+          formattedLyrics = processSyncedLyrics(rawLyrics).map((line, index) => ({
+            id: index,
+            timestamp: line.timestamp,
+            text: cleanLyricsText(line.text),
+            duration: line.duration,
+            startTime: line.timestamp / 1000,
+            endTime: (line.timestamp + (line.duration || 0)) / 1000,
+            recordingStart: line.recordingStart,
+            recordingEnd: line.recordingEnd,
+          }));
+
+          const hasValidTimestamps = formattedLyrics.some((line) => line.timestamp > 0);
+          if (!hasValidTimestamps) {
+            console.log('[Karaoke] WARNING: Cached result has invalid timestamps');
+            // Fall through to normal flow
+          } else {
+            // Return successful cached result
+            return c.json({
+              track_id: trackId,
+              has_karaoke: true,
+              song: song ? {
+                title: song.title,
+                artist: song.primary_artist.name,
+                genius_id: song.id.toString(),
+                genius_url: song.url,
+                album: song.album?.name,
+                artwork_url: song.song_art_image_url,
+                duration: lyricsResult.metadata?.duration ? lyricsResult.metadata.duration * 1000 : null,
+                difficulty: formattedLyrics.length > 50 ? 'advanced' : formattedLyrics.length > 25 ? 'intermediate' : 'beginner',
+                start_time: 0,
+              } : {
+                title: cachedParams.title,
+                artist: cachedParams.artist,
+                duration: lyricsResult.metadata?.duration ? lyricsResult.metadata.duration * 1000 : null,
+                difficulty: formattedLyrics.length > 50 ? 'advanced' : formattedLyrics.length > 25 ? 'intermediate' : 'beginner',
+                start_time: 0,
+              },
+              lyrics: {
+                source: 'lrclib',
+                type: lyricsResult.type,
+                lines: formattedLyrics,
+                total_lines: formattedLyrics.length,
+              },
+              cache_hit: true,
+              genius_confidence: 1.0,
+              message: `Karaoke ready (cached): ${cachedParams.artist} - ${cachedParams.title}`,
+              status: 'success',
+            });
+          }
+        }
+      }
+    }
 
     // Use artist from query param if provided, otherwise fall back to extracting from trackId
     let foundArtist = artistName;
@@ -115,6 +222,15 @@ app.get('/*', async (c) => {
       }
 
       lyricsResult = await lrcLibService.getBestLyrics(lrcQuery);
+      
+      // Cache successful parameters if found
+      if (lyricsResult.type !== 'none') {
+        LRCLibService.cacheSuccess(trackId, {
+          artist: song.primary_artist.name,
+          title: song.title,
+          album: song.album?.name,
+        });
+      }
     }
 
     // Step 2: If no high-confidence Genius match, try LRCLib directly
@@ -135,6 +251,12 @@ app.get('/*', async (c) => {
           console.log(
             `[Karaoke] Found lyrics directly: ${foundArtist} - ${cleanTitle}`
           );
+          
+          // Cache successful parameters
+          LRCLibService.cacheSuccess(trackId, {
+            artist: foundArtist,
+            title: cleanTitle,
+          });
         }
       } catch (searchError) {
         console.log(`[Karaoke] Direct search failed for "${foundArtist}" - "${cleanTitle}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
@@ -157,6 +279,14 @@ app.get('/*', async (c) => {
         track_name: song.title,
         artist_name: song.primary_artist.name,
       });
+      
+      // Cache successful parameters if found
+      if (lyricsResult.type !== 'none') {
+        LRCLibService.cacheSuccess(trackId, {
+          artist: song.primary_artist.name,
+          title: song.title,
+        });
+      }
     }
 
     if (lyricsResult.type === 'none') {
