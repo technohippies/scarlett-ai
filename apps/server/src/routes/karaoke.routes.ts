@@ -15,7 +15,8 @@ import { authMiddleware, requireCredits, type AuthContext } from '../middleware'
 import { validateBody, validateQuery } from '../middleware';
 import { 
   createSessionSchema, 
-  songQuerySchema
+  songQuerySchema,
+  gradeAudioSchema
 } from '../utils/validation';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -23,7 +24,8 @@ const app = new Hono<{ Bindings: Env }>();
 // GET /api/karaoke/:trackId - Get karaoke data for a track
 app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
   const trackId = c.req.param('trackId');
-  const { title = '', artist = '' } = c.get('validatedQuery') || {};
+  const query = c.get('validatedQuery') as z.infer<typeof songQuerySchema> | undefined;
+  const { title = '', artist = '' } = query || {};
 
   const songService = new SongService(c.env);
   const lyricsService = new LyricsService();
@@ -89,7 +91,7 @@ app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
     artist: geniusMatch.song?.primary_artist.name || artist,
     album: geniusMatch.song?.album?.name,
     durationMs: lyricsResult.metadata?.duration ? lyricsResult.metadata.duration * 1000 : undefined,
-    difficulty: processedLyrics.length > 50 ? 'advanced' : processedLyrics.length > 25 ? 'intermediate' : 'beginner' as const,
+    difficulty: (processedLyrics.length > 50 ? 'advanced' : processedLyrics.length > 25 ? 'intermediate' : 'beginner') as 'beginner' | 'intermediate' | 'advanced',
     geniusId: geniusMatch.song?.id.toString(),
     geniusUrl: geniusMatch.song?.url,
     geniusConfidence: geniusMatch.confidence,
@@ -139,7 +141,7 @@ app.get('/:trackId', validateQuery(songQuerySchema), async (c) => {
 });
 
 // POST /api/karaoke/start - Start a karaoke session
-app.post('/start', authMiddleware, requireCredits(1), validateBody(createSessionSchema), async (c: AuthContext) => {
+app.post('/start', authMiddleware as any, requireCredits(1), validateBody(createSessionSchema), async (c: AuthContext) => {
   const data = c.get('validatedBody') as z.infer<typeof createSessionSchema>;
   const user = c.user!;
 
@@ -168,7 +170,7 @@ app.post('/start', authMiddleware, requireCredits(1), validateBody(createSession
 });
 
 // POST /api/karaoke/grade - Grade a single line
-app.post('/grade', authMiddleware, validateBody(gradeAudioSchema), async (c: AuthContext) => {
+app.post('/grade', authMiddleware as any, validateBody(gradeAudioSchema), async (c: AuthContext) => {
   const data = c.get('validatedBody') as z.infer<typeof gradeAudioSchema>;
   const user = c.user!;
 
@@ -227,7 +229,7 @@ app.post('/grade', authMiddleware, validateBody(gradeAudioSchema), async (c: Aut
 });
 
 // GET /api/karaoke/session/:sessionId - Get session details
-app.get('/session/:sessionId', authMiddleware, async (c: AuthContext) => {
+app.get('/session/:sessionId', authMiddleware as any, async (c: AuthContext) => {
   const sessionId = c.req.param('sessionId');
   const user = c.user!;
 
@@ -250,7 +252,7 @@ app.get('/session/:sessionId', authMiddleware, async (c: AuthContext) => {
 });
 
 // POST /api/karaoke/session/:sessionId/complete - Complete a session
-app.post('/session/:sessionId/complete', authMiddleware, async (c: AuthContext) => {
+app.post('/session/:sessionId/complete', authMiddleware as any, async (c: AuthContext) => {
   const sessionId = c.req.param('sessionId');
   const user = c.user!;
 
