@@ -10,7 +10,8 @@
     "test": "turbo test",
     "type-check": "turbo type-check",
     "storybook": "turbo storybook --filter=@scarlett/ui",
-    "build-storybook": "turbo build-storybook"
+    "build-storybook": "turbo build-storybook --filter=@scarlett/ui",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.0.0-alpha.36",
@@ -19,6 +20,8 @@
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "eslint": "^9.16.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
     "prettier": "^3.5.3",
     "tailwindcss": "4.0.0-alpha.36",
     "turbo": "^2.5.4",

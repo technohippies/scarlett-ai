@@ -131,4 +131,34 @@
   .glow-secondary {
     box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
   }
+  
+  /* Animations */
+  @keyframes shimmer-text {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+  
+  @keyframes cursor-blink {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  
+  .animate-shimmer-text {
+    background: linear-gradient(-60deg, var(--color-text-muted) 30%, var(--color-text-primary) 50%, var(--color-text-muted) 70%);
+    background-size: 300% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: shimmer-text 2.5s infinite;
+  }
+  
+  .animate-cursor-blink {
+    animation: cursor-blink 0.7s infinite;
+  }
 }

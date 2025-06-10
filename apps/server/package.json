@@ -9,7 +9,8 @@
     "deploy:prod": "wrangler deploy --env production",
     "build": "tsc",
     "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext ts --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --report-unused-disable-directives --max-warnings 0 --fix",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241218.0",
+    "@eslint/js": "^9.28.0",
     "@scalar/hono-api-reference": "^0.5.0",
     "@types/node": "^22.10.2",
     "@typescript-eslint/eslint-plugin": "^8.17.0",

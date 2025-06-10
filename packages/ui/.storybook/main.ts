@@ -4,9 +4,7 @@ import solidPlugin from 'vite-plugin-solid';
 const config: StorybookConfig = {
   stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
   addons: [
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-links',
+    '@storybook/addon-docs',
   ],
   framework: {
     name: '@storybook/html-vite',
