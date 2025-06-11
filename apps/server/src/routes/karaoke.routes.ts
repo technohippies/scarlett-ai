@@ -593,4 +593,120 @@ app.get('/*', async (c) => {
   }
 });
 
+// Start a new karaoke session
+app.post('/start', async (c) => {
+  const body = await c.req.json();
+  const { trackId, songData } = body;
+  
+  // TODO: Add auth check when auth is implemented
+  const userId = 'demo-user'; // For now, use a demo user
+  
+  try {
+    const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+    const session = await sessionService.createSession({
+      userId,
+      trackId,
+      songTitle: songData.title,
+      songArtist: songData.artist,
+      songAlbum: songData.album,
+      songDuration: songData.duration,
+    });
+    
+    return c.json({
+      success: true,
+      session: {
+        id: session.id,
+        trackId: session.trackId,
+        status: session.status,
+        createdAt: session.createdAt,
+      }
+    });
+  } catch (error) {
+    console.error('[Karaoke] Error starting session:', error);
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to start session'
+    }, 500);
+  }
+});
+
+// Grade a line recording
+app.post('/grade', async (c) => {
+  const body = await c.req.json();
+  const { sessionId, lineIndex, audioBuffer, expectedText, startTime, endTime } = body;
+  
+  try {
+    // Convert base64 audio to buffer
+    const audioData = Uint8Array.from(atob(audioBuffer), char => char.charCodeAt(0));
+    
+    // Get STT transcription
+    const sttService = new (await import('../services/stt.service')).STTService(c.env);
+    const transcription = await sttService.transcribe(audioData);
+    
+    // Grade the transcription
+    const scoringService = new (await import('../services/scoring.service')).ScoringService();
+    const score = scoringService.calculateScore(expectedText, transcription);
+    
+    // Record the line score
+    const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+    await sessionService.recordLineScore({
+      sessionId,
+      lineIndex,
+      expectedText,
+      actualText: transcription,
+      score: score.score,
+      startTime,
+      endTime,
+      audioUrl: null, // TODO: Store audio if needed
+    });
+    
+    return c.json({
+      success: true,
+      score: score.score,
+      transcription,
+      feedback: score.feedback,
+      details: score.details,
+    });
+  } catch (error) {
+    console.error('[Karaoke] Error grading recording:', error);
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to grade recording'
+    }, 500);
+  }
+});
+
+// Complete karaoke session
+app.post('/complete', async (c) => {
+  const body = await c.req.json();
+  const { sessionId, fullAudioBuffer } = body;
+  
+  try {
+    const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+    
+    // TODO: Store full audio if needed
+    const audioUrl = null;
+    
+    // Complete the session and calculate final score
+    const result = await sessionService.completeSession(sessionId, audioUrl);
+    
+    return c.json({
+      success: true,
+      finalScore: result.finalScore,
+      totalLines: result.totalLines,
+      perfectLines: result.perfectLines,
+      goodLines: result.goodLines,
+      needsWorkLines: result.needsWorkLines,
+      accuracy: result.accuracy,
+      sessionId: result.sessionId,
+    });
+  } catch (error) {
+    console.error('[Karaoke] Error completing session:', error);
+    return c.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to complete session'
+    }, 500);
+  }
+});
+
 export default app;

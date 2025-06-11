@@ -1,0 +1,42 @@
+@import '@scarlett/ui/src/styles/base.css';
+
+/* Farcaster Mini App specific styles */
+:root {
+  --miniapp-max-width: 424px;
+  --miniapp-safe-area: 16px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-base);
+  background-color: var(--color-base);
+  color: var(--color-text-primary);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Desktop: Fixed size modal */
+@media (min-width: 768px) {
+  #root {
+    max-width: var(--miniapp-max-width);
+    margin: 0 auto;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* Mobile: Full screen */
+@media (max-width: 767px) {
+  #root {
+    width: 100%;
+  }
+}
+
+/* Safe area padding */
+.safe-area {
+  padding: var(--miniapp-safe-area);
+}

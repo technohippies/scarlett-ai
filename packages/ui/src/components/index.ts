@@ -18,6 +18,7 @@ export * from './karaoke/FarcasterKaraokeView';
 export * from './karaoke/CompletionView';
 export * from './karaoke/KaraokeSession';
 export * from './karaoke/KaraokeCompletion';
+export * from './karaoke/Countdown';
 
 // Common Components
 export * from './common/Button';
@@ -37,3 +38,9 @@ export * from './practice/ExerciseTemplate';
 export * from './practice/ReadAloud';
 export * from './practice/MCQ';
 export * from './practice/PracticeExercise';
+
+// Farcaster Components
+export * from './farcaster/CreditPack';
+export * from './farcaster/WalletConnect';
+export * from './farcaster/UserProfile';
+export * from './farcaster/FarcasterMiniApp';

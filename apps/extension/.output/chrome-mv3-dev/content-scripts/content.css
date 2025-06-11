@@ -241,3 +241,6 @@ button:focus {
 .text-white\/80 { color: rgba(255, 255, 255, 0.8); }
 /* Spacing */
 .mt-4 { margin-top: 1rem; }
+/* Flexbox utilities */
+.flex-shrink-0 { flex-shrink: 0; }
+.min-h-0 { min-height: 0; }

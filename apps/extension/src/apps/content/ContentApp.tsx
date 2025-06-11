@@ -1,5 +1,5 @@
 import { Component, createSignal, createEffect, onMount, onCleanup, Show } from 'solid-js';
-import { ExtensionKaraokeView, MinimizedKaraoke } from '@scarlett/ui';
+import { ExtensionKaraokeView, MinimizedKaraoke, Countdown, useKaraokeSession, ExtensionAudioService } from '@scarlett/ui';
 import { trackDetector, type TrackInfo } from '../../services/track-detector';
 import { getAuthToken } from '../../utils/storage';
 import { browser } from 'wxt/browser';
@@ -163,9 +163,16 @@ export const ContentApp: Component<ContentAppProps> = () => {
   };
 
   const handleClose = () => {
+    // Stop session if active
+    const session = karaokeSession();
+    if (session) {
+      session.stopSession();
+    }
+    
     setShowKaraoke(false);
     setKaraokeData(null);
     setSessionStarted(false);
+    setKaraokeSession(null);
   };
 
   const handleMinimize = () => {
@@ -217,7 +224,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
           display: 'flex',
           'flex-direction': 'column'
         }}>
-          {console.log('[ContentApp] Rendering ExtensionKaraokeView with data:', karaokeData())}
+          {console.log('[ContentApp] Rendering ExtensionKaraokeView with data:', karaokeData(), 'session:', karaokeSession())}
           <div class="h-full bg-surface rounded-2xl overflow-hidden flex flex-col">
             {/* Header with minimize button */}
             <div class="flex items-center justify-end p-2 bg-surface border-b border-subtle" style={{ height: '48px' }}>

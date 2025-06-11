@@ -21,6 +21,7 @@ export interface ExtensionKaraokeViewProps {
   
   // State
   isPlaying?: boolean;
+  isRecording?: boolean;
   onStart?: () => void;
   onSpeedChange?: (speed: PlaybackSpeed) => void;
   

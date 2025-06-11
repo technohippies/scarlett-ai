@@ -1,0 +1,1 @@
+export { WalletConnect, type WalletConnectProps } from './WalletConnect';

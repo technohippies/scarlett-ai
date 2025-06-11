@@ -1,0 +1,28 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjM2MjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgyY2Q4NWEwOTMyNjFmNTkyNzA4MDRBNkVBNjk3Q2VBNENlQkVjYWZFIn0",
+    "payload": "eyJkb21haW4iOiJzY2FybGV0dC1rYXJhb2tlLmNvbSJ9",
+    "signature": "MHgwZmJiYWIwODg3YTU2MDFiNDU3MzVkOTQ5MDRjM2Y1NGUxMzVhZTQxOGEzMWQ5ODNhODAzZmZlYWNlZWMyZDYzNWY4ZTFjYWU4M2NhNTAwOTMzM2FmMTc1NDlmMDY2YTVlOWUwNTljNmZiNDUxMzg0Njk1NzBhODNiNjcyZWJjZTFi"
+  },
+  "frame": {
+    "version": "1",
+    "name": "Scarlett Karaoke",
+    "iconUrl": "https://scarlett-karaoke.com/icon.png",
+    "homeUrl": "https://scarlett-karaoke.com/farcaster",
+    "imageUrl": "https://scarlett-karaoke.com/og-image.png",
+    "buttonTitle": "🎤 Start Singing",
+    "splashImageUrl": "https://scarlett-karaoke.com/splash.png",
+    "splashBackgroundColor": "#0f0f0f",
+    "webhookUrl": "https://api.scarlett-karaoke.com/webhooks/farcaster",
+    "subtitle": "AI-powered karaoke coach",
+    "description": "Sing your favorite songs, get real-time feedback, and compete with friends on Farcaster!",
+    "primaryCategory": "entertainment",
+    "tags": ["karaoke", "music", "singing", "entertainment", "social"],
+    "requiredChains": ["eip155:8453"],
+    "requiredCapabilities": [
+      "wallet.getEthereumProvider",
+      "actions.composeCast",
+      "actions.viewProfile"
+    ]
+  }
+}
