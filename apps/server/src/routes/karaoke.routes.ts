@@ -12,7 +12,7 @@ const app = new Hono<{
 class LRCLibService {
   // In-memory cache for development/single instance
   // For production, use Cloudflare KV or Cache API
-  private static successCache = new Map<string, { artist: string; title: string; album?: string }>();
+  private static successCache = new Map<string, { artist: string; title: string; album?: string; timestamp: number }>();
   private static CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
   async getBestLyrics(params: {
@@ -44,9 +44,10 @@ class LRCLibService {
   static async getCachedSuccess(trackId: string, _env?: Env): Promise<{ artist: string; title: string; album?: string } | null> {
     // Try in-memory cache first (fast but single-instance only)
     const cached = this.successCache.get(trackId);
-    if (cached && Date.now() - (cached as any).timestamp < this.CACHE_DURATION) {
+    if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       console.log(`[Karaoke] Using cached search params from memory for: ${trackId}`);
-      return cached;
+      const { timestamp, ...params } = cached;
+      return params;
     }
     
     // TODO: For production, check Cloudflare KV:
@@ -92,7 +93,7 @@ app.get('/*', async (c) => {
     );
 
     // Check if we have cached successful search parameters
-    const cachedParams = LRCLibService.getCachedSuccess(trackId);
+    const cachedParams = await LRCLibService.getCachedSuccess(trackId);
     if (cachedParams) {
       // Skip directly to the successful search
       const lrcLibService = new LRCLibService();

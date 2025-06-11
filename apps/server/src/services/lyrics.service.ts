@@ -184,31 +184,6 @@ export class LyricsService {
     return lines.sort((a, b) => a.startTime - b.startTime);
   }
 
-  private createTitleVariants(title: string): string[] {
-    const variants = new Set<string>();
-    
-    // Original title
-    variants.add(title);
-    
-    // Remove parenthetical content
-    variants.add(title.replace(/\([^)]*\)/g, '').trim());
-    
-    // Remove everything after hyphen
-    variants.add(title.split('-')[0].trim());
-    
-    // Remove featuring artists
-    variants.add(title.replace(/\s*(feat\.|ft\.|featuring)\s*.*/i, '').trim());
-    
-    // Remove common suffixes
-    const suffixes = ['Remix', 'Version', 'Edit', 'Mix', 'Remaster', 'Live'];
-    suffixes.forEach((suffix) => {
-      const regex = new RegExp(`\\s*\\(?${suffix}.*\\)?`, 'i');
-      variants.add(title.replace(regex, '').trim());
-    });
-
-    return Array.from(variants).filter((v) => v && v !== title);
-  }
-
   private cleanLyricsText(text: string): string {
     return text
       .replace(/\s+/g, ' ')
