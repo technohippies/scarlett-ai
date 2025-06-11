@@ -25,7 +25,7 @@ class LRCLibService {
   }
 
   // Cache successful search parameters
-  static async cacheSuccess(trackId: string, params: { artist: string; title: string; album?: string }, env?: Env) {
+  static async cacheSuccess(trackId: string, params: { artist: string; title: string; album?: string }, _env?: Env) {
     // In-memory cache (single worker instance only)
     this.successCache.set(trackId, { ...params, timestamp: Date.now() });
     console.log(`[Karaoke] Cached successful search params for: ${trackId}`);
@@ -41,7 +41,7 @@ class LRCLibService {
   }
 
   // Get cached successful search parameters
-  static async getCachedSuccess(trackId: string, env?: Env): Promise<{ artist: string; title: string; album?: string } | null> {
+  static async getCachedSuccess(trackId: string, _env?: Env): Promise<{ artist: string; title: string; album?: string } | null> {
     // Try in-memory cache first (fast but single-instance only)
     const cached = this.successCache.get(trackId);
     if (cached && Date.now() - (cached as any).timestamp < this.CACHE_DURATION) {

@@ -4,7 +4,6 @@ import type { Env } from './types';
 
 // Middleware
 import { 
-  createCorsMiddleware, 
   corsHeaders, 
   errorHandler, 
   requestId 

@@ -46,7 +46,7 @@ export class LyricsService {
       // Check failure cache first
       const cachedFailure = LyricsService.failureCache.get(cacheKey);
       if (cachedFailure && Date.now() - cachedFailure < LyricsService.CACHE_DURATION) {
-        console.log(`[LyricsService] Skipping search for "${params.track_name}" - recently failed`);
+        console.warn(`[LyricsService] Skipping search for "${params.track_name}" - recently failed`);
         return { type: 'none', lyrics: [], fromCache: true };
       }
     }
@@ -257,7 +257,7 @@ export class LyricsService {
     });
     // Also remove from failure cache if present
     LyricsService.failureCache.delete(cacheKey);
-    console.log(`[LyricsService] Cached successful ${method} lookup for key: ${cacheKey}`);
+    // Silent cache update - no logging needed for successful caching
   }
 
   static getSuccessInfo(artist: string, track: string): SuccessInfo | null {
