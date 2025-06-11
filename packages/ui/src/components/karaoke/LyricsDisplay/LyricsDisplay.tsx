@@ -11,7 +11,7 @@ export interface LyricLine {
 
 export interface LyricsDisplayProps {
   lyrics: LyricLine[];
-  currentTime?: number;
+  currentTime?: number; // in milliseconds
   isPlaying?: boolean;
   lineScores?: Array<{ lineIndex: number; score: number; transcription: string; feedback?: string }>;
   class?: string;
@@ -53,13 +53,14 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
       return;
     }
 
-    const time = props.currentTime;
+    const time = props.currentTime / 1000; // Convert from milliseconds to seconds
     
     // Find the line that contains the current time
     let foundIndex = -1;
     for (let i = 0; i < props.lyrics.length; i++) {
       const line = props.lyrics[i];
-      const endTime = line.startTime + line.duration;
+      if (!line) continue;
+      const endTime = line.startTime + line.duration / 1000; // Convert duration from ms to seconds
       
       if (time >= line.startTime && time < endTime) {
         foundIndex = i;
@@ -71,6 +72,7 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
     if (foundIndex === -1 && time > 0) {
       for (let i = props.lyrics.length - 1; i >= 0; i--) {
         const line = props.lyrics[i];
+        if (!line) continue;
         if (time >= line.startTime) {
           foundIndex = i;
           break;
@@ -84,8 +86,8 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
       console.log('[LyricsDisplay] Current line changed:', {
         from: prevIndex,
         to: foundIndex,
-        time: time,
-        timeInSeconds: time / 1000,
+        time: props.currentTime,
+        timeInSeconds: time,
         jump: Math.abs(foundIndex - prevIndex)
       });
       

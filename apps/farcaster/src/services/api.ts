@@ -118,6 +118,22 @@ class ApiService {
 
     return response.json();
   }
+
+  async getKaraokeData(trackId: string) {
+    const token = this.authToken || (await this.getDemoToken());
+    
+    const response = await fetch(`${API_BASE_URL}/karaoke/track?track_id=${encodeURIComponent(trackId)}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get karaoke data');
+    }
+
+    return response.json();
+  }
 }
 
 export const apiService = new ApiService();
