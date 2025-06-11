@@ -2,7 +2,6 @@ import type { Component } from 'solid-js';
 import { Show, createSignal } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import { Button } from '../../common/Button';
-import IconWallet from 'phosphor-icons-solid/IconWallet';
 
 export interface WalletConnectProps {
   address?: string;
@@ -26,8 +25,8 @@ export const WalletConnect: Component<WalletConnectProps> = (props) => {
         when={props.isConnected && props.address}
         fallback={
           <div class="text-center">
-            <div class="mb-4">
-              <IconWallet class="w-12 h-12 mx-auto text-secondary" />
+            <div class="mb-4 w-12 h-12 mx-auto rounded-full bg-accent-primary/10 flex items-center justify-center">
+              <span class="text-2xl">💰</span>
             </div>
             <h3 class="text-lg font-semibold mb-2">Connect Wallet</h3>
             <p class="text-sm text-secondary mb-4">
@@ -37,7 +36,6 @@ export const WalletConnect: Component<WalletConnectProps> = (props) => {
               variant="primary"
               onClick={props.onConnect}
               loading={props.isConnecting}
-              leftIcon={<IconWallet />}
             >
               {props.isConnecting ? 'Connecting...' : 'Connect Wallet'}
             </Button>

@@ -44,6 +44,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   const [lineScores, setLineScores] = createSignal<LineScore[]>([]);
   const [currentChunk, setCurrentChunk] = createSignal<ChunkInfo | null>(null);
   const [isRecording, setIsRecording] = createSignal(false);
+  const [audioElement, setAudioElement] = createSignal<HTMLAudioElement | undefined>(options.audioElement);
   
   let audioUpdateInterval: number | null = null;
   let recordingTimeout: number | null = null;
@@ -106,12 +107,14 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     // Start full session audio capture
     audioProcessor.startFullSession();
     
-    if (options.audioElement) {
+    const audio = audioElement() || options.audioElement;
+    if (audio) {
+      console.log('[KaraokeSession] Starting playback with audio element');
       // If audio element is provided, use it
-      options.audioElement.play().catch(console.error);
+      audio.play().catch(console.error);
       
       const updateTime = () => {
-        const time = options.audioElement!.currentTime * 1000;
+        const time = audio.currentTime * 1000;
         setCurrentTime(time);
         
         // Check if we need to start recording for upcoming lines
@@ -120,7 +123,9 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       
       audioUpdateInterval = setInterval(updateTime, 100);
       
-      options.audioElement.addEventListener('ended', handleEnd);
+      audio.addEventListener('ended', handleEnd);
+    } else {
+      console.log('[KaraokeSession] No audio element available for playback');
     }
   };
   
@@ -132,10 +137,11 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       const chunk = shouldChunkLines(options.lyrics, i);
       const firstLine = options.lyrics[chunk.startIndex];
       
-      if (firstLine && firstLine.startTime) {
+      if (firstLine && firstLine.startTime !== undefined) {
         const recordingStartTime = firstLine.startTime * 1000 - 1000; // Start 1s early
         
         if (currentTimeMs >= recordingStartTime && currentTimeMs < firstLine.startTime * 1000) {
+          console.log(`[KaraokeSession] Time to start recording chunk ${i}: ${currentTimeMs}ms >= ${recordingStartTime}ms`);
           // Start recording this chunk
           startRecordingChunk(chunk);
           break;
@@ -339,9 +345,11 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       recordingTimeout = null;
     }
     
-    if (options.audioElement) {
-      options.audioElement.pause();
-      options.audioElement.currentTime = 0;
+    const audio = audioElement() || options.audioElement;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeEventListener('ended', handleEnd);
     }
     
     // Cleanup audio processor
@@ -368,6 +376,9 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     stopSession,
     
     // Audio processor (for direct access if needed)
-    audioProcessor
+    audioProcessor,
+    
+    // Method to update audio element after initialization
+    setAudioElement
   };
 }

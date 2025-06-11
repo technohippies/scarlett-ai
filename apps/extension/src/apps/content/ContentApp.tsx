@@ -22,6 +22,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
   const [isPlaying, setIsPlaying] = createSignal(false);
   const [currentTime, setCurrentTime] = createSignal(0);
   const [audioRef, setAudioRef] = createSignal<HTMLAudioElement | null>(null);
+  const [karaokeSession, setKaraokeSession] = createSignal<ReturnType<typeof useKaraokeSession> | null>(null);
   
   // Load auth token on mount
   onMount(async () => {
@@ -68,22 +69,74 @@ export const ContentApp: Component<ContentAppProps> = () => {
     }
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     console.log('[ContentApp] Start karaoke session');
+    setSessionStarted(true);
     
-    // Start countdown
-    setCountdown(3);
+    const data = karaokeData();
+    const audio = audioRef();
+    const track = currentTrack();
     
-    const countdownInterval = setInterval(() => {
-      const current = countdown();
-      if (current !== null && current > 1) {
-        setCountdown(current - 1);
-      } else {
-        clearInterval(countdownInterval);
-        setCountdown(null);
-        startAudioPlayback();
-      }
-    }, 1000);
+    if (data && track && data.lyrics?.lines) {
+      console.log('[ContentApp] Creating karaoke session with audio capture');
+      
+      // Create and start session
+      const newSession = useKaraokeSession({
+        lyrics: data.lyrics.lines,
+        trackId: track.id,
+        songData: data.song ? {
+          title: data.song.title,
+          artist: data.song.artist,
+          album: data.song.album,
+          duration: data.song.duration
+        } : {
+          title: track.title,
+          artist: track.artist
+        },
+        audioElement: undefined, // Will be set when audio starts playing
+        apiUrl: 'http://localhost:3000/api',
+        onComplete: (results) => {
+          console.log('[ContentApp] Karaoke session completed:', results);
+          setSessionStarted(false);
+          // TODO: Show results UI
+        }
+      });
+      
+      setKaraokeSession(newSession);
+      
+      // Start the session (includes countdown and audio initialization)
+      await newSession.startSession();
+      
+      // Watch for countdown to finish and start audio
+      createEffect(() => {
+        if (newSession.countdown() === null && newSession.isPlaying() && !isPlaying()) {
+          console.log('[ContentApp] Countdown finished, starting audio playback');
+          startAudioPlayback();
+        }
+        
+        // Update session with audio element when available
+        const audio = audioRef();
+        if (audio && newSession) {
+          console.log('[ContentApp] Setting audio element on new session');
+          newSession.setAudioElement(audio);
+        }
+      });
+    } else {
+      console.log('[ContentApp] Fallback to simple countdown');
+      // Fallback to old behavior
+      setCountdown(3);
+      
+      const countdownInterval = setInterval(() => {
+        const current = countdown();
+        if (current !== null && current > 1) {
+          setCountdown(current - 1);
+        } else {
+          clearInterval(countdownInterval);
+          setCountdown(null);
+          startAudioPlayback();
+        }
+      }, 1000);
+    }
   };
 
   const startAudioPlayback = () => {
@@ -104,6 +157,18 @@ export const ContentApp: Component<ContentAppProps> = () => {
         currentTime: audio.currentTime
       });
       setAudioRef(audio);
+      
+      // Update karaoke session with audio element if it exists
+      const session = karaokeSession();
+      if (session) {
+        console.log('[ContentApp] Setting audio element on karaoke session');
+        session.setAudioElement(audio);
+        
+        if (!session.audioProcessor.isReady()) {
+          console.log('[ContentApp] Initializing audio processor for session');
+          session.audioProcessor.initialize().catch(console.error);
+        }
+      }
       
       // Try to play the audio
       audio.play().then(() => {
@@ -261,23 +326,24 @@ export const ContentApp: Component<ContentAppProps> = () => {
                   <div class="h-full flex flex-col">
                     <div class="flex-1 min-h-0 overflow-hidden">
                       <ExtensionKaraokeView
-                        score={0}
+                        score={karaokeSession() ? karaokeSession()!.score() : 0}
                         rank={1}
                         lyrics={karaokeData()?.lyrics?.lines || []}
-                        currentTime={currentTime() * 1000} // Convert to milliseconds
+                        currentTime={karaokeSession() ? karaokeSession()!.currentTime() : currentTime() * 1000}
                         leaderboard={[]}
-                        isPlaying={isPlaying() || countdown() !== null}
+                        isPlaying={karaokeSession() ? karaokeSession()!.isPlaying() : (isPlaying() || countdown() !== null)}
                         onStart={handleStart}
                         onSpeedChange={(speed) => console.log('[ContentApp] Speed changed:', speed)}
+                        isRecording={karaokeSession() ? karaokeSession()!.isRecording() : false}
                       />
                     </div>
                     
                     {/* Countdown overlay */}
-                    <Show when={countdown() !== null}>
+                    <Show when={karaokeSession() ? karaokeSession()!.countdown() !== null : countdown() !== null}>
                       <div class="absolute inset-0 bg-black/80 flex items-center justify-center z-50">
                         <div class="text-center">
                           <div class="text-8xl font-bold text-white animate-pulse">
-                            {countdown()}
+                            {karaokeSession() ? karaokeSession()!.countdown() : countdown()}
                           </div>
                           <p class="text-xl text-white/80 mt-4">Get ready!</p>
                         </div>
