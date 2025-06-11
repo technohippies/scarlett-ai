@@ -46,6 +46,7 @@ class LRCLibService {
     const cached = this.successCache.get(trackId);
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       console.log(`[Karaoke] Using cached search params from memory for: ${trackId}`);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { timestamp, ...params } = cached;
       return params;
     }

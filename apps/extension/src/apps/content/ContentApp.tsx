@@ -22,6 +22,10 @@ export const ContentApp: Component<ContentAppProps> = () => {
     if (token) {
       setAuthToken(token);
       console.log('[ContentApp] Auth token loaded');
+    } else {
+      // Use demo token for development
+      console.log('[ContentApp] No auth token found, using demo token');
+      setAuthToken('scarlett_demo_token_123');
     }
     
     // Start watching for track changes

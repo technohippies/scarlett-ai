@@ -11,7 +11,7 @@ export default defineBackground(() => {
     if (details.reason === 'install') {
       // Open the oninstall page when the extension is first installed
       browser.tabs.create({
-        url: browser.runtime.getURL('/oninstall.html'),
+        url: '/oninstall.html',
         active: true,
       });
     }
