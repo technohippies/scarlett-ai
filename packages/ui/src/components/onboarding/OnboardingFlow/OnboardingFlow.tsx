@@ -1,184 +1,246 @@
-import { Component, Show } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
+import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { Button } from '../../common/Button';
 
-export type OnboardingStep = 'token-input' | 'welcome' | 'complete';
+export type OnboardingStep = 'connect-wallet' | 'generating-token' | 'complete';
 
 export interface OnboardingFlowProps {
   step: OnboardingStep;
   error?: string | null;
-  tokenVerified?: boolean;
-  onTokenSubmit: (token: string) => void;
-  onGetStarted: () => void;
+  walletAddress?: string | null;
+  token?: string | null;
+  onConnectWallet: () => void;
+  onUseTestMode: () => void;
+  onUsePrivateKey: (privateKey: string) => void;
   onComplete: () => void;
-  defaultToken?: string;
-  tokenPlaceholder?: string;
-  getTokenUrl?: string;
+  isConnecting?: boolean;
+  isGenerating?: boolean;
   class?: string;
 }
 
 export const OnboardingFlow: Component<OnboardingFlowProps> = (props) => {
-  let tokenInputRef: HTMLInputElement | undefined;
-
-  const handleTokenSubmit = () => {
-    const token = tokenInputRef?.value.trim();
-    if (token) {
-      props.onTokenSubmit(token);
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleTokenSubmit();
-    }
-  };
+  const [showTestOption, setShowTestOption] = createSignal(false);
+  const [showPrivateKeyInput, setShowPrivateKeyInput] = createSignal(false);
+  const [privateKey, setPrivateKey] = createSignal('');
 
   return (
     <div class={cn(
-      'min-h-screen bg-gradient-to-br from-accent-primary to-accent-secondary',
-      'flex items-center justify-center p-4',
+      'min-h-screen bg-gradient-to-br from-gray-900 to-black flex items-center justify-center',
       props.class
     )}>
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-8 md:p-12">
-        {/* Header */}
-        <div class="text-center mb-8">
-          <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-accent-primary to-accent-secondary bg-clip-text text-transparent mb-2">
-            🎤 Scarlett Karaoke
+      <div class="max-w-2xl w-full p-12">
+        {/* Logo/Header */}
+        <div class="text-center mb-12">
+          <div class="text-8xl mb-6">🎤</div>
+          <h1 class="text-6xl font-bold text-white mb-4">
+            Scarlett Karaoke
           </h1>
-          <p class="text-lg text-secondary">
-            AI-powered karaoke learning for SoundCloud
+          <p class="text-xl text-gray-400">
+            AI-powered karaoke for SoundCloud
           </p>
         </div>
 
-        {/* Progress Indicator */}
-        <div class="flex justify-center mb-8">
-          <div class="flex gap-2">
+        {/* Progress Dots */}
+        <div class="flex justify-center mb-12">
+          <div class="flex gap-3">
             <div class={cn(
-              'w-3 h-3 rounded-full transition-colors',
-              props.step === 'token-input' 
-                ? 'bg-accent-primary' 
-                : props.tokenVerified 
-                  ? 'bg-accent-success' 
-                  : 'bg-muted'
+              'w-3 h-3 rounded-full transition-all duration-300',
+              props.step === 'connect-wallet' 
+                ? 'bg-purple-500 w-12' 
+                : props.walletAddress 
+                  ? 'bg-green-500' 
+                  : 'bg-gray-600'
             )} />
             <div class={cn(
-              'w-3 h-3 rounded-full transition-colors',
-              ['welcome', 'complete'].includes(props.step) 
-                ? 'bg-accent-primary' 
-                : 'bg-muted'
+              'w-3 h-3 rounded-full transition-all duration-300',
+              props.step === 'generating-token' 
+                ? 'bg-purple-500 w-12' 
+                : props.token 
+                  ? 'bg-green-500' 
+                  : 'bg-gray-600'
             )} />
             <div class={cn(
-              'w-3 h-3 rounded-full transition-colors',
+              'w-3 h-3 rounded-full transition-all duration-300',
               props.step === 'complete' 
-                ? 'bg-accent-success' 
-                : 'bg-muted'
+                ? 'bg-green-500 w-12' 
+                : 'bg-gray-600'
             )} />
           </div>
         </div>
 
         {/* Error Display */}
         <Show when={props.error}>
-          <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p class="text-red-700 text-center">{props.error}</p>
+          <div class="mb-8 p-6 bg-red-900/20 border border-red-800 rounded-xl">
+            <p class="text-red-400 text-center text-lg">{props.error}</p>
           </div>
         </Show>
 
         {/* Content */}
-        <div class="text-center">
-          {/* Token Input Step */}
-          <Show when={props.step === 'token-input'}>
-            <div>
-              <div class="text-6xl mb-4">🔑</div>
-              <h2 class="text-2xl md:text-3xl font-semibold text-primary mb-4">
-                Enter Your Access Token
-              </h2>
-              <p class="text-secondary mb-8 max-w-sm mx-auto">
-                Paste your access token to unlock unlimited karaoke sessions
-              </p>
-
-              <div class="my-8 space-y-4">
-                <div class="bg-surface border-2 border-subtle rounded-lg p-4 transition-colors hover:border-default">
-                  <input
-                    ref={tokenInputRef!}
-                    type="text"
-                    placeholder={props.tokenPlaceholder || "scarlett_..."}
-                    value={props.defaultToken || ""}
-                    onKeyDown={handleKeyDown}
-                    class="w-full border-none bg-transparent outline-none font-mono text-sm text-primary placeholder:text-muted"
-                  />
-                </div>
-                
-                <div class="flex gap-3 justify-center">
-                  <button
-                    onClick={handleTokenSubmit}
-                    class="bg-gradient-to-r from-accent-primary to-accent-secondary text-white px-8 py-3 rounded-lg font-semibold hover:scale-105 transition-transform shadow-lg"
-                  >
-                    Verify Token
-                  </button>
-                  <button
-                    onClick={() => window.open(props.getTokenUrl || 'https://scarlettx.xyz', '_blank')}
-                    class="bg-surface text-primary px-6 py-3 rounded-lg font-semibold hover:bg-highlight transition-colors"
-                  >
-                    Get Token
-                  </button>
-                </div>
-              </div>
-
-              <div class="bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-lg p-4 max-w-sm mx-auto">
-                <p class="text-sm text-purple-700 font-medium">
-                  💡 <strong>Demo Mode:</strong> Use the prefilled token to try Scarlett free
+        <div class="space-y-6">
+          {/* Connect Wallet Step */}
+          <Show when={props.step === 'connect-wallet'}>
+            <div class="text-center space-y-8">
+              <div>
+                <h2 class="text-4xl font-semibold text-white mb-4">
+                  Connect Your Wallet
+                </h2>
+                <p class="text-gray-400 text-lg max-w-md mx-auto">
+                  Connect your wallet to get started
                 </p>
               </div>
+
+              <div class="space-y-4 max-w-md mx-auto">
+                <Button
+                  onClick={props.onConnectWallet}
+                  disabled={props.isConnecting}
+                  size="lg"
+                  class="w-full h-16 text-lg"
+                >
+                  {props.isConnecting ? (
+                    <span class="flex items-center justify-center gap-2">
+                      <span class="w-4 h-4 border-2 border-current border-r-transparent rounded-full animate-spin" />
+                      Connecting...
+                    </span>
+                  ) : (
+                    <span class="flex items-center justify-center gap-2">
+                      <span>🦊</span>
+                      Connect with MetaMask
+                    </span>
+                  )}
+                </Button>
+
+                <Show when={!showTestOption() && !showPrivateKeyInput()}>
+                  <div class="flex gap-4 justify-center">
+                    <button
+                      onClick={() => setShowTestOption(true)}
+                      class="text-gray-500 hover:text-gray-300 transition-colors"
+                    >
+                      Use demo mode
+                    </button>
+                    <span class="text-gray-600">|</span>
+                    <button
+                      onClick={() => setShowPrivateKeyInput(true)}
+                      class="text-gray-500 hover:text-gray-300 transition-colors"
+                    >
+                      Use private key
+                    </button>
+                  </div>
+                </Show>
+
+                <Show when={showTestOption()}>
+                  <div class="pt-6 space-y-4">
+                    <div class="border-t border-gray-800 pt-6">
+                      <Button
+                        onClick={props.onUseTestMode}
+                        variant="secondary"
+                        size="lg"
+                        class="w-full h-14"
+                      >
+                        Continue with Demo Mode
+                      </Button>
+                      <button
+                        onClick={() => setShowTestOption(false)}
+                        class="text-gray-500 hover:text-gray-300 transition-colors mt-3"
+                      >
+                        Back
+                      </button>
+                    </div>
+                  </div>
+                </Show>
+
+                <Show when={showPrivateKeyInput()}>
+                  <div class="pt-6 space-y-4">
+                    <div class="border-t border-gray-800 pt-6">
+                      <input
+                        type="password"
+                        value={privateKey()}
+                        onInput={(e) => setPrivateKey(e.currentTarget.value)}
+                        placeholder="Enter private key"
+                        class="w-full h-14 px-4 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                      />
+                      <Button
+                        onClick={() => props.onUsePrivateKey(privateKey())}
+                        disabled={!privateKey() || privateKey().length !== 64}
+                        variant="secondary"
+                        size="lg"
+                        class="w-full h-14 mt-3"
+                      >
+                        Connect with Private Key
+                      </Button>
+                      <button
+                        onClick={() => {
+                          setShowPrivateKeyInput(false);
+                          setPrivateKey('');
+                        }}
+                        class="text-gray-500 hover:text-gray-300 transition-colors mt-3"
+                      >
+                        Back
+                      </button>
+                    </div>
+                  </div>
+                </Show>
+              </div>
+
             </div>
           </Show>
 
-          {/* Welcome Step */}
-          <Show when={props.step === 'welcome'}>
-            <div class="space-y-6">
-              <div class="text-6xl mb-4">🎉</div>
-              <h2 class="text-2xl md:text-3xl font-semibold text-primary">
-                Welcome to Scarlett!
-              </h2>
-              <p class="text-secondary max-w-sm mx-auto">
-                Your token has been verified. You're all set to start your karaoke journey on SoundCloud!
+          {/* Generating Token Step */}
+          <Show when={props.step === 'generating-token'}>
+            <div class="text-center space-y-8">
+              <div>
+                <h2 class="text-4xl font-semibold text-white mb-4">
+                  Setting Up Your Account
+                </h2>
+                <Show when={props.walletAddress}>
+                  <p class="text-gray-400 text-lg mb-3">
+                    Connected wallet:
+                  </p>
+                  <code class="text-lg text-purple-400 bg-gray-800 px-4 py-2 rounded-lg font-mono inline-block">
+                    {props.walletAddress?.slice(0, 6)}...{props.walletAddress?.slice(-4)}
+                  </code>
+                </Show>
+              </div>
+
+              <div class="py-12">
+                <div class="w-20 h-20 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto" />
+              </div>
+
+              <p class="text-gray-400 text-xl">
+                {props.isGenerating 
+                  ? 'Generating your access token...' 
+                  : 'Verifying your account...'}
               </p>
-
-              <Show when={props.tokenVerified}>
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 max-w-sm mx-auto">
-                  <div class="text-green-700 font-semibold mb-2">
-                    ✅ Access Granted
-                  </div>
-                  <div class="text-sm text-gray-600">
-                    Ready to sing along to your favorite tracks!
-                  </div>
-                </div>
-              </Show>
-
-              <button
-                onClick={props.onGetStarted}
-                class="bg-gradient-to-r from-accent-primary to-accent-secondary text-white px-12 py-4 rounded-lg font-semibold text-lg hover:scale-105 transition-transform shadow-lg"
-              >
-                Get Started
-              </button>
             </div>
           </Show>
 
           {/* Complete Step */}
           <Show when={props.step === 'complete'}>
-            <div class="space-y-6">
-              <div class="text-6xl mb-4">🚀</div>
-              <h2 class="text-2xl md:text-3xl font-semibold text-primary">
-                You're All Set!
-              </h2>
-              <p class="text-secondary max-w-sm mx-auto">
-                Head to SoundCloud and start singing! Look for the karaoke widget on any supported track.
-              </p>
+            <div class="text-center space-y-8">
+              <div class="text-8xl mb-6">🎉</div>
+              
+              <div>
+                <h2 class="text-4xl font-semibold text-white mb-4">
+                  You're All Set!
+                </h2>
+                <p class="text-gray-400 text-xl max-w-md mx-auto mb-8">
+                  Your account is ready. Time to sing!
+                </p>
+              </div>
 
-              <button
-                onClick={props.onComplete}
-                class="bg-gradient-to-r from-green-500 to-cyan-500 text-white px-12 py-4 rounded-lg font-semibold text-lg hover:scale-105 transition-transform shadow-lg"
-              >
-                Start Karaoke
-              </button>
+              <div class="max-w-md mx-auto">
+                <Button
+                  onClick={props.onComplete}
+                  size="lg"
+                  class="w-full h-16 text-lg"
+                >
+                  Start Singing! 🚀
+                </Button>
+              </div>
+
+              <p class="text-gray-500 mt-6">
+                Look for the karaoke widget on any SoundCloud track
+              </p>
             </div>
           </Show>
         </div>

@@ -10,6 +10,8 @@ const app = new Hono<{
 
 // Simple LRCLibService wrapper to match the working implementation
 class LRCLibService {
+  // In-memory cache for development/single instance
+  // For production, use Cloudflare KV or Cache API
   private static successCache = new Map<string, { artist: string; title: string; album?: string }>();
   private static CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 
@@ -23,18 +25,40 @@ class LRCLibService {
   }
 
   // Cache successful search parameters
-  static cacheSuccess(trackId: string, params: { artist: string; title: string; album?: string }) {
+  static async cacheSuccess(trackId: string, params: { artist: string; title: string; album?: string }, env?: Env) {
+    // In-memory cache (single worker instance only)
     this.successCache.set(trackId, { ...params, timestamp: Date.now() });
     console.log(`[Karaoke] Cached successful search params for: ${trackId}`);
+    
+    // TODO: For production, also save to Cloudflare KV:
+    // if (env?.KARAOKE_CACHE) {
+    //   await env.KARAOKE_CACHE.put(
+    //     `karaoke:${trackId}`,
+    //     JSON.stringify({ ...params, timestamp: Date.now() }),
+    //     { expirationTtl: 1800 } // 30 minutes
+    //   );
+    // }
   }
 
   // Get cached successful search parameters
-  static getCachedSuccess(trackId: string): { artist: string; title: string; album?: string } | null {
+  static async getCachedSuccess(trackId: string, env?: Env): Promise<{ artist: string; title: string; album?: string } | null> {
+    // Try in-memory cache first (fast but single-instance only)
     const cached = this.successCache.get(trackId);
     if (cached && Date.now() - (cached as any).timestamp < this.CACHE_DURATION) {
-      console.log(`[Karaoke] Using cached search params for: ${trackId}`);
+      console.log(`[Karaoke] Using cached search params from memory for: ${trackId}`);
       return cached;
     }
+    
+    // TODO: For production, check Cloudflare KV:
+    // if (env?.KARAOKE_CACHE) {
+    //   const kvCached = await env.KARAOKE_CACHE.get(`karaoke:${trackId}`);
+    //   if (kvCached) {
+    //     const parsed = JSON.parse(kvCached);
+    //     console.log(`[Karaoke] Using cached search params from KV for: ${trackId}`);
+    //     return parsed;
+    //   }
+    // }
+    
     return null;
   }
 }

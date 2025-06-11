@@ -7,9 +7,12 @@ export default defineConfig({
     plugins: [solid({ ssr: false })],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src'),
-        '@scarlett/ui': path.resolve(__dirname, '../../packages/ui/src'),
+        '@': resolve(__dirname, './src'),
+        '@scarlett/ui': resolve(__dirname, '../../packages/ui/src'),
       },
+    },
+    optimizeDeps: {
+      include: ['solid-js', 'solid-js/web', 'solid-js/store'],
     },
     define: {
       global: 'globalThis',

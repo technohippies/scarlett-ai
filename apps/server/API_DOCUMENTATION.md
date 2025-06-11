@@ -6,8 +6,9 @@ The Scarlett API is a RESTful API built on Cloudflare Workers that powers the Sc
 
 ## Base URLs
 
-- **Development**: `http://localhost:8787`
-- **Production**: `https://api.scarlettx.xyz`
+- **Local Development**: `http://localhost:8787`
+- **Development (Deployed)**: `https://scarlett-api-dev.deletion-backup782.workers.dev`
+- **Production**: `https://api.scarlettx.xyz` (not yet deployed)
 
 ## Authentication
 
@@ -18,6 +19,18 @@ Authorization: Bearer scarlett_eyJhbGc...
 ```
 
 Tokens are obtained through the `/auth/login` or `/auth/register` endpoints.
+
+### Demo Token
+
+For testing purposes, you can use the demo token:
+```
+scarlett_test_demo_user_12345
+```
+
+Obtain it via:
+```http
+POST /auth/demo
+```
 
 ## Rate Limiting
 

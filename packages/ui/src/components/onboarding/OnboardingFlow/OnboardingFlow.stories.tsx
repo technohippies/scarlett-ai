@@ -7,32 +7,35 @@ const meta: Meta<OnboardingFlowProps> = {
   render: solidStory(OnboardingFlow),
   parameters: {
     layout: 'fullscreen',
+    backgrounds: {
+      default: 'dark',
+    },
   },
   argTypes: {
     step: {
       control: 'select',
-      options: ['token-input', 'welcome', 'complete'],
+      options: ['connect-wallet', 'generating-token', 'complete'],
       description: 'Current step in the onboarding flow',
     },
     error: {
       control: 'text',
       description: 'Error message to display',
     },
-    tokenVerified: {
+    walletAddress: {
+      control: 'text',
+      description: 'Connected wallet address',
+    },
+    token: {
+      control: 'text',
+      description: 'Generated JWT token',
+    },
+    isConnecting: {
       control: 'boolean',
-      description: 'Whether the token has been verified',
+      description: 'Whether wallet is currently connecting',
     },
-    defaultToken: {
-      control: 'text',
-      description: 'Default token value to prefill',
-    },
-    tokenPlaceholder: {
-      control: 'text',
-      description: 'Placeholder text for token input',
-    },
-    getTokenUrl: {
-      control: 'text',
-      description: 'URL for getting a token',
+    isGenerating: {
+      control: 'boolean',
+      description: 'Whether token is being generated',
     },
   },
 };
@@ -40,37 +43,42 @@ const meta: Meta<OnboardingFlowProps> = {
 export default meta;
 type Story = StoryObj<OnboardingFlowProps>;
 
-export const TokenInput: Story = {
+export const ConnectWallet: Story = {
   args: {
-    step: 'token-input',
-    defaultToken: 'scarlett_test_demo_user_12345',
-    tokenPlaceholder: 'scarlett_...',
-    getTokenUrl: 'https://scarlettx.xyz',
-    onTokenSubmit: (token: string) => console.log('Token submitted:', token),
-    onGetStarted: () => console.log('Get started clicked'),
+    step: 'connect-wallet',
+    onConnectWallet: () => console.log('Connect wallet clicked'),
+    onUseTestMode: () => console.log('Use test mode clicked'),
     onComplete: () => console.log('Complete clicked'),
   },
 };
 
-export const TokenInputWithError: Story = {
+export const ConnectingWallet: Story = {
   args: {
-    step: 'token-input',
-    error: 'Invalid token format. Token must start with "scarlett_"',
-    defaultToken: '',
-    tokenPlaceholder: 'scarlett_...',
-    getTokenUrl: 'https://scarlettx.xyz',
-    onTokenSubmit: (token: string) => console.log('Token submitted:', token),
-    onGetStarted: () => console.log('Get started clicked'),
+    step: 'connect-wallet',
+    isConnecting: true,
+    onConnectWallet: () => console.log('Connect wallet clicked'),
+    onUseTestMode: () => console.log('Use test mode clicked'),
     onComplete: () => console.log('Complete clicked'),
   },
 };
 
-export const Welcome: Story = {
+export const WalletError: Story = {
   args: {
-    step: 'welcome',
-    tokenVerified: true,
-    onTokenSubmit: (token: string) => console.log('Token submitted:', token),
-    onGetStarted: () => console.log('Get started clicked'),
+    step: 'connect-wallet',
+    error: 'MetaMask is not installed. Please install MetaMask to continue.',
+    onConnectWallet: () => console.log('Connect wallet clicked'),
+    onUseTestMode: () => console.log('Use test mode clicked'),
+    onComplete: () => console.log('Complete clicked'),
+  },
+};
+
+export const GeneratingToken: Story = {
+  args: {
+    step: 'generating-token',
+    walletAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f89590',
+    isGenerating: true,
+    onConnectWallet: () => console.log('Connect wallet clicked'),
+    onUseTestMode: () => console.log('Use test mode clicked'),
     onComplete: () => console.log('Complete clicked'),
   },
 };
@@ -78,56 +86,83 @@ export const Welcome: Story = {
 export const Complete: Story = {
   args: {
     step: 'complete',
-    tokenVerified: true,
-    onTokenSubmit: (token: string) => console.log('Token submitted:', token),
-    onGetStarted: () => console.log('Get started clicked'),
+    walletAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f89590',
+    token: 'scarlett_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    onConnectWallet: () => console.log('Connect wallet clicked'),
+    onUseTestMode: () => console.log('Use test mode clicked'),
     onComplete: () => console.log('Complete clicked'),
   },
 };
 
-// Interactive flow example
+// Interactive flow with wallet connection simulation
 export const InteractiveFlow: Story = {
   render: (args) => {
-    // Create a wrapper div to hold our interactive component
     const wrapper = document.createElement('div');
-    wrapper.className = 'h-screen';
+    wrapper.className = 'h-screen bg-base';
     
-    // Track state
-    let currentStep: OnboardingFlowProps['step'] = 'token-input';
+    let currentStep: OnboardingFlowProps['step'] = 'connect-wallet';
     let error: string | null = null;
-    let tokenVerified = false;
+    let walletAddress: string | null = null;
+    let token: string | null = null;
+    let isConnecting = false;
+    let isGenerating = false;
     
-    // Helper to re-render
     const render = () => {
       wrapper.innerHTML = '';
       const element = solidStory(OnboardingFlow)({
         ...args,
         step: currentStep,
         error,
-        tokenVerified,
-        onTokenSubmit: (token: string) => {
-          console.log('Token submitted:', token);
-          if (token.startsWith('scarlett_')) {
-            error = null;
-            tokenVerified = true;
-            currentStep = 'welcome';
-            render();
-          } else {
-            error = 'Invalid token format. Token must start with "scarlett_"';
-            render();
-          }
-        },
-        onGetStarted: () => {
-          console.log('Get started clicked');
-          currentStep = 'complete';
+        walletAddress,
+        token,
+        isConnecting,
+        isGenerating,
+        onConnectWallet: async () => {
+          console.log('Connect wallet clicked');
+          error = null;
+          isConnecting = true;
           render();
+          
+          // Simulate wallet connection
+          setTimeout(() => {
+            isConnecting = false;
+            walletAddress = '0x742d35Cc6634C0532925a3b844Bc9e7595f89590';
+            currentStep = 'generating-token';
+            isGenerating = true;
+            render();
+            
+            // Simulate token generation
+            setTimeout(() => {
+              isGenerating = false;
+              token = 'scarlett_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+              currentStep = 'complete';
+              render();
+            }, 2000);
+          }, 1500);
+        },
+        onUseTestMode: () => {
+          console.log('Use test mode clicked');
+          error = null;
+          walletAddress = 'demo-user';
+          currentStep = 'generating-token';
+          isGenerating = true;
+          render();
+          
+          // Simulate token generation for test mode
+          setTimeout(() => {
+            isGenerating = false;
+            token = 'scarlett_test_demo_user_12345';
+            currentStep = 'complete';
+            render();
+          }, 1000);
         },
         onComplete: () => {
           console.log('Complete clicked - would close window');
           // Reset for demo
-          currentStep = 'token-input';
+          currentStep = 'connect-wallet';
           error = null;
-          tokenVerified = false;
+          walletAddress = null;
+          token = null;
           render();
         },
       });
@@ -139,14 +174,8 @@ export const InteractiveFlow: Story = {
       }
     };
     
-    // Initial render
     render();
     
     return wrapper;
-  },
-  args: {
-    defaultToken: 'scarlett_test_demo_user_12345',
-    tokenPlaceholder: 'scarlett_...',
-    getTokenUrl: 'https://scarlettx.xyz',
   },
 };

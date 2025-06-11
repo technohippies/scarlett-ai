@@ -16,7 +16,7 @@ vars = { ENVIRONMENT = "development" }
 [[env.development.d1_databases]]
 binding = "DB"
 database_name = "scarlett-dev"
-database_id = "YOUR_DEV_DB_ID" # Set via deployment script
+database_id = "c0cebf07-8c3b-4c03-9ecd-589d9a8346e6"
 
 # Production environment
 [env.production]

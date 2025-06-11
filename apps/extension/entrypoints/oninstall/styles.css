@@ -1,0 +1,4 @@
+/* Import the shared extension styles */
+@import '../../src/styles/extension.css';
+
+/* Additional oninstall-specific styles if needed */

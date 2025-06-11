@@ -199,4 +199,15 @@ app.post('/verify-unlock', authMiddleware, validateBody(z.object({
   });
 });
 
+// Demo endpoint - no database required
+app.post('/demo', async (c) => {
+  return c.json({
+    success: true,
+    token: 'scarlett_test_demo_user_12345',
+    message: 'Demo token for testing',
+    type: 'extension_token',
+    expiresIn: 'never',
+  });
+});
+
 export default app;

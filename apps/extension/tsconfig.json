@@ -8,10 +8,13 @@
       "@scarlett/ui/*": ["../../packages/ui/src/*"]
     },
     "types": ["chrome", "webextension-polyfill"],
-    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js"
   },
   "include": [
     "src/**/*",
+    "entrypoints/**/*",
     "wxt.config.ts"
   ],
   "exclude": [

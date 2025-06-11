@@ -16,6 +16,8 @@ export * from './karaoke/LeaderboardPanel';
 export * from './karaoke/ExtensionKaraokeView';
 export * from './karaoke/FarcasterKaraokeView';
 export * from './karaoke/CompletionView';
+export * from './karaoke/KaraokeSession';
+export * from './karaoke/KaraokeCompletion';
 
 // Common Components
 export * from './common/Button';
