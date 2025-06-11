@@ -88,7 +88,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
       // Create and start session
       const newSession = useKaraokeSession({
         lyrics: data.lyrics.lines,
-        trackId: track.id,
+        trackId: track.trackId,
         songData: data.song ? {
           title: data.song.title,
           artist: data.song.artist,
