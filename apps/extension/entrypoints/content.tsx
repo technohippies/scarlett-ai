@@ -24,7 +24,7 @@ export default defineContentScript({
       name: 'scarlett-karaoke-ui',
       position: 'overlay',
       anchor: 'body',
-      onMount: (container: HTMLElement) => {
+      onMount: async (container: HTMLElement) => {
         console.log('[Content Script] onMount called, container:', container);
         console.log('[Content Script] Shadow root:', container.getRootNode());
         
@@ -39,20 +39,27 @@ export default defineContentScript({
           top: 20px;
           right: 20px;
           bottom: 20px;
-          width: 500px;
+          width: 400px;
           z-index: 99999;
           overflow: hidden;
           border-radius: 16px;
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+          display: flex;
+          flex-direction: column;
         `;
         wrapper.className = 'karaoke-widget';
         container.appendChild(wrapper);
 
         console.log('[Content Script] Wrapper created and appended:', wrapper);
+        console.log('[Content Script] Wrapper computed styles:', window.getComputedStyle(wrapper));
 
-        const unmount = render(() => <ContentApp />, wrapper);
-
-        return unmount;
+        // Render ContentApp component (which uses ExtensionKaraokeView)
+        console.log('[Content Script] About to render ContentApp');
+        const dispose = render(() => <ContentApp />, wrapper);
+        
+        console.log('[Content Script] ContentApp rendered, dispose function:', dispose);
+        
+        return dispose;
       },
       onRemove: (cleanup?: () => void) => {
         cleanup?.();

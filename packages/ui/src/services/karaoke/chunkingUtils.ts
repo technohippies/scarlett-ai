@@ -21,6 +21,8 @@ export function shouldChunkLines(
 
   while (endIndex < lines.length && totalWords < MIN_WORDS) {
     const line = lines[endIndex];
+    if (!line) break;
+    
     const words = countWords(line.text);
 
     if (totalWords + words > MAX_WORDS && totalWords >= 5) {
@@ -54,27 +56,31 @@ export function calculateRecordingDuration(
   if (endIndex > startIndex) {
     const lastLine = lines[endIndex];
     
-    if (line.recordingStart && lastLine.recordingEnd) {
+    if (lastLine && line.recordingStart && lastLine.recordingEnd) {
       return lastLine.recordingEnd - line.recordingStart;
     } else if (endIndex + 1 < lines.length) {
       const nextLine = lines[endIndex + 1];
-      return nextLine.timestamp - line.timestamp;
-    } else {
-      let duration = 0;
-      for (let i = startIndex; i <= endIndex; i++) {
-        duration += lines[i].duration || 3000;
+      if (nextLine) {
+        return nextLine.timestamp - line.timestamp;
       }
-      return Math.min(duration, 8000);
     }
+    
+    let duration = 0;
+    for (let i = startIndex; i <= endIndex; i++) {
+      duration += lines[i]?.duration || 3000;
+    }
+    return Math.min(duration, 8000);
   } else {
     if (line.recordingStart && line.recordingEnd) {
       return line.recordingEnd - line.recordingStart;
     } else if (startIndex + 1 < lines.length) {
       const nextLine = lines[startIndex + 1];
-      const calculatedDuration = nextLine.timestamp - line.timestamp;
-      return Math.min(Math.max(calculatedDuration, 1000), 5000);
-    } else {
-      return Math.min(line.duration || 3000, 5000);
+      if (nextLine) {
+        const calculatedDuration = nextLine.timestamp - line.timestamp;
+        return Math.min(Math.max(calculatedDuration, 1000), 5000);
+      }
     }
+    
+    return Math.min(line.duration || 3000, 5000);
   }
 }

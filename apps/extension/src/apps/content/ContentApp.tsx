@@ -1,8 +1,9 @@
 import { Component, createSignal, createEffect, onMount, onCleanup, Show } from 'solid-js';
-import { KaraokeSession } from '@scarlett/ui';
+import { ExtensionKaraokeView, KaraokeSession } from '@scarlett/ui';
 import { trackDetector, type TrackInfo } from '../../services/track-detector';
 import { getAuthToken } from '../../utils/storage';
 import { browser } from 'wxt/browser';
+import { karaokeApi } from '../../services/karaoke-api';
 
 export interface ContentAppProps {}
 
@@ -13,7 +14,9 @@ export const ContentApp: Component<ContentAppProps> = () => {
   const [currentTrack, setCurrentTrack] = createSignal<TrackInfo | null>(null);
   const [authToken, setAuthToken] = createSignal<string | null>(null);
   const [showKaraoke, setShowKaraoke] = createSignal(false);
-  const [isMinimized, setIsMinimized] = createSignal(false);
+  const [karaokeData, setKaraokeData] = createSignal<any>(null);
+  const [loading, setLoading] = createSignal(false);
+  const [sessionStarted, setSessionStarted] = createSignal(false);
   
   // Load auth token on mount
   onMount(async () => {
@@ -32,130 +35,73 @@ export const ContentApp: Component<ContentAppProps> = () => {
     const cleanup = trackDetector.watchForChanges((track) => {
       console.log('[ContentApp] Track changed:', track);
       setCurrentTrack(track);
-      // Show karaoke when track is detected
+      // Show karaoke when track is detected and fetch data
       if (track) {
         setShowKaraoke(true);
+        fetchKaraokeData(track);
       }
     });
 
     onCleanup(cleanup);
   });
 
-  const handleComplete = (results: any) => {
-    console.log('[ContentApp] Karaoke session completed:', results);
-    // TODO: Show completion screen, save results, etc.
+  const fetchKaraokeData = async (track: TrackInfo) => {
+    console.log('[ContentApp] Fetching karaoke data for track:', track);
+    setLoading(true);
+    try {
+      const data = await karaokeApi.getKaraokeData(
+        track.trackId,
+        track.title,
+        track.artist
+      );
+      console.log('[ContentApp] Karaoke data loaded:', data);
+      setKaraokeData(data);
+    } catch (error) {
+      console.error('[ContentApp] Failed to fetch karaoke data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStart = () => {
+    console.log('[ContentApp] Start karaoke session');
+    setSessionStarted(true);
   };
 
   const handleClose = () => {
     setShowKaraoke(false);
+    setKaraokeData(null);
+    setSessionStarted(false);
   };
 
   const handleMinimize = () => {
-    setIsMinimized(!isMinimized());
+    console.log('[ContentApp] Minimize karaoke widget');
+    // For now, just close it
+    handleClose();
   };
 
+  console.log('[ContentApp] Render state:', {
+    showKaraoke: showKaraoke(),
+    currentTrack: currentTrack(),
+    karaokeData: karaokeData(),
+    loading: loading()
+  });
+
   return (
-    <Show when={showKaraoke() && currentTrack() && authToken()}>
-      <div 
-        class="karaoke-widget"
-        style={{
-          position: 'fixed',
-          top: isMinimized() ? 'auto' : '20px',
-          right: '20px',
-          bottom: '20px',
-          width: isMinimized() ? '80px' : '500px',
-          height: isMinimized() ? '80px' : 'auto',
-          'z-index': '99999',
-          overflow: 'hidden',
-          'border-radius': '16px',
-          'box-shadow': '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-          transition: 'all 0.3s ease',
-          background: '#0a0a0a',
-        }}
-      >
-        {/* Header controls */}
-        <div 
-          style={{
-            display: 'flex',
-            'justify-content': 'space-between',
-            'align-items': 'center',
-            padding: '12px 16px',
-            background: '#161616',
-            'border-bottom': '1px solid #262626',
-          }}
-        >
-          <div style={{ display: 'flex', gap: '8px', 'align-items': 'center' }}>
-            <span style={{ 'font-size': '20px' }}>🎤</span>
-            <Show when={!isMinimized()}>
-              <span style={{ color: '#fafafa', 'font-weight': '600' }}>Scarlett</span>
-            </Show>
-          </div>
-          <Show when={!isMinimized()}>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={handleMinimize}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#a8a8a8',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  'font-size': '18px',
-                }}
-                title="Minimize"
-              >
-                −
-              </button>
-              <button
-                onClick={handleClose}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#a8a8a8',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  'font-size': '18px',
-                }}
-                title="Close"
-              >
-                ×
-              </button>
-            </div>
-          </Show>
-        </div>
-
-        {/* Karaoke content */}
-        <Show when={!isMinimized()}>
-          <div style={{ height: 'calc(100% - 49px)' }}>
-            <KaraokeSession
-              trackId={currentTrack()!.trackId}
-              trackTitle={currentTrack()!.title}
-              artist={currentTrack()!.artist}
-              authToken={authToken()!}
-              onComplete={handleComplete}
-            />
-          </div>
-        </Show>
-
-        {/* Minimized view */}
-        <Show when={isMinimized()}>
-          <button
-            onClick={handleMinimize}
-            style={{
-              width: '100%',
-              height: '100%',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              'align-items': 'center',
-              'justify-content': 'center',
-            }}
-          >
-            <span style={{ 'font-size': '32px' }}>🎤</span>
-          </button>
-        </Show>
+    <Show when={showKaraoke() && currentTrack()} fallback={
+      <div style={{ display: 'none' }}>
+        {console.log('[ContentApp] Not showing - showKaraoke:', showKaraoke(), 'currentTrack:', currentTrack())}
       </div>
+    }>
+      {console.log('[ContentApp] Rendering ExtensionKaraokeView with data:', karaokeData())}
+      <ExtensionKaraokeView
+        track={currentTrack()!}
+        lyrics={karaokeData()?.lyrics}
+        loading={loading()}
+        onStart={handleStart}
+        onClose={handleClose}
+        onMinimize={handleMinimize}
+      />
     </Show>
   );
 };

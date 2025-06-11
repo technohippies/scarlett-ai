@@ -278,7 +278,7 @@ export const KaraokeSession: Component<KaraokeSessionProps> = (props) => {
       const audioBase64 = await new Promise<string>((resolve, reject) => {
         reader.onloadend = () => {
           const base64 = reader.result as string;
-          resolve(base64.split(',')[1]);
+          resolve(base64.split(',')[1] || '');
         };
         reader.onerror = reject;
         reader.readAsDataURL(sessionWav);
@@ -341,10 +341,12 @@ export const KaraokeSession: Component<KaraokeSessionProps> = (props) => {
     
     for (let i = 0; i < data.lyrics.lines.length; i++) {
       const line = data.lyrics.lines[i];
+      if (!line) continue;
       
       const recordingStart = line.recordingStart || line.timestamp - 300;
+      const nextLine = data.lyrics.lines[i + 1];
       const recordingEnd = line.recordingEnd || 
-        (data.lyrics.lines[i + 1]?.timestamp - 200) ||
+        (nextLine?.timestamp ? nextLine.timestamp - 200 : undefined) ||
         (line.timestamp + Math.min(line.duration || 3000, 5000));
       
       if (currentTime >= recordingStart && currentTime < recordingEnd) {
@@ -415,27 +417,14 @@ export const KaraokeSession: Component<KaraokeSessionProps> = (props) => {
       }
     >
       <LyricsDisplay
-        lyrics={store.karaokeData()?.lyrics?.lines.map(line => ({
+        lyrics={store.karaokeData()?.lyrics?.lines.map((line, index) => ({
+          id: `line-${index}`,
           text: line.text,
           startTime: line.timestamp,
-          duration: line.duration,
+          duration: line.duration || 3000,
         })) || []}
         currentTime={currentAudioTime()}
         isPlaying={isAudioPlaying()}
-        currentRecordingLine={store.currentRecordingLine()}
-        isRecording={store.isRecording()}
-        lineScores={store.lineScores()}
-        performanceState={store.performanceState()}
-        performanceScore={store.performanceScore()}
-        connectionStatus={store.connectionStatus()}
-        isKaraokeActive={store.isKaraokeActive()}
-        onStartKaraoke={handleStartKaraoke}
-        onRetryConnection={connectToServer}
-        statusMessage={message()}
-        countdownSeconds={countdownSeconds()}
-        difficulty={store.karaokeData()?.song?.difficulty}
-        bestScore={userBestScore()}
-        songId={store.karaokeData()?.song?.genius_id || store.karaokeData()?.track_id}
       />
     </Show>
   );

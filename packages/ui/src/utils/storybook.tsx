@@ -31,7 +31,7 @@ export function solidStory<T extends StoryArgs>(
   if (Component.length === 0) {
     // Component takes no props, render directly
     const container = document.createElement('div')
-    render(() => Component(), container)
+    render(() => Component({} as T), container)
     return container
   }
   

@@ -48,7 +48,7 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
   };
 
   // Direction (for RTL languages in future)
-  const dir = () => 'ltr'; // Only LTR languages supported currently
+  const dir = (): 'ltr' | 'rtl' => 'ltr'; // Only LTR languages supported currently
 
   // Number formatting
   const numberFormatter = createMemo(() => 

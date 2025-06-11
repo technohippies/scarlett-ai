@@ -6,8 +6,8 @@ import { solidStory } from './storybook';
  * Wraps a component with I18nProvider for Storybook stories
  * Use this when your component needs i18n context
  */
-export const withI18n = (Component: any) => {
-  return (props: any, context?: any) => {
+export const withI18n = <T extends Record<string, any>>(Component: any) => {
+  return (props: T, context?: any) => {
     const locale = (context?.globals?.locale as LocaleCode) || 'en';
     
     const WrappedComponent = () => (
@@ -16,6 +16,6 @@ export const withI18n = (Component: any) => {
       </I18nProvider>
     );
     
-    return solidStory(WrappedComponent);
+    return solidStory(WrappedComponent)(props);
   };
 };

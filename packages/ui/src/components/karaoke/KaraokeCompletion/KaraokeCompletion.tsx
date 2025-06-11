@@ -101,8 +101,8 @@ export const KaraokeCompletion: Component<KaraokeCompletionProps> = (props) => {
                       <div class={styles.lineText}>{line.text}</div>
                       <div class={styles.lineScore}>
                         <ProgressBar 
-                          value={line.score} 
-                          max={100}
+                          current={line.score} 
+                          total={100}
                           class={styles.lineProgress}
                         />
                         <span class={styles.lineScoreValue}>{line.score}%</span>
@@ -117,7 +117,7 @@ export const KaraokeCompletion: Component<KaraokeCompletionProps> = (props) => {
           <div class={styles.actions}>
             <Button 
               variant="primary" 
-              size="large"
+              size="lg"
               onClick={props.onTryAgain}
             >
               Try Again
