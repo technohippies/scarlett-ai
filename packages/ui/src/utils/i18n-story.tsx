@@ -16,6 +16,6 @@ export const withI18n = <T extends Record<string, any>>(Component: any) => {
       </I18nProvider>
     );
     
-    return solidStory(WrappedComponent)(props);
+    return solidStory(WrappedComponent, {});
   };
 };
