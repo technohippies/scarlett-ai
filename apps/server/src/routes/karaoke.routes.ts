@@ -78,7 +78,11 @@ function processSyncedLyrics(rawLyrics: any[]): any[] {
   return lyricsService.processSyncedLyrics(rawLyrics);
 }
 
-// OPTIONS handled by global CORS middleware
+// OPTIONS handling for all karaoke endpoints
+app.options('/*', async (c) => {
+  // CORS headers are already set by global middleware
+  return new Response(null, { status: 204 });
+});
 
 // Core karaoke endpoint - check if track has karaoke data
 app.get('/*', async (c) => {
