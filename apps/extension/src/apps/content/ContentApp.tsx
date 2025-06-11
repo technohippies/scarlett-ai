@@ -78,7 +78,12 @@ export const ContentApp: Component<ContentAppProps> = () => {
     const track = currentTrack();
     
     if (data && track && data.lyrics?.lines) {
-      console.log('[ContentApp] Creating karaoke session with audio capture');
+      console.log('[ContentApp] Creating karaoke session with audio capture', {
+        trackId: track.id,
+        trackTitle: track.title,
+        songData: data.song,
+        hasLyrics: !!data.lyrics?.lines
+      });
       
       // Create and start session
       const newSession = useKaraokeSession({
@@ -94,7 +99,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
           artist: track.artist
         },
         audioElement: undefined, // Will be set when audio starts playing
-        apiUrl: 'http://localhost:3000/api',
+        apiUrl: 'http://localhost:8787/api',
         onComplete: (results) => {
           console.log('[ContentApp] Karaoke session completed:', results);
           setSessionStarted(false);

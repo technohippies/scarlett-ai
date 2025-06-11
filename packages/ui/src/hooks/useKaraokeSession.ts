@@ -197,6 +197,13 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     const audioChunks = audioProcessor.stopRecordingLineAndGetRawAudio();
     const wavBlob = audioProcessor.convertAudioToWavBlob(audioChunks);
     
+    console.log(`[KaraokeSession] Audio blob created:`, {
+      hasBlob: !!wavBlob,
+      blobSize: wavBlob?.size,
+      hasSessionId: !!sessionId(),
+      sessionId: sessionId()
+    });
+    
     if (wavBlob && sessionId()) {
       // Convert to base64 for API
       const reader = new FileReader();
@@ -207,6 +214,8 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         }
       };
       reader.readAsDataURL(wavBlob);
+    } else if (wavBlob && !sessionId()) {
+      console.warn('[KaraokeSession] Have audio but no session ID - cannot grade');
     }
     
     setCurrentChunk(null);

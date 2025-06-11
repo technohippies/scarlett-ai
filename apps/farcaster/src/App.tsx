@@ -1,86 +1,75 @@
 import { createSignal, onMount, Show } from 'solid-js';
 import { sdk } from '@farcaster/frame-sdk';
-import { FarcasterMiniApp } from '@scarlett/ui';
 import type { FrameContext } from '@farcaster/frame-sdk';
 
 const App = () => {
   const [isLoading, setIsLoading] = createSignal(true);
   const [context, setContext] = createSignal<FrameContext | null>(null);
-  const [credits, setCredits] = createSignal(0);
-  const [isWalletConnected, setIsWalletConnected] = createSignal(false);
-  const [walletAddress, setWalletAddress] = createSignal<string>();
+  const [credits, setCredits] = createSignal(100);
+  const [error, setError] = createSignal<string | null>(null);
 
   onMount(async () => {
     try {
+      console.log('App mounting...');
+      
       // Check if we're in a mini app
       const inMiniApp = await sdk.isInMiniApp().catch(() => false);
+      console.log('In mini app:', inMiniApp);
       
       if (inMiniApp) {
         // Get context
         setContext(sdk.context);
-        
-        // TODO: Get user credits from API using Quick Auth
-        // For now, use demo credits
-        setCredits(100);
         
         // Hide splash screen
         await sdk.actions.ready().catch(console.error);
       } else {
         // Dev mode - simulate context
         console.log('Running in dev mode');
-        setCredits(100);
       }
       
       setIsLoading(false);
     } catch (error) {
       console.error('Failed to initialize app:', error);
+      setError(String(error));
       setIsLoading(false);
     }
   });
 
-  const handleConnectWallet = async () => {
-    try {
-      // For MVP, just simulate wallet connection
-      // TODO: Implement actual wallet connection
-      setIsWalletConnected(true);
-      setWalletAddress('0x1234567890abcdef1234567890abcdef12345678');
-    } catch (error) {
-      console.error('Failed to connect wallet:', error);
-    }
-  };
-
-  const handleDisconnectWallet = () => {
-    setIsWalletConnected(false);
-    setWalletAddress(undefined);
-  };
-
-  const handlePurchaseCredits = async (pack: { credits: number; price: string; currency: string }) => {
-    console.log('Purchase pack:', pack);
-    // TODO: Implement actual purchase flow
-    // For MVP, just add credits
-    setCredits(credits() + pack.credits);
-  };
-
   return (
-    <Show
-      when={!isLoading()}
-      fallback={
-        <div class="flex items-center justify-center h-screen bg-base">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-primary"></div>
-        </div>
-      }
-    >
-      <FarcasterMiniApp
-        user={context()?.user}
-        userCredits={credits()}
-        walletAddress={walletAddress()}
-        walletChain="Base"
-        isWalletConnected={isWalletConnected()}
-        onConnectWallet={handleConnectWallet}
-        onDisconnectWallet={handleDisconnectWallet}
-        onPurchaseCredits={handlePurchaseCredits}
-      />
-    </Show>
+    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", "padding": "16px" }}>
+      <Show
+        when={!isLoading()}
+        fallback={
+          <div style={{ "text-align": "center", "padding": "50px" }}>
+            <p style={{ "color": "#ffffff" }}>Loading...</p>
+          </div>
+        }
+      >
+        <Show
+          when={!error()}
+          fallback={
+            <div style={{ "text-align": "center", "color": "#ef4444" }}>
+              <h1 style={{ "font-size": "24px", "font-weight": "bold" }}>Error</h1>
+              <p>{error()}</p>
+            </div>
+          }
+        >
+          <div style={{ "max-width": "400px", "margin": "0 auto" }}>
+            <h1 style={{ "font-size": "32px", "font-weight": "bold", "margin-bottom": "16px" }}>Scarlett Karaoke</h1>
+            <div style={{ "background-color": "#1a1a1a", "padding": "16px", "border-radius": "8px", "margin-bottom": "16px" }}>
+              <p style={{ "color": "#a8a8a8", "margin-bottom": "8px" }}>User: {context()?.user?.username || 'Guest'}</p>
+              <p style={{ "color": "#a8a8a8" }}>Credits: {credits()}</p>
+            </div>
+            <div style={{ "background-color": "#1a1a1a", "padding": "16px", "border-radius": "8px" }}>
+              <h2 style={{ "font-size": "20px", "font-weight": "600", "margin-bottom": "8px" }}>Coming Soon</h2>
+              <p style={{ "color": "#a8a8a8" }}>
+                The full karaoke experience is being built. For now, this is a test interface.
+              </p>
+            </div>
+          </div>
+        </Show>
+      </Show>
+    </div>
   );
 };
 
