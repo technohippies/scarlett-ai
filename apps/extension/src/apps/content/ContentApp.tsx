@@ -90,15 +90,34 @@ export const ContentApp: Component<ContentAppProps> = () => {
     console.log('[ContentApp] Starting audio playback');
     setIsPlaying(true);
     
-    // Get the audio element from the page
+    // Try multiple methods to find and play audio
+    // Method 1: Look for audio elements
     const audioElements = document.querySelectorAll('audio');
+    console.log('[ContentApp] Found audio elements:', audioElements.length);
+    
     if (audioElements.length > 0) {
       const audio = audioElements[0] as HTMLAudioElement;
+      console.log('[ContentApp] Audio element:', {
+        src: audio.src,
+        paused: audio.paused,
+        duration: audio.duration,
+        currentTime: audio.currentTime
+      });
       setAudioRef(audio);
       
-      // Play the audio
-      audio.play().catch(err => {
+      // Try to play the audio
+      audio.play().then(() => {
+        console.log('[ContentApp] Audio started playing successfully');
+      }).catch(err => {
         console.error('[ContentApp] Failed to play audio:', err);
+        
+        // Method 2: Try clicking the play button on the page
+        console.log('[ContentApp] Attempting to click play button...');
+        const playButton = document.querySelector('button[title*="Play"], button[aria-label*="Play"], .playControl, .playButton, [class*="play-button"]');
+        if (playButton) {
+          console.log('[ContentApp] Found play button, clicking it');
+          (playButton as HTMLElement).click();
+        }
       });
       
       // Update current time
@@ -111,6 +130,35 @@ export const ContentApp: Component<ContentAppProps> = () => {
         setIsPlaying(false);
         audio.removeEventListener('timeupdate', updateTime);
       });
+    } else {
+      // Method 3: Try SoundCloud specific selectors
+      console.log('[ContentApp] No audio elements found, trying SoundCloud-specific approach');
+      const playButton = document.querySelector('.playControl, .sc-button-play, button[title*="Play"]');
+      if (playButton) {
+        console.log('[ContentApp] Found SoundCloud play button, clicking it');
+        (playButton as HTMLElement).click();
+        
+        // Wait a bit and then look for audio element again
+        setTimeout(() => {
+          const newAudioElements = document.querySelectorAll('audio');
+          if (newAudioElements.length > 0) {
+            console.log('[ContentApp] Found audio element after clicking play');
+            const audio = newAudioElements[0] as HTMLAudioElement;
+            setAudioRef(audio);
+            
+            // Update current time
+            const updateTime = () => {
+              setCurrentTime(audio.currentTime);
+            };
+            
+            audio.addEventListener('timeupdate', updateTime);
+            audio.addEventListener('ended', () => {
+              setIsPlaying(false);
+              audio.removeEventListener('timeupdate', updateTime);
+            });
+          }
+        }, 500);
+      }
     }
   };
 

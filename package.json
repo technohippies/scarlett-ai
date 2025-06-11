@@ -5,7 +5,9 @@
   "packageManager": "bun@1.1.45",
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=!@scarlett/extension",
+    "dev:all": "turbo dev",
+    "dev:ext": "turbo dev --filter=@scarlett/extension",
     "dev:check": "turbo dev type-check --parallel",
     "lint": "turbo lint",
     "test": "turbo test",
