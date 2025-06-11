@@ -186,7 +186,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
             </div>
             
             {/* Karaoke View */}
-            <div class="flex-1 overflow-hidden">
+            <div class="flex-1 min-h-0 overflow-hidden">
               <Show when={!loading()} fallback={
                 <div class="flex items-center justify-center h-full bg-base">
                   <div class="text-center">
@@ -204,14 +204,14 @@ export const ContentApp: Component<ContentAppProps> = () => {
                   </div>
                 }>
                   <div class="h-full flex flex-col">
-                    <div class="flex-1">
+                    <div class="flex-1 min-h-0 overflow-hidden">
                       <ExtensionKaraokeView
                         score={0}
                         rank={1}
                         lyrics={karaokeData()?.lyrics?.lines || []}
                         currentTime={currentTime() * 1000} // Convert to milliseconds
                         leaderboard={[]}
-                        isPlaying={isPlaying()}
+                        isPlaying={isPlaying() || countdown() !== null}
                         onStart={handleStart}
                         onSpeedChange={(speed) => console.log('[ContentApp] Speed changed:', speed)}
                       />

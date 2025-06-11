@@ -1,4 +1,4 @@
-import type { Component } from 'solid-js';
+import { Show, type Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import { ScorePanel } from '../../display/ScorePanel';
 import { LyricsDisplay, type LyricLine } from '../LyricsDisplay';
@@ -49,7 +49,7 @@ export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props
           { id: 'leaderboard', label: 'Leaderboard' }
         ]}
         defaultTab="lyrics"
-        class="flex-1 flex flex-col overflow-hidden"
+        class="flex-1 flex flex-col min-h-0"
       >
         <div class="px-4">
           <TabsList>
@@ -58,30 +58,39 @@ export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props
           </TabsList>
         </div>
         
-        <TabsContent value="lyrics" class="flex-1 flex flex-col overflow-hidden">
-          <div class="flex-1 overflow-hidden">
-            <LyricsDisplay
-              lyrics={props.lyrics}
-              currentTime={props.currentTime}
-              isPlaying={props.isPlaying}
-            />
-          </div>
-          
-          {/* Footer with start button */}
-          {console.log('[ExtensionKaraokeView] Start button check:', {
-            isPlaying: props.isPlaying,
-            notPlaying: !props.isPlaying,
-            hasOnStart: !!props.onStart,
-            shouldShowButton: !props.isPlaying && props.onStart
-          })}
-          {!props.isPlaying && props.onStart && (
-            <div class="p-4 bg-surface border-t border-subtle">
-              <SplitButton
-                onStart={props.onStart}
-                onSpeedChange={props.onSpeedChange}
+        <TabsContent value="lyrics" class="flex-1 min-h-0">
+          {console.log('[ExtensionKaraokeView] Inside lyrics TabsContent')}
+          <div class="flex flex-col h-full">
+            <div class="flex-1 min-h-0 overflow-hidden">
+              <LyricsDisplay
+                lyrics={props.lyrics}
+                currentTime={props.currentTime}
+                isPlaying={props.isPlaying}
               />
             </div>
-          )}
+            
+            {/* Footer with start button */}
+            {console.log('[ExtensionKaraokeView] Start button check:', {
+              isPlaying: props.isPlaying,
+              notPlaying: !props.isPlaying,
+              hasOnStart: !!props.onStart,
+              shouldShowButton: () => !props.isPlaying && props.onStart
+            })}
+            <Show when={!props.isPlaying && props.onStart}>
+              <div 
+                class="p-4 bg-surface border-t border-subtle"
+                style={{
+                  'flex-shrink': '0'
+                }}
+              >
+                {console.log('[ExtensionKaraokeView] Rendering Start button div')}
+                <SplitButton
+                  onStart={props.onStart}
+                  onSpeedChange={props.onSpeedChange}
+                />
+              </div>
+            </Show>
+          </div>
         </TabsContent>
         
         <TabsContent value="leaderboard" class="flex-1 overflow-hidden">
