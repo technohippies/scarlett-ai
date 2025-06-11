@@ -1,8 +1,9 @@
 import type { Component } from 'solid-js';
 import { createSignal, Show } from 'solid-js';
-import { FarcasterKaraokeView, type LyricLine } from '@scarlett/ui';
+import { type LyricLine } from '@scarlett/ui';
 import { CreditPacks } from '../components/CreditPacks';
 import { UserHeader } from '../components/UserHeader';
+import { FarcasterKaraoke } from '../components/FarcasterKaraoke';
 
 interface HomeProps {
   context: any;
@@ -67,17 +68,13 @@ export const Home: Component<HomeProps> = (props) => {
             </div>
           }
         >
-          <FarcasterKaraokeView
-            songTitle={mockSong.title}
-            artist={mockSong.artist}
-            score={0}
-            rank={1}
+          <FarcasterKaraoke
+            songUrl="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
             lyrics={mockLyrics}
-            currentTime={0}
-            leaderboard={[]}
-            isPlaying={false}
-            onStart={() => console.log('Start karaoke')}
-            onSpeedChange={(speed) => console.log('Speed:', speed)}
+            trackId="mock-track-id"
+            title={mockSong.title}
+            artist={mockSong.artist}
+            apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:3000'}
           />
         </Show>
       </div>

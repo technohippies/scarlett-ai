@@ -31,40 +31,56 @@ export class TrackDetector {
       const pathParts = window.location.pathname.split('/').filter(Boolean);
       if (pathParts.length < 2) return null;
 
-      const artist = pathParts[0];
+      const artistPath = pathParts[0];
       const trackSlug = pathParts[1];
       
-      // Try to get actual title from page (SoundCloud selectors)
-      const titleSelectors = [
-        '.soundTitle__title',
-        '.trackItem__trackTitle', 
-        'h1[itemprop="name"]',
-        '.sound__header h1',
-        '.sc-text-h4',
-        '.sc-text-primary'
-      ];
-
+      // Try to get actual title from page
       let title = '';
-      for (const selector of titleSelectors) {
-        const element = document.querySelector(selector);
-        if (element && element.textContent) {
-          title = element.textContent.trim();
-          break;
-        }
+      
+      // For soundcloak, look for h1 after the image
+      const h1Elements = document.querySelectorAll('h1');
+      for (const h1 of h1Elements) {
+        // Skip the "soundcloak" header
+        if (h1.textContent?.toLowerCase().includes('soundcloak')) continue;
+        title = h1.textContent?.trim() || '';
+        if (title) break;
       }
-
+      
       // Fallback to slug
       if (!title) {
         title = trackSlug.replace(/-/g, ' ');
       }
 
-      // Clean up artist name
-      const cleanArtist = artist.replace(/-/g, ' ').replace(/_/g, ' ');
+      // Try to get actual artist name from page
+      let artist = '';
+      
+      // Look for artist link with meta class
+      const artistLink = document.querySelector('a.listing .meta h3');
+      if (artistLink && artistLink.textContent) {
+        artist = artistLink.textContent.trim();
+      }
+      
+      // Fallback: try page title
+      if (!artist) {
+        const pageTitle = document.title;
+        // Title format: "Song by Artist ~ soundcloak"
+        const match = pageTitle.match(/by\s+(.+?)\s*~/);
+        if (match) {
+          artist = match[1].trim();
+        }
+      }
+      
+      // Final fallback to URL
+      if (!artist) {
+        artist = artistPath.replace(/-/g, ' ').replace(/_/g, ' ');
+      }
+
+      console.log('[TrackDetector] Detected track:', { title, artist, artistPath, trackSlug });
 
       return {
-        trackId: `${artist}/${trackSlug}`,
+        trackId: `${artistPath}/${trackSlug}`,
         title: title,
-        artist: cleanArtist,
+        artist: artist,
         platform: 'soundcloud',
         url: window.location.href,
       };

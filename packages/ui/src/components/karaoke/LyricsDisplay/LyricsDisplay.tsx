@@ -1,4 +1,4 @@
-import { For, createEffect, createSignal } from 'solid-js';
+import { For, createEffect, createSignal, Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
 
@@ -26,21 +26,23 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
     return props.lineScores?.find(s => s.lineIndex === lineIndex)?.score || null;
   };
   
-  // Helper to get style and emoji based on score
+  // Helper to get color based on score
   const getScoreStyle = (score: number | null) => {
     if (score === null) return {};
     
-    // Friendly, gradual spectrum of warm colors
-    if (score >= 90) {
-      return { color: '#ff6b6b', textShadow: '0 0 20px rgba(255, 107, 107, 0.6)' }; // Bright warm red/orange with glow
+    // Simple color changes only - no animations or effects
+    if (score >= 95) {
+      return { color: '#ff3838' };
+    } else if (score >= 90) {
+      return { color: '#ff6b6b' };
     } else if (score >= 80) {
-      return { color: '#ff8787' }; // Medium red
+      return { color: '#ff8787' };
     } else if (score >= 70) {
-      return { color: '#ffa8a8' }; // Light red
+      return { color: '#ffa8a8' };
     } else if (score >= 60) {
-      return { color: '#ffcece' }; // Very light red
+      return { color: '#ffcece' };
     } else {
-      return { color: '#ffe0e0' }; // Pale red
+      return { color: '#ffe0e0' };
     }
   };
   
@@ -54,6 +56,8 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
     }
 
     const time = props.currentTime / 1000; // Convert from milliseconds to seconds
+    const TIMING_OFFSET = 0.3; // Offset to make lyrics appear 0.3s earlier
+    const adjustedTime = time + TIMING_OFFSET;
     
     // Find the line that contains the current time
     let foundIndex = -1;
@@ -62,7 +66,7 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
       if (!line) continue;
       const endTime = line.startTime + line.duration / 1000; // Convert duration from ms to seconds
       
-      if (time >= line.startTime && time < endTime) {
+      if (adjustedTime >= line.startTime && adjustedTime < endTime) {
         foundIndex = i;
         break;
       }
@@ -83,13 +87,16 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
     // Only update if the index has changed to avoid unnecessary scrolling
     if (foundIndex !== currentLineIndex()) {
       const prevIndex = currentLineIndex();
-      console.log('[LyricsDisplay] Current line changed:', {
-        from: prevIndex,
-        to: foundIndex,
-        time: props.currentTime,
-        timeInSeconds: time,
-        jump: Math.abs(foundIndex - prevIndex)
-      });
+      // Only log large jumps to reduce console spam
+      if (Math.abs(foundIndex - prevIndex) > 5) {
+        console.log('[LyricsDisplay] Current line changed:', {
+          from: prevIndex,
+          to: foundIndex,
+          time: props.currentTime,
+          timeInSeconds: time,
+          jump: Math.abs(foundIndex - prevIndex)
+        });
+      }
       
       // Log warning for large jumps
       if (prevIndex !== -1 && Math.abs(foundIndex - prevIndex) > 10) {
@@ -110,35 +117,22 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
     const index = currentLineIndex();
     if (index === -1 || !containerRef || !props.isPlaying) return;
 
-    // Add a small delay to ensure DOM is updated
-    requestAnimationFrame(() => {
-      const lineElements = containerRef.querySelectorAll('[data-line-index]');
-      const currentElement = lineElements[index] as HTMLElement;
+    const lineElements = containerRef.querySelectorAll('[data-line-index]');
+    const currentElement = lineElements[index] as HTMLElement;
 
-      if (currentElement) {
-        const containerHeight = containerRef.clientHeight;
-        const lineTop = currentElement.offsetTop;
-        const lineHeight = currentElement.offsetHeight;
-        const currentScrollTop = containerRef.scrollTop;
-
-        // Calculate where the line should be positioned (slightly above center for better visibility)
-        const targetScrollTop = lineTop - containerHeight / 2 + lineHeight / 2 - 50;
-        
-        // Only scroll if the line is not already well-positioned
-        const isLineVisible = lineTop >= currentScrollTop && 
-                             lineTop + lineHeight <= currentScrollTop + containerHeight;
-        
-        const isLineCentered = Math.abs(currentScrollTop - targetScrollTop) < 100;
-        
-        if (!isLineVisible || !isLineCentered) {
-          console.log('[LyricsDisplay] Scrolling to line:', index, 'targetScrollTop:', targetScrollTop);
-          containerRef.scrollTo({
-            top: targetScrollTop,
-            behavior: 'smooth',
-          });
-        }
-      }
-    });
+    if (currentElement) {
+      const containerHeight = containerRef.clientHeight;
+      const lineTop = currentElement.offsetTop;
+      const lineHeight = currentElement.offsetHeight;
+      
+      // Center the current line
+      const targetScrollTop = lineTop - containerHeight / 2 + lineHeight / 2;
+      
+      containerRef.scrollTo({
+        top: targetScrollTop,
+        behavior: 'smooth',
+      });
+    }
   });
 
   return (
@@ -161,17 +155,16 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
               <div
                 data-line-index={index()}
                 class={cn(
-                  'text-center transition-all duration-300',
+                  'text-center',
                   'text-2xl leading-relaxed',
                   index() === currentLineIndex()
-                    ? 'font-semibold scale-110'
+                    ? 'opacity-100'
                     : 'opacity-60'
                 )}
                 style={{
                   color: index() === currentLineIndex() && !lineScore() 
                     ? '#ffffff' // White for current line without score
-                    : scoreStyle().color,
-                  ...(index() === currentLineIndex() && lineScore() ? scoreStyle() : {})
+                    : scoreStyle().color || '#ffffff'
                 }}
               >
                 {line.text}

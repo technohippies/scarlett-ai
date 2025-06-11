@@ -27,7 +27,7 @@ interface SuccessInfo {
 export class LyricsService {
   private static failureCache = new Map<string, number>();
   private static successCache = new Map<string, SuccessInfo>();
-  private static CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+  private static CACHE_DURATION = 30 * 1000; // 30 seconds for failures (shorter for dev)
   private static SUCCESS_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for successful lookups
 
   constructor() {}
@@ -52,13 +52,48 @@ export class LyricsService {
     }
 
     try {
+      console.log('[LyricsService] Searching with params:', params);
+      
       // Try search endpoint first - it's more flexible than exact match
       const searchResults = await searchLyrics(params);
+      console.log('[LyricsService] Search results count:', searchResults?.length || 0);
+      
       if (searchResults && searchResults.length > 0) {
-        const bestMatch = searchResults[0];
+        // Log all results to see what we're getting
+        console.log('[LyricsService] All search results:', searchResults.map((r, i) => ({
+          index: i,
+          artist: r.artistName,
+          track: r.trackName,
+          album: r.albumName,
+          hasSynced: !!r.syncedLyrics,
+          hasPlain: !!r.plainLyrics,
+          duration: r.duration
+        })));
+        
+        // Look for synced lyrics first, not just the first result
+        let bestMatch = null;
+        for (const result of searchResults) {
+          if (result.syncedLyrics) {
+            bestMatch = result;
+            console.log('[LyricsService] Found synced match:', {
+              artist: result.artistName,
+              track: result.trackName,
+              album: result.albumName
+            });
+            break;
+          }
+        }
+        
+        // If no synced, use first result
+        if (!bestMatch) {
+          bestMatch = searchResults[0];
+          console.log('[LyricsService] No synced lyrics found, using first result');
+        }
+        
         if (bestMatch.syncedLyrics) {
           const parsed = this.parseLRCString(bestMatch.syncedLyrics);
           if (parsed.length > 0) {
+            console.log('[LyricsService] Returning synced lyrics with', parsed.length, 'lines');
             // Cache successful direct search
             this.cacheSuccess(cacheKey, 'direct');
             return {
@@ -71,6 +106,7 @@ export class LyricsService {
 
         // Return unsynced lyrics if available
         if (bestMatch.plainLyrics) {
+          console.log('[LyricsService] Returning unsynced lyrics');
           const lines = bestMatch.plainLyrics
             .split('\n')
             .filter((line) => line.trim())

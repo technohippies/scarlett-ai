@@ -1,12 +1,15 @@
 import type { Component } from 'solid-js';
-import { createSignal } from 'solid-js';
+import { createSignal, onMount, createEffect, Show, Match, Switch } from 'solid-js';
 import { 
   FarcasterKaraokeView, 
+  CompletionView,
   Countdown, 
   useKaraokeSession, 
-  WebAudioService,
-  type LyricLine 
+  I18nProvider,
+  type LyricLine,
+  type KaraokeResults
 } from '@scarlett/ui';
+import { PracticeExercises } from './PracticeExercises';
 
 interface FarcasterKaraokeProps {
   songUrl: string;
@@ -14,42 +17,165 @@ interface FarcasterKaraokeProps {
   trackId: string;
   title: string;
   artist: string;
+  songCatalogId?: string;
+  apiUrl?: string;
 }
 
+type ViewState = 'karaoke' | 'completion' | 'practice';
+
 export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
-  const audioService = new WebAudioService(props.songUrl);
-  const [score] = createSignal(0);
-  const [rank] = createSignal(1);
+  const [score, setScore] = createSignal(0);
+  const [rank, setRank] = createSignal(1);
+  const [viewState, setViewState] = createSignal<ViewState>('karaoke');
+  const [completionData, setCompletionData] = createSignal<KaraokeResults | null>(null);
+  
+  // Construct audio URL based on trackId
+  const getAudioUrl = () => {
+    // Check if it's a SoundCloud trackId (contains forward slash)
+    if (props.trackId.includes('/')) {
+      // Use the server's proxy endpoint that handles CORS
+      return `http://localhost:8787/api/audio/proxy/${props.trackId}`;
+    }
+    
+    // For other tracks, use the provided songUrl or empty
+    // Don't use soundhelix as it has CORS issues
+    return props.songUrl || '';
+  };
+  
+  const audioUrl = getAudioUrl();
+  console.log('[FarcasterKaraoke] Audio URL:', audioUrl);
+  
+  // Create audio element with the actual URL
+  const audio = new Audio();
+  
+  // Set the source immediately if we have a URL
+  if (audioUrl) {
+    audio.src = audioUrl;
+    // Don't set crossOrigin for local proxy as it handles CORS
+    if (!audioUrl.includes('localhost')) {
+      audio.crossOrigin = 'anonymous';
+    }
+    
+    // Add error handler
+    audio.addEventListener('error', (e) => {
+      console.error('[FarcasterKaraoke] Audio error:', e, audio.error);
+    });
+    
+    // Add loadeddata handler
+    audio.addEventListener('loadeddata', () => {
+      console.log('[FarcasterKaraoke] Audio loaded successfully');
+    });
+  }
+  
   
   const {
     isPlaying,
     currentTime,
     countdown,
-    startSession
+    startSession,
+    stopSession,
+    score: sessionScore,
+    lineScores
   } = useKaraokeSession({
     lyrics: props.lyrics,
-    audioElement: audioService.findAudioElement(),
+    audioElement: audio,
+    trackId: props.trackId,
+    songData: {
+      title: props.title,
+      artist: props.artist
+    },
+    songCatalogId: props.songCatalogId,
+    apiUrl: 'http://localhost:8787/api',
     onComplete: (results) => {
-      console.log('Karaoke completed:', results);
-      // Handle completion - save score, show share dialog, etc.
+      console.log('[FarcasterKaraoke] Session complete, results:', results);
+      setCompletionData(results);
+      setViewState('completion');
     }
   });
 
+  // Add a function to stop/pause
+  const handleStop = () => {
+    stopSession();
+  };
+
+  // Handle practice errors navigation
+  const handlePracticeErrors = async () => {
+    console.log('[FarcasterKaraoke] Practice errors clicked');
+    setViewState('practice');
+  };
+
+  // Handle retry
+  const handleRetry = () => {
+    setViewState('karaoke');
+    setCompletionData(null);
+    setScore(0);
+    // Reset the audio
+    if (audio) {
+      audio.currentTime = 0;
+    }
+  };
+
+  // Handle back from practice
+  const handleBackFromPractice = () => {
+    setViewState('completion');
+  };
+
   return (
     <div class="relative h-full">
-      <FarcasterKaraokeView
-        songTitle={props.title}
-        artist={props.artist}
-        score={score()}
-        rank={rank()}
-        lyrics={props.lyrics}
-        currentTime={currentTime()}
-        isPlaying={isPlaying()}
-        onStart={startSession}
-        leaderboard={[]}
-      />
+      <Switch>
+        <Match when={viewState() === 'karaoke'}>
+          <FarcasterKaraokeView
+            songTitle={props.title}
+            artist={props.artist}
+            score={sessionScore() || score()}
+            rank={rank()}
+            lyrics={props.lyrics}
+            currentTime={currentTime()}
+            isPlaying={isPlaying() || countdown() !== null}
+            onStart={startSession}
+            onBack={handleStop}
+            leaderboard={[]}
+            lineScores={lineScores()}
+          />
+        </Match>
+        
+        <Match when={viewState() === 'completion' && completionData()}>
+          <I18nProvider>
+            <Show when={!completionData()!.isLoading} fallback={
+              <div class="flex items-center justify-center h-full bg-base">
+                <div class="text-center">
+                  <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-accent-primary mx-auto mb-4"></div>
+                  <p class="text-lg text-secondary">Calculating your final score...</p>
+                  <p class="text-sm text-tertiary mt-2">Analyzing full performance</p>
+                </div>
+              </div>
+            }>
+              <CompletionView
+                score={completionData()!.score}
+                rank={1}
+                speed={'1x'}
+                feedbackText={
+                  completionData()!.score >= 95 ? "Perfect! You nailed it!" :
+                  completionData()!.score >= 85 ? "Excellent performance!" :
+                  completionData()!.score >= 70 ? "Great job!" :
+                  completionData()!.score >= 50 ? "Good effort!" :
+                  "Keep practicing!"
+                }
+                onPractice={completionData()!.needsWorkLines > 0 ? handlePracticeErrors : undefined}
+              />
+            </Show>
+          </I18nProvider>
+        </Match>
+        
+        <Match when={viewState() === 'practice'}>
+          <PracticeExercises
+            sessionId={completionData()?.sessionId}
+            onBack={handleBackFromPractice}
+          />
+        </Match>
+      </Switch>
       
-      {/* Shared countdown component */}
+      {/* Shared countdown component - overlays everything */}
       <Countdown count={countdown()} />
     </div>
   );

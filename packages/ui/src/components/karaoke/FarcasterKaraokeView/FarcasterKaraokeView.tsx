@@ -16,6 +16,7 @@ export interface FarcasterKaraokeViewProps {
   // Scores
   score: number;
   rank: number;
+  lineScores?: number[];
   
   // Lyrics
   lyrics: LyricLine[];
@@ -41,16 +42,19 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
         songTitle={props.songTitle}
         artist={props.artist}
         onBack={props.onBack}
+        isPlaying={props.isPlaying}
         class="border-b border-subtle"
       />
       
-      {/* Score Panel */}
-      <ScorePanel
-        score={props.score}
-        rank={props.rank}
-      />
+      {/* Score Panel - only show when not playing */}
+      {!props.isPlaying && (
+        <ScorePanel
+          score={props.score}
+          rank={props.rank}
+        />
+      )}
 
-      {/* Tabs and content */}
+      {/* Tabs and content - hide tab switcher when playing */}
       <Tabs 
         tabs={[
           { id: 'lyrics', label: 'Lyrics' },
@@ -59,12 +63,14 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
         defaultTab="lyrics"
         class="flex-1 flex flex-col overflow-hidden"
       >
-        <div class="px-4">
-          <TabsList>
-            <TabsTrigger value="lyrics">Lyrics</TabsTrigger>
-            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-          </TabsList>
-        </div>
+        {!props.isPlaying && (
+          <div class="px-4">
+            <TabsList>
+              <TabsTrigger value="lyrics">Lyrics</TabsTrigger>
+              <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+            </TabsList>
+          </div>
+        )}
         
         <TabsContent value="lyrics" class="flex-1 flex flex-col overflow-hidden">
           <div class="flex-1 overflow-hidden">
@@ -72,6 +78,7 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
               lyrics={props.lyrics}
               currentTime={props.currentTime}
               isPlaying={props.isPlaying}
+              lineScores={props.lineScores}
             />
           </div>
           

@@ -1,11 +1,8 @@
 import type { ChunkInfo } from '../../types/karaoke';
 import type { LyricLine } from '../../components/karaoke/LyricsDisplay';
 
-const MIN_WORDS = 8;
-const MAX_WORDS = 15;
-const MAX_LINES_PER_CHUNK = 3;
-
 export function countWords(text: string): number {
+  if (!text) return 0;
   return text
     .trim()
     .split(/\s+/)
@@ -16,32 +13,24 @@ export function shouldChunkLines(
   lines: LyricLine[],
   startIndex: number
 ): ChunkInfo {
-  let totalWords = 0;
-  let endIndex = startIndex;
-  const expectedTexts: string[] = [];
-
-  while (endIndex < lines.length && totalWords < MIN_WORDS) {
-    const line = lines[endIndex];
-    if (!line) break;
-    
-    const words = countWords(line.text);
-
-    if (totalWords + words > MAX_WORDS && totalWords >= 5) {
-      break;
-    }
-
-    expectedTexts.push(line.text);
-    totalWords += words;
-    endIndex++;
-
-    if (endIndex - startIndex >= MAX_LINES_PER_CHUNK) break;
+  // Process individual lines instead of grouping
+  const line = lines[startIndex];
+  if (!line) {
+    return {
+      startIndex,
+      endIndex: startIndex,
+      expectedText: '',
+      wordCount: 0,
+    };
   }
 
+  const wordCount = countWords(line.text || '');
+  
   return {
     startIndex,
-    endIndex: endIndex - 1,
-    expectedText: expectedTexts.join(' '),
-    wordCount: totalWords,
+    endIndex: startIndex, // Single line, so start and end are the same
+    expectedText: line.text || '',
+    wordCount,
   };
 }
 

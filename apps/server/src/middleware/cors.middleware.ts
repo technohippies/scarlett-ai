@@ -37,14 +37,10 @@ export async function corsHeaders(c: Context, next: Next): Promise<void | Respon
     c.header('Access-Control-Allow-Origin', config.cors.origins[0]);
   }
   
-  // Debug logging
-  console.log('[CORS] Request:', {
-    method: c.req.method,
-    path: c.req.path,
-    origin,
-    isAllowed,
-    headers: c.req.header()
-  });
+  // Only log CORS issues
+  if (!isAllowed && origin) {
+    console.log('[CORS] Blocked request from:', origin);
+  }
 
   c.header('Access-Control-Allow-Methods', config.cors.methods.join(', '));
   c.header('Access-Control-Allow-Headers', config.cors.headers.join(', '));
@@ -55,7 +51,6 @@ export async function corsHeaders(c: Context, next: Next): Promise<void | Respon
   }
 
   if (c.req.method === 'OPTIONS') {
-    console.log('[CORS] Handling OPTIONS request');
     // Return a response with all the headers already set
     return new Response(null, { 
       status: 204,

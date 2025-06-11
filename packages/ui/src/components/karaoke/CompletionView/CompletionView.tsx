@@ -63,9 +63,9 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
         </div>
       </div>
       
-      {/* Footer with practice button - fixed to bottom like other components */}
+      {/* Footer with practice button - positioned at bottom of widget */}
       <Show when={props.onPractice}>
-        <div class="fixed bottom-0 left-0 right-0 p-4 bg-surface border-t border-subtle">
+        <div class="p-4 bg-surface border-t border-subtle">
           <Button
             variant="primary"
             size="lg"

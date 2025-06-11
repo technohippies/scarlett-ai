@@ -1,9 +1,8 @@
 /* @refresh reload */
 import { render } from 'solid-js/web';
 import App from './App';
-import './index.css';
+import '@scarlett/ui/dist/ui.css';
 import './styles.css';
-import '@scarlett/ui/src/styles/globals.css';
 
 const root = document.getElementById('root');
 

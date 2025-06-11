@@ -1,39 +1,6 @@
-/* Farcaster Mini App Styles */
+/* Farcaster Mini App Specific Styles */
 
-/* Design tokens */
-:root {
-  /* Colors */
-  --color-base: #0a0a0a;
-  --color-surface: #1a1a1a;
-  --color-subtle: #2a2a2a;
-  --color-text-primary: #ffffff;
-  --color-text-secondary: #a8a8a8;
-  --color-text-tertiary: #666666;
-  --color-accent-primary: #9333ea;
-  --color-accent-secondary: #a855f7;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  
-  /* Fonts */
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  
-  /* Mini app specific */
-  --miniapp-max-width: 424px;
-  --miniapp-safe-area: 16px;
-}
-
-/* Base styles */
-body {
-  margin: 0;
-  padding: 0;
-  font-family: var(--font-family-base);
-  background-color: var(--color-base);
-  color: var(--color-text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* App container styles */
 #root {
   min-height: 100vh;
   display: flex;
@@ -43,7 +10,7 @@ body {
 /* Desktop: Fixed size modal */
 @media (min-width: 768px) {
   #root {
-    max-width: var(--miniapp-max-width);
+    max-width: 424px;
     margin: 0 auto;
     box-shadow: 0 0 24px rgba(0, 0, 0, 0.2);
   }
@@ -54,18 +21,4 @@ body {
   #root {
     width: 100%;
   }
-}
-
-/* Utility classes */
-.bg-base { background-color: var(--color-base); }
-.bg-surface { background-color: var(--color-surface); }
-.border-subtle { border-color: var(--color-subtle); }
-.text-primary { color: var(--color-text-primary); }
-.text-secondary { color: var(--color-text-secondary); }
-.text-tertiary { color: var(--color-text-tertiary); }
-.text-accent-primary { color: var(--color-accent-primary); }
-
-/* Safe area padding */
-.safe-area {
-  padding: var(--miniapp-safe-area);
 }

@@ -1,3 +1,6 @@
+// Import styles so they're included when the package is imported
+import './styles/globals.css'
+
 // Utils
 export * from './utils/cn'
 
@@ -13,6 +16,9 @@ export * from './services'
 
 // Types - export everything including LineScore
 export * from './types/karaoke'
+
+// I18n
+export { I18nProvider } from './i18n'
 
 // Re-export KaraokeSession from components to avoid ambiguity
 export { KaraokeSession } from './components/karaoke/KaraokeSession'

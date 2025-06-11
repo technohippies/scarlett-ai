@@ -46,4 +46,39 @@ app.post('/', async (c) => {
   }
 });
 
+// POST /api/stt/transcribe - JSON-based transcription endpoint
+app.post('/transcribe', async (c) => {
+  const body = await c.req.json();
+  const { audioBase64, expectedText } = body;
+  
+  if (!audioBase64) {
+    throw new ValidationError('No audio data provided');
+  }
+  
+  try {
+    // Convert base64 to Uint8Array
+    const audioBuffer = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
+    
+    const sttService = new STTService(c.env);
+    const result = await sttService.transcribeAudio(audioBuffer, expectedText);
+    
+    return c.json({
+      success: true,
+      data: {
+        transcript: result.transcript,
+        confidence: result.confidence
+      }
+    });
+  } catch (error) {
+    console.error('[STT] Transcription error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Failed to transcribe audio'
+      },
+      500
+    );
+  }
+});
+
 export default app;

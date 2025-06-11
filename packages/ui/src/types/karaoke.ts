@@ -16,6 +16,7 @@ export interface KaraokeData {
     lines: KaraokeLine[];
     total_lines: number;
   };
+  song_catalog_id?: string;
   status: string;
   message?: string;
   cache_hit?: boolean;
@@ -33,16 +34,10 @@ export interface KaraokeLine {
 }
 
 export interface KaraokeSession {
-  session_id: string;
-  track_id: string;
-  song: {
-    title: string;
-    artist: string;
-    genius_id?: string;
-  };
-  user_id: string;
-  started_at: string;
+  id: string;
+  trackId: string;
   status: 'active' | 'completed' | 'abandoned';
+  createdAt: string;
 }
 
 export interface WordTiming {
@@ -55,15 +50,13 @@ export interface WordTiming {
 export interface LineScore {
   score: number; // 0-100
   feedback: string;
-  attempts: number;
-  wordTimings?: WordTiming[];
-  wordScores?: Array<{
-    expected: string;
-    transcribed: string;
-    score: number;
-  }>;
-  transcriptionConfidence?: number;
   transcript?: string;
+  wordScores?: Array<{
+    word: string;
+    score: number;
+    matched: boolean;
+    phoneticMatch: boolean;
+  }>;
 }
 
 export interface ChunkInfo {
@@ -79,16 +72,12 @@ export interface AudioProcessorOptions {
 }
 
 export interface SessionResults {
-  overallScore: number;
+  success: boolean;
+  finalScore: number;
   totalLines: number;
-  completedLines: number;
-  averageScore: number;
-  bestLineScore: number;
-  worstLineScore: number;
-  lineResults: Array<{
-    lineIndex: number;
-    text: string;
-    score: number;
-    attempts: number;
-  }>;
+  perfectLines: number;
+  goodLines: number;
+  needsWorkLines: number;
+  accuracy: number;
+  sessionId: string;
 }

@@ -1,0 +1,39 @@
+.reactionsContainer {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 200px;
+  height: 300px;
+  pointer-events: none;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.reaction {
+  position: absolute;
+  bottom: 0;
+  font-size: 24px;
+  animation: floatReaction 3s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes floatReaction {
+  0% {
+    transform: translateY(0) scale(0);
+    opacity: 0;
+  }
+  
+  15% {
+    transform: translateY(-30px) scale(1);
+    opacity: 1;
+  }
+  
+  80% {
+    opacity: 1;
+  }
+  
+  100% {
+    transform: translateY(-250px) scale(0.8);
+    opacity: 0;
+  }
+}

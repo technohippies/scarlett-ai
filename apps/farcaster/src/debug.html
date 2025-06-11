@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script>
+    // Debug script to check what classes are on elements
+    setTimeout(() => {
+      const elements = document.querySelectorAll('*[class]');
+      console.log('=== ALL ELEMENTS WITH CLASSES ===');
+      elements.forEach(el => {
+        console.log(el.tagName, ':', el.className);
+      });
+      
+      // Check specific elements
+      console.log('\n=== SPECIFIC CHECKS ===');
+      const button = document.querySelector('button');
+      if (button) {
+        console.log('First button classes:', button.className);
+        console.log('Button computed bg:', getComputedStyle(button).backgroundImage);
+      }
+      
+      const grid = document.querySelector('.grid');
+      if (grid) {
+        console.log('Grid element:', grid.className);
+        console.log('Grid computed columns:', getComputedStyle(grid).gridTemplateColumns);
+      }
+    }, 1000);
+  </script>
+</head>
+<body>
+  Check console for debug info
+</body>
+</html>

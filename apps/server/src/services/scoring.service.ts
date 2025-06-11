@@ -66,6 +66,8 @@ export class ScoringService {
   private normalizeText(text: string): string {
     return text
       .toLowerCase()
+      // Remove common STT artifacts
+      .replace(/\(.*?\)/g, '') // Remove parenthetical descriptions like (music), (chanting)
       .replace(/[^\w\s'-]/g, '') // Keep apostrophes and hyphens
       .replace(/\s+/g, ' ')
       .trim();
@@ -128,6 +130,26 @@ export class ScoringService {
 
   private isPhoneticMatch(word1: string, word2: string): boolean {
     if (word1 === word2) return true;
+    
+    // Common variations to handle
+    const variations: Record<string, string[]> = {
+      "hurtin'": ['hurting', 'hurtin', 'hurt in'],
+      "hurtin": ['hurting', "hurtin'", 'hurt in'],
+      "baby": ['babe', 'babies'],
+      "babe": ['baby', 'babies'],
+      "oh-oh": ['oh oh', 'ohoh', 'oooh', 'oh', 'o o'],
+      "oh-ooh-ooh": ['oh ooh ooh', 'ooh ooh ooh', 'oooh oh oh', 'oooh', 'oh oh'],
+      "bones": ['bone'],
+      "bone": ['bones']
+    };
+    
+    // Check direct variations first
+    const w1Lower = word1.toLowerCase();
+    const w2Lower = word2.toLowerCase();
+    
+    if (variations[w1Lower]?.includes(w2Lower)) {
+      return true;
+    }
 
     // Skip very short words
     if (word1.length < 3 || word2.length < 3) {

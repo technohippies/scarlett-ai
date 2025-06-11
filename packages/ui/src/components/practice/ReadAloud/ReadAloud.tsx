@@ -10,15 +10,15 @@ export interface ReadAloudProps {
 
 export const ReadAloud: Component<ReadAloudProps> = (props) => {
   return (
-    <div class={cn('space-y-6', props.class)}>
-      <p class="text-xl md:text-2xl text-left">
+    <div class={cn('space-y-4', props.class)}>
+      <p class="text-2xl text-left leading-relaxed">
         {props.prompt}
       </p>
       
       <Show when={props.userTranscript}>
-        <div>
-          <p class="text-md text-secondary mb-2">Your response:</p>
-          <p class="text-lg text-primary">
+        <div class="mt-6 pt-6 border-t border-border">
+          <p class="text-sm text-muted-foreground mb-2">You said:</p>
+          <p class="text-lg text-foreground">
             {props.userTranscript}
           </p>
         </div>

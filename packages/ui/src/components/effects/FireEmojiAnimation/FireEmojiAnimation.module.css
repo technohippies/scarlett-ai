@@ -1,0 +1,37 @@
+.fireContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.fireEmoji {
+  position: absolute;
+  bottom: -50px;
+  animation: simpleFloat 2s linear forwards;
+  opacity: 0;
+}
+
+@keyframes simpleFloat {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  
+  10% {
+    opacity: 1;
+  }
+  
+  90% {
+    opacity: 1;
+  }
+  
+  100% {
+    transform: translateY(-400px);
+    opacity: 0;
+  }
+}

@@ -1,6 +1,6 @@
 import { sdk } from '@farcaster/frame-sdk';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://scarlett-api-dev.deletion-backup782.workers.dev/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
 
 export interface DemoTokenResponse {
   token: string;
@@ -119,10 +119,14 @@ class ApiService {
     return response.json();
   }
 
-  async getKaraokeData(trackId: string) {
+  async getKaraokeData(trackId: string, title?: string, artist?: string) {
     const token = this.authToken || (await this.getDemoToken());
     
-    const response = await fetch(`${API_BASE_URL}/karaoke/track?track_id=${encodeURIComponent(trackId)}`, {
+    const url = new URL(`${API_BASE_URL}/karaoke/${encodeURIComponent(trackId)}`);
+    if (title) url.searchParams.set('title', title);
+    if (artist) url.searchParams.set('artist', artist);
+    
+    const response = await fetch(url.toString(), {
       headers: {
         'Authorization': `Bearer ${token}`,
       },

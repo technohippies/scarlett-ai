@@ -98,7 +98,7 @@ export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
       class={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5',
         'text-sm font-medium ring-offset-base transition-all',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
         'flex-1',
         isActive()
@@ -119,19 +119,14 @@ export const TabsContent: Component<TabsContentProps> = (props) => {
     return null;
   }
   
-  const isActive = context.activeTab() === props.value;
-  console.log('[TabsContent] Rendering:', {
-    value: props.value,
-    activeTab: context.activeTab(),
-    isActive
-  });
+  const isActive = () => context.activeTab() === props.value;
   
   return (
-    <Show when={isActive}>
+    <Show when={isActive()}>
       <div
         class={cn(
           'mt-2 ring-offset-base',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-primary focus-visible:ring-offset-2',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2',
           props.class
         )}
       >

@@ -27,6 +27,13 @@ export * from './common/Tabs';
 export * from './common/SplitButton';
 export * from './common/ProgressBar';
 
+// Effects Components
+export * from './effects/FireEmojiAnimation';
+export * from './effects/ComboDisplay';
+export * from './effects/LiveReactions';
+export * from './effects/ScorePopup';
+export * from './effects/StreakIndicator';
+
 // Extension Components
 export * from './MinimizedKaraoke';
 

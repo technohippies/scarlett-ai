@@ -8,6 +8,9 @@ compatibility_date = "2024-01-15"
 [vars]
 ENVIRONMENT = "development"
 
+# Node compatibility for packages like ts-fsrs
+node_compat = true
+
 # Development environment
 [env.development]
 name = "scarlett-api-dev"

@@ -28,7 +28,7 @@ class LRCLibService {
   static async cacheSuccess(trackId: string, params: { artist: string; title: string; album?: string }, _env?: Env) {
     // In-memory cache (single worker instance only)
     this.successCache.set(trackId, { ...params, timestamp: Date.now() });
-    console.log(`[Karaoke] Cached successful search params for: ${trackId}`);
+    // Cached successful search params
     
     // TODO: For production, also save to Cloudflare KV:
     // if (env?.KARAOKE_CACHE) {
@@ -45,7 +45,7 @@ class LRCLibService {
     // Try in-memory cache first (fast but single-instance only)
     const cached = this.successCache.get(trackId);
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
-      console.log(`[Karaoke] Using cached search params from memory for: ${trackId}`);
+      // Using cached search params
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { timestamp, ...params } = cached;
       return params;
@@ -85,14 +85,13 @@ function processSyncedLyrics(rawLyrics: any[]): any[] {
 app.get('/*', async (c) => {
   // Extract track ID from the full path, removing the '/api/karaoke/' prefix
   const fullPath = c.req.url.split('/api/karaoke/')[1];
-  const [trackId] = fullPath.split('?'); // Remove query parameters
+  const [encodedTrackId] = fullPath.split('?'); // Remove query parameters
+  const trackId = decodeURIComponent(encodedTrackId); // Decode the URL-encoded track ID
   const trackTitle = c.req.query('title') || '';
   const artistName = c.req.query('artist') || '';
 
   try {
-    console.log(
-      `[Karaoke] Processing track: ${trackId}, title: "${trackTitle}", artist: "${artistName}"`
-    );
+    console.log(`[Karaoke] Processing track: ${trackId}`);
 
     // Check if we have cached successful search parameters
     const cachedParams = await LRCLibService.getCachedSuccess(trackId);
@@ -107,7 +106,7 @@ app.get('/*', async (c) => {
 
       if (lyricsResult.type !== 'none') {
         // Fast path - skip all the other steps including Genius API
-        console.log(`[Karaoke] Found lyrics using cached params in fast path`);
+        // Found lyrics using cached params
 
         // Process and return lyrics (jump to formatting section)
         const rawLyrics = lyricsResult.lyrics || [];
@@ -175,7 +174,7 @@ app.get('/*', async (c) => {
       searchQuery = `${foundArtist} ${trackTitle}`;
     }
 
-    console.log(`[Karaoke] Searching for: "${foundArtist}" - "${trackTitle}"`);
+    // Searching for track
 
     // Step 1: Try Genius first to check for SoundCloud URL match (high confidence)
     const geniusService = new GeniusService(c.env.GENIUS_API_KEY || '');
@@ -185,8 +184,7 @@ app.get('/*', async (c) => {
     try {
       geniusMatch = await geniusService.findSongMatch(searchQuery, trackId);
     } catch (error) {
-      console.log('[Karaoke] Genius API error (continuing with LRCLib only):', error instanceof Error ? error.message : 'Unknown error');
-      console.log('[Karaoke] This is OK - the system will still search for lyrics using LRCLib');
+      console.log('[Karaoke] Genius API error, continuing with LRCLib');
       geniusMatch = { found: false, song: null, confidence: 0 };
     }
 
@@ -198,9 +196,7 @@ app.get('/*', async (c) => {
 
     if (geniusMatch.found && geniusMatch.song && geniusMatch.confidence > 0.9) {
       // High confidence Genius match (likely SoundCloud URL match)
-      console.log(
-        `[Karaoke] High confidence Genius match: ${geniusMatch.song.primary_artist.name} - ${geniusMatch.song.title}`
-      );
+      console.log('[Karaoke] High confidence Genius match found');
       song = geniusMatch.song;
 
       // Get full song details for media links
@@ -218,9 +214,7 @@ app.get('/*', async (c) => {
 
       if (song.album?.name) {
         lrcQuery.album_name = song.album.name;
-        console.log(
-          `[Karaoke] Including album in search: "${song.album.name}"`
-        );
+        // Including album in search
       }
 
       lyricsResult = await lrcLibService.getBestLyrics(lrcQuery);
@@ -237,39 +231,66 @@ app.get('/*', async (c) => {
 
     // Step 2: If no high-confidence Genius match, try LRCLib directly
     if (lyricsResult.type === 'none') {
-      console.log('[Karaoke] Trying direct LRCLib search...');
+      console.log('[Karaoke] No Genius match, trying direct LRCLib search');
+      console.log('[Karaoke] Original artist:', foundArtist, 'title:', trackTitle);
 
-      // Only try the cleanest version first to reduce API calls
-      const cleanTitle = trackTitle.replace(/\([^)]*\)/g, '').trim();
+      // Try multiple variations
+      const variations = [
+        // Clean title without parentheses
+        { title: trackTitle.replace(/\([^)]*\)/g, '').trim(), artist: foundArtist },
+        // Original title
+        { title: trackTitle, artist: foundArtist },
+        // Title without artist name if it's included
+        { title: trackTitle.replace(new RegExp(foundArtist, 'gi'), '').trim(), artist: foundArtist },
+      ];
       
-      try {
-        lyricsResult = await lrcLibService.getBestLyrics({
-          track_name: cleanTitle,
-          artist_name: foundArtist,
-        });
-
-        if (lyricsResult.type !== 'none') {
-          foundTitle = cleanTitle;
-          console.log(
-            `[Karaoke] Found lyrics directly: ${foundArtist} - ${cleanTitle}`
-          );
+      // Also try different artist variations
+      const artistVariations = [
+        foundArtist,
+        foundArtist.replace(/official|music/gi, '').trim(),
+        foundArtist.split(/\s+/)[0], // First word only (e.g., "Kanye" from "Kanye West")
+      ].filter((v, i, arr) => arr.indexOf(v) === i); // Remove duplicates
+      
+      console.log('[Karaoke] Artist variations:', artistVariations);
+      
+      for (const { title } of variations) {
+        for (const artist of artistVariations) {
+          if (!title || !artist) continue;
           
-          // Cache successful parameters
-          LRCLibService.cacheSuccess(trackId, {
-            artist: foundArtist,
-            title: cleanTitle,
-          });
+          console.log(`[Karaoke] Trying: "${title}" by "${artist}"`);
+          
+          try {
+            // Skip cache for direct searches to avoid missing valid results
+            const lyricsService = new LyricsService();
+            const searchResult = await lyricsService.searchLyrics({
+              track_name: title,
+              artist_name: artist,
+            }, { skipCache: true });
+            
+            if (searchResult.type !== 'none') {
+              lyricsResult = searchResult;
+              foundTitle = title;
+              foundArtist = artist;
+              console.log('[Karaoke] Found lyrics with variation');
+              
+              // Cache successful parameters
+              LRCLibService.cacheSuccess(trackId, {
+                artist: artist,
+                title: title,
+              });
+              break;
+            }
+          } catch (error) {
+            console.log(`[Karaoke] Error searching variation: ${error}`);
+          }
         }
-      } catch (searchError) {
-        console.log(`[Karaoke] Direct search failed for "${foundArtist}" - "${cleanTitle}":`, searchError instanceof Error ? searchError.message : 'Unknown error');
+        if (lyricsResult.type !== 'none') break;
       }
     }
 
     // Step 3: Last resort - try lower confidence Genius matches
     if (lyricsResult.type === 'none' && geniusMatch.found && geniusMatch.song) {
-      console.log(
-        '[Karaoke] Trying lower confidence Genius match as last resort...'
-      );
+      // Trying lower confidence Genius match
       song = geniusMatch.song;
 
       const fullSong = await geniusService.getSongById(song.id);
@@ -315,33 +336,18 @@ app.get('/*', async (c) => {
     }
 
     // Step 4: Format lyrics for karaoke with intelligent timing fixes
-    // Debug: Check raw LRCLib data structure
-    console.log(
-      '[LRCLib] First few raw lyrics:',
-      lyricsResult.lyrics?.slice(0, 3)
-    );
+    // Process raw lyrics
 
     const rawLyrics = lyricsResult.lyrics || [];
     let formattedLyrics: any[] = [];
 
     if (lyricsResult.type === 'synced' && rawLyrics.length > 0) {
-      // Additional debug logging before processing
-      console.log('[Debug] Raw lyrics structure check:', {
-        firstLine: rawLyrics[0],
-        hasStartTime: 'startTime' in rawLyrics[0],
-        startTimeValue: rawLyrics[0]?.startTime,
-        allKeys: Object.keys(rawLyrics[0] || {}),
-      });
+      // Process synced lyrics
 
       // Process synced lyrics with timing improvements
       const processedLyrics = processSyncedLyrics(rawLyrics);
       
-      // Log before and after processing to debug jumping issue
-      console.log('[Karaoke] Raw lyrics count:', rawLyrics.length);
-      console.log('[Karaoke] Processed lyrics count:', processedLyrics.length);
-      if (rawLyrics.length !== processedLyrics.length) {
-        console.log('[Karaoke] Lines were merged during processing');
-      }
+      // Process lyrics
       
       formattedLyrics = processedLyrics.map((line, index) => ({
         id: index,
@@ -359,9 +365,7 @@ app.get('/*', async (c) => {
         (line) => line.timestamp > 0
       );
       if (!hasValidTimestamps) {
-        console.log(
-          '[Karaoke] WARNING: All timestamps are 0, treating as no karaoke available'
-        );
+        console.log('[Karaoke] WARNING: Invalid timestamps');
         return c.json({
           track_id: trackId,
           has_karaoke: false,
@@ -384,9 +388,7 @@ app.get('/*', async (c) => {
       }
     } else if (lyricsResult.type === 'unsynced' && rawLyrics.length > 0) {
       // Unsynced lyrics - we don't support karaoke without timestamps
-      console.log(
-        '[Karaoke] Found unsynced lyrics, but karaoke requires synchronized timing'
-      );
+      console.log('[Karaoke] Found unsynced lyrics');
       return c.json({
         track_id: trackId,
         has_karaoke: false,
@@ -411,9 +413,7 @@ app.get('/*', async (c) => {
       formattedLyrics = [];
     }
 
-    console.log(
-      `[Timing] Processed ${formattedLyrics.length} lines with improved timing`
-    );
+    // Processed lyrics with timing
 
     // Step 5: Track successful song match in database (optional - only if DB exists)
     let isNewDiscovery = false;
@@ -444,7 +444,7 @@ app.get('/*', async (c) => {
             .bind(catalogId)
             .run();
 
-          console.log(`[Song Tracking] Updated existing song: ${catalogId}`);
+          // Updated existing song
         } else {
           // Create new song catalog entry
           catalogId = crypto.randomUUID();
@@ -490,9 +490,7 @@ app.get('/*', async (c) => {
             )
             .run();
 
-          console.log(
-            `[Song Tracking] Created new song catalog entry: ${catalogId}`
-          );
+          console.log('[Song Tracking] Created new song catalog entry');
         }
 
         // Log the match event
@@ -520,7 +518,7 @@ app.get('/*', async (c) => {
           )
           .run();
 
-        console.log(`[Song Tracking] Logged match event: ${matchEventId}`);
+        // Logged match event
       } catch (trackingError) {
         console.error(
           '[Song Tracking] Error tracking song match:',
@@ -605,13 +603,14 @@ app.get('/*', async (c) => {
 
 // Start a new karaoke session
 app.post('/start', async (c) => {
-  console.log('[Karaoke] POST /start received');
+  // Start karaoke session
   
   const body = await c.req.json();
-  const { trackId, songData } = body;
+  const { trackId, songData, songCatalogId } = body;
   
-  // TODO: Add auth check when auth is implemented
-  const userId = 'demo-user'; // For now, use a demo user
+  // TODO: Get from auth when implemented
+  // For testing, use a test user ID - create this user in your database first
+  const userId = 'test-user-1'; // Temporary for testing practice cards
   
   try {
     // Check if DB is available
@@ -625,7 +624,8 @@ app.post('/start', async (c) => {
           artist: songData.artist,
           geniusId: songData.geniusId,
           duration: songData.duration,
-          difficulty: songData.difficulty
+          difficulty: songData.difficulty,
+          catalogId: songCatalogId || songData.song_catalog_id
         }
       );
       
@@ -641,7 +641,7 @@ app.post('/start', async (c) => {
     } else {
       // Fallback for development without DB
       const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-      console.log('[Karaoke] Creating mock session (no DB):', sessionId);
+      console.log('[Karaoke] Creating mock session (no DB)');
       
       return c.json({
         success: true,
@@ -667,46 +667,22 @@ app.post('/grade', async (c) => {
   const body = await c.req.json();
   const { sessionId, lineIndex, audioBuffer, expectedText, startTime, endTime } = body;
   
-  console.log('[Karaoke] Grading request received:', {
-    sessionId,
-    lineIndex,
-    expectedText,
-    audioLength: audioBuffer?.length,
-    startTime,
-    endTime
-  });
+  console.log('[Karaoke] Grading request for line', lineIndex);
   
   try {
     // Convert base64 audio to buffer
     const audioData = Uint8Array.from(atob(audioBuffer), char => char.charCodeAt(0));
-    console.log('[Karaoke] Audio buffer size:', audioData.length, 'bytes');
+    // Process audio buffer
     
     // Get STT transcription
     const sttService = new (await import('../services/stt.service')).STTService(c.env);
     const transcription = await sttService.transcribeAudio(audioData);
-    console.log('[Karaoke] STT transcription:', transcription);
+    console.log('[Karaoke] STT transcription:', transcription.transcript);
     
     // Grade the transcription
     const scoringService = new (await import('../services/scoring.service')).ScoringService();
     const scoreResult = scoringService.calculateKaraokeScore(expectedText, transcription.transcript);
-    console.log('[Karaoke] Score calculated:', scoreResult);
-    
-    // Record the line score if DB available
-    if (c.env.DB) {
-      const sessionService = new (await import('../services/session.service')).SessionService(c.env);
-      await sessionService.recordLineScore({
-        sessionId,
-        lineIndex,
-        expectedText,
-        actualText: transcription.transcript,
-        score: scoreResult.finalScore,
-        startTime,
-        endTime,
-        audioUrl: null, // TODO: Store audio if needed
-      });
-    } else {
-      console.log('[Karaoke] Skipping DB storage (no DB available)');
-    }
+    // Score calculated
     
     // Generate feedback
     const feedback = scoringService.generateFeedback(
@@ -715,6 +691,29 @@ app.post('/grade', async (c) => {
       transcription.transcript,
       1 // attempt number, could be tracked per session
     );
+    
+    // Record the line score if DB available
+    if (c.env.DB) {
+      const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+      await sessionService.recordLineScore(sessionId, {
+        lineIndex,
+        expectedText,
+        transcribedText: transcription.transcript,
+        score: scoreResult.finalScore,
+        feedback: feedback,
+        attemptNumber: 1
+      });
+    } else {
+      // Skipping DB storage (no DB available)
+    }
+    
+    // Log scoring details for debugging
+    console.log('[Karaoke] Scoring details:', {
+      expectedText,
+      transcript: transcription.transcript,
+      score: scoreResult.finalScore,
+      wordScores: scoreResult.wordScores
+    });
     
     return c.json({
       success: true,
@@ -725,6 +724,20 @@ app.post('/grade', async (c) => {
     });
   } catch (error) {
     console.error('[Karaoke] Error grading recording:', error);
+    
+    // If STT services are overloaded, return a neutral score instead of failing
+    if (error instanceof Error && error.message.includes('STT services failed')) {
+      console.log('[Karaoke] STT services unavailable, returning neutral score');
+      return c.json({
+        success: true,
+        score: 70, // Neutral score
+        transcription: '',
+        feedback: 'Recording received but transcription service is temporarily unavailable. Keep going! 🎵',
+        wordScores: [],
+        error: 'STT temporarily unavailable'
+      });
+    }
+    
     return c.json({
       success: false,
       error: error instanceof Error ? error.message : 'Failed to grade recording'
@@ -737,40 +750,123 @@ app.post('/complete', async (c) => {
   const body = await c.req.json();
   const { sessionId, fullAudioBuffer } = body;
   
-  console.log('[Karaoke] Complete session request:', { sessionId, hasAudio: !!fullAudioBuffer });
+  console.log('[Karaoke] Complete session request:', {
+    hasSessionId: !!sessionId,
+    hasFullAudio: !!fullAudioBuffer,
+    audioLength: fullAudioBuffer?.length
+  });
   
   try {
+    let finalScore = 0;
+    let elevenLabsTranscript = '';
+    
+    // Process full audio with ElevenLabs if provided
+    if (fullAudioBuffer && c.env.ELEVENLABS_API_KEY) {
+      try {
+        console.log('[Karaoke] Processing full session audio with ElevenLabs');
+        
+        // Convert base64 to Uint8Array
+        const audioData = Uint8Array.from(atob(fullAudioBuffer), c => c.charCodeAt(0));
+        
+        // Get STT service to use ElevenLabs for transcription
+        const sttService = new (await import('../services/stt.service')).STTService(c.env);
+        
+        // For full session, we don't have expected text, so just transcribe
+        const transcriptionResult = await sttService.transcribeAudio(audioData);
+        elevenLabsTranscript = transcriptionResult.transcript;
+        
+        console.log('[Karaoke] ElevenLabs full session transcript:', elevenLabsTranscript);
+        
+        // TODO: Implement full session scoring logic
+        // For now, use the confidence as a basis for the score
+        finalScore = Math.round(transcriptionResult.confidence * 100);
+      } catch (error) {
+        console.error('[Karaoke] Failed to process full audio with ElevenLabs:', error);
+      }
+    }
+    
     if (c.env.DB) {
       const sessionService = new (await import('../services/session.service')).SessionService(c.env);
       
-      // TODO: Store full audio if needed
-      const audioUrl = null;
-      
       // Complete the session and calculate final score
-      const result = await sessionService.completeSession(sessionId, audioUrl);
+      const result = await sessionService.completeSession(sessionId, null, finalScore || undefined);
+      
+      // Create practice cards for lines with errors
+      try {
+        // Get session details and line scores
+        const session = await c.env.DB
+          .prepare('SELECT user_id FROM karaoke_sessions WHERE id = ?')
+          .bind(sessionId)
+          .first<{ user_id: string }>();
+        
+        if (session?.user_id) {
+          // Get line scores for this session
+          const lineScores = await c.env.DB
+            .prepare(`
+              SELECT line_index, line_text, score, transcribed_text
+              FROM line_scores
+              WHERE session_id = ?
+              ORDER BY line_index
+            `)
+            .bind(sessionId)
+            .all();
+          
+          if (lineScores.results && lineScores.results.length > 0) {
+            // First ensure the song exists in the catalog
+            const sessionDetails = await c.env.DB
+              .prepare('SELECT track_id FROM karaoke_sessions WHERE id = ?')
+              .bind(sessionId)
+              .first<{ track_id: string }>();
+            
+            if (sessionDetails) {
+              const songCatalog = await c.env.DB
+                .prepare('SELECT id FROM song_catalog WHERE track_id = ?')
+                .bind(sessionDetails.track_id)
+                .first<{ id: string }>();
+              
+              if (!songCatalog) {
+                console.warn('[Karaoke] Song catalog entry not found for track_id:', sessionDetails.track_id);
+                console.warn('[Karaoke] Skipping practice card creation for session:', sessionId);
+              } else {
+                const practiceService = (await import('../services/practice.service')).createPracticeService(c.env.DB, c.env);
+                await practiceService.processSessionErrors(
+                  sessionId,
+                  session.user_id,
+                  lineScores.results as any[]
+                );
+                console.log('[Karaoke] Created practice cards for session:', sessionId);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('[Karaoke] Failed to create practice cards:', error);
+        // Don't fail the completion if practice card creation fails
+      }
       
       return c.json({
         success: true,
-        finalScore: result.finalScore,
+        finalScore: finalScore || result.finalScore,
         totalLines: result.totalLines,
         perfectLines: result.perfectLines,
         goodLines: result.goodLines,
         needsWorkLines: result.needsWorkLines,
         accuracy: result.accuracy,
         sessionId: result.sessionId,
+        elevenLabsTranscript: elevenLabsTranscript || undefined
       });
     } else {
-      // Mock response for development
-      console.log('[Karaoke] Returning mock completion (no DB)');
+      // Mock response for development - use ElevenLabs score if available
       return c.json({
         success: true,
-        finalScore: 85,
-        totalLines: 10,
-        perfectLines: 3,
-        goodLines: 5,
-        needsWorkLines: 2,
-        accuracy: 85,
+        finalScore: finalScore || 85,
+        totalLines: 3, // Test mode with 3 lines
+        perfectLines: finalScore >= 90 ? 2 : 1,
+        goodLines: finalScore >= 70 ? 2 : 1,
+        needsWorkLines: finalScore < 70 ? 1 : 0,
+        accuracy: finalScore || 85,
         sessionId: sessionId,
+        elevenLabsTranscript: elevenLabsTranscript || undefined
       });
     }
   } catch (error) {

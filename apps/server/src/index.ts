@@ -15,6 +15,9 @@ import healthRoutes from './routes/health.routes';
 import karaokeRoutes from './routes/karaoke.routes';
 import songsRoutes from './routes/songs.routes';
 import sttRoutes from './routes/stt.routes';
+import { exercisesRoutes } from './routes/exercises.routes';
+import { practiceRoutes } from './routes/practice.routes';
+import { audioProxyRouter } from './routes/audio-proxy.routes';
 import docsApp from './docs/openapi';
 
 // Create app
@@ -51,6 +54,9 @@ app.route('/auth', authRoutes);
 app.route('/api/karaoke', karaokeRoutes);
 app.route('/api/songs', songsRoutes);
 app.route('/api/speech-to-text', sttRoutes);
+app.route('/api/exercises', exercisesRoutes);
+app.route('/api/practice', practiceRoutes);
+app.route('/api/audio', audioProxyRouter);
 
 // Documentation (only in development)
 app.use('/docs/*', async (c, next) => {

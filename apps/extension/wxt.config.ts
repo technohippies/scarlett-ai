@@ -37,6 +37,6 @@ export default defineConfig({
     ],
   },
   webExt: {
-    startUrls: ['https://sc.maid.zone/beyonce/beyonce-amen'],
+    startUrls: ['https://sc.maid.zone/kanyewest/stronger'],
   },
 });

@@ -1,4 +1,4 @@
-import { Show, type Component } from 'solid-js';
+import { Show, type Component, createSignal, createEffect } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import { ScorePanel } from '../../display/ScorePanel';
 import { LyricsDisplay, type LyricLine } from '../LyricsDisplay';
@@ -6,6 +6,7 @@ import { LeaderboardPanel, type LeaderboardEntry } from '../LeaderboardPanel';
 import { SplitButton } from '../../common/SplitButton';
 import type { PlaybackSpeed } from '../../common/SplitButton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../common/Tabs';
+import { FireEmojiAnimation } from '../../effects/FireEmojiAnimation';
 
 export interface ExtensionKaraokeViewProps {
   // Scores
@@ -32,14 +33,20 @@ export interface ExtensionKaraokeViewProps {
 }
 
 export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props) => {
-  console.log('[ExtensionKaraokeView] Rendering with props:', {
-    isPlaying: props.isPlaying,
-    hasOnStart: !!props.onStart,
-    lyricsLength: props.lyrics?.length
-  });
+  // Get the latest high score line index
+  const getLatestHighScoreLine = () => {
+    const scores = props.lineScores || [];
+    if (scores.length === 0) return { score: 0, lineIndex: -1 };
+    
+    const latest = scores[scores.length - 1];
+    return {
+      score: latest?.score || 0,
+      lineIndex: latest?.lineIndex || -1
+    };
+  };
   
   return (
-    <div class={cn('flex flex-col h-full bg-base', props.class)}>
+    <div class={cn('flex flex-col h-full bg-base relative', props.class)}>
       {/* Score Panel - only show when not playing */}
       <Show when={!props.isPlaying}>
         <ScorePanel
@@ -111,6 +118,14 @@ export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props
             </div>
           </TabsContent>
         </Tabs>
+      </Show>
+      
+      {/* Fire emoji effect */}
+      <Show when={props.isPlaying}>
+        <FireEmojiAnimation 
+          score={getLatestHighScoreLine().score} 
+          lineIndex={getLatestHighScoreLine().lineIndex}
+        />
       </Show>
     </div>
   );

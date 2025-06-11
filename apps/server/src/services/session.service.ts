@@ -14,6 +14,7 @@ export class SessionService {
       geniusId?: string;
       duration?: number;
       difficulty?: 'beginner' | 'intermediate' | 'advanced';
+      catalogId?: string;
     }
   ): Promise<KaraokeSession> {
     const sessionId = nanoid();
@@ -96,7 +97,7 @@ export class SessionService {
 
   async recordLineScore(
     sessionId: string,
-    lineScore: LineScore
+    lineScore: Partial<LineScore> & { lineIndex: number; expectedText: string; score: number }
   ): Promise<void> {
     const attemptId = nanoid();
 
@@ -112,10 +113,10 @@ export class SessionService {
         lineScore.lineIndex,
         lineScore.expectedText,
         lineScore.score,
-        lineScore.transcribedText,
-        lineScore.attemptNumber,
+        lineScore.transcribedText || '',
+        lineScore.attemptNumber || 1,
         0, // processing time not tracked here
-        lineScore.feedback
+        lineScore.feedback || null
       )
       .run();
 
@@ -143,13 +144,43 @@ export class SessionService {
 
   async completeSession(
     sessionId: string,
-    totalLines: number,
-    overallScore: number
-  ): Promise<void> {
+    totalLines?: number | null,
+    overallScore?: number
+  ): Promise<{
+    sessionId: string;
+    finalScore: number;
+    totalLines: number;
+    perfectLines: number;
+    goodLines: number;
+    needsWorkLines: number;
+    accuracy: number;
+  }> {
     const session = await this.getSession(sessionId);
     if (!session) {
       throw new NotFoundError('Session');
     }
+
+    // Calculate session stats if not provided
+    let finalScore = overallScore || 0;
+    let linesTotal = totalLines || 0;
+    
+    if (!totalLines || !overallScore) {
+      // Get line scores to calculate stats
+      const lineScores = await this.getSessionLineScores(sessionId);
+      linesTotal = lineScores.length;
+      
+      if (lineScores.length > 0) {
+        finalScore = Math.round(
+          lineScores.reduce((sum, line) => sum + line.score, 0) / lineScores.length
+        );
+      }
+    }
+    
+    // Calculate line categories
+    const lineScores = await this.getSessionLineScores(sessionId);
+    const perfectLines = lineScores.filter(l => l.score >= 95).length;
+    const goodLines = lineScores.filter(l => l.score >= 80 && l.score < 95).length;
+    const needsWorkLines = lineScores.filter(l => l.score < 80).length;
 
     // Calculate session duration
     const durationSeconds = session.startedAt
@@ -166,7 +197,7 @@ export class SessionService {
            duration_seconds = ?
        WHERE id = ?`
     )
-      .bind(overallScore, totalLines, overallScore, durationSeconds, sessionId)
+      .bind(finalScore, linesTotal, finalScore, durationSeconds, sessionId)
       .run();
 
     // Update user's best score if applicable
@@ -174,10 +205,20 @@ export class SessionService {
       await this.updateUserBestScore(
         session.userId,
         session.songGeniusId,
-        overallScore,
+        finalScore,
         sessionId
       );
     }
+    
+    return {
+      sessionId,
+      finalScore,
+      totalLines: linesTotal,
+      perfectLines,
+      goodLines,
+      needsWorkLines,
+      accuracy: finalScore
+    };
   }
 
   private async updateUserBestScore(

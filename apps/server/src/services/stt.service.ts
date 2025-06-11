@@ -35,21 +35,32 @@ export class STTService {
     audioData: Uint8Array,
     expectedText?: string
   ): Promise<TranscriptionResult> {
-    // Try Deepgram first (better accuracy)
-    if (this.env.DEEPGRAM_API_KEY) {
+    const errors: Array<{ service: string; error: any }> = [];
+    
+    // Try ElevenLabs first
+    if (this.env.ELEVENLABS_API_KEY) {
       try {
-        return await this.transcribeWithDeepgram(audioData, expectedText);
+        return await this.transcribeWithElevenLabs(audioData);
       } catch (error) {
-        console.error('[STT] Deepgram error, falling back:', error);
+        console.error('[STT] ElevenLabs error:', error);
+        errors.push({ service: 'ElevenLabs', error });
       }
     }
 
-    // Fallback to ElevenLabs
-    if (this.env.ELEVENLABS_API_KEY) {
-      return await this.transcribeWithElevenLabs(audioData);
+    // Fallback to Deepgram
+    if (this.env.DEEPGRAM_API_KEY) {
+      try {
+        console.log('[STT] Falling back to Deepgram');
+        return await this.transcribeWithDeepgram(audioData, expectedText);
+      } catch (error) {
+        console.error('[STT] Deepgram error:', error);
+        errors.push({ service: 'Deepgram', error });
+      }
     }
 
-    throw new Error('No STT service configured');
+    // If all services failed, throw a descriptive error
+    const errorSummary = errors.map(e => `${e.service}: ${e.error.message || e.error}`).join('; ');
+    throw new Error(`All STT services failed: ${errorSummary}`);
   }
 
   private async transcribeWithDeepgram(
@@ -66,11 +77,14 @@ export class STTService {
       alternatives: '1',
     });
 
-    // Add keywords for better accuracy
+    // Add keywords for better accuracy with intensifiers
     if (expectedText) {
       const keywords = this.extractKeywords(expectedText);
       if (keywords.length > 0) {
-        params.append('keywords', keywords.join(','));
+        // Add keywords with moderate intensifier for better recognition
+        const keywordsWithIntensifier = keywords.map(k => `${k}:2`).join(',');
+        params.append('keywords', keywordsWithIntensifier);
+        console.log('[STT] Deepgram keywords:', keywords);
       }
     }
 
@@ -99,7 +113,7 @@ export class STTService {
     }
 
     return {
-      transcript: alternative.transcript,
+      transcript: this.cleanTranscript(alternative.transcript),
       confidence: alternative.confidence,
       words: alternative.words || [],
     };
@@ -129,7 +143,7 @@ export class STTService {
 
     const result = await response.json() as { text?: string; confidence?: number; };
     return {
-      transcript: result.text || '',
+      transcript: this.cleanTranscript(result.text || ''),
       confidence: result.confidence || 0,
       words: [], // ElevenLabs doesn't provide word-level timing
     };
@@ -182,19 +196,40 @@ export class STTService {
     // Extract important words for Deepgram keyword priming
     const words = text
       .toLowerCase()
-      .replace(/[^\w\s]/g, '')
+      .replace(/[^\w\s'-]/g, '') // Keep apostrophes and hyphens for slang
       .split(/\s+/)
-      .filter((word) => word.length > 3); // Only words longer than 3 chars
+      .filter((word) => word.length > 2); // Allow shorter words for slang
 
-    // Remove common words
+    // Remove common words but keep music/slang terms
     const commonWords = new Set([
       'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can',
       'her', 'was', 'one', 'our', 'out', 'day', 'with', 'have', 'from',
+      'that', 'this', 'what', 'when', 'where', 'who', 'why', 'how',
     ]);
 
+    // Keep all words that aren't common, including slang
     const keywords = words.filter((word) => !commonWords.has(word));
+    
+    // Add common music slang patterns
+    const slangPatterns = [];
+    if (text.includes("'")) {
+      // Add contracted forms like "hurtin'", "lovin'"
+      const contractions = text.match(/\w+'/g);
+      if (contractions) {
+        slangPatterns.push(...contractions.map(c => c.toLowerCase()));
+      }
+    }
 
-    // Return unique keywords, limited to 10
-    return [...new Set(keywords)].slice(0, 10);
+    // Return unique keywords, limited to 20 for better coverage
+    return [...new Set([...keywords, ...slangPatterns])].slice(0, 20);
+  }
+  
+  private cleanTranscript(transcript: string): string {
+    // Remove common STT artifacts and background descriptions
+    return transcript
+      .replace(/\([^)]*\)/g, '') // Remove parenthetical descriptions like (music), (chanting)
+      .replace(/\[[^\]]*\]/g, '') // Remove bracketed descriptions
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
   }
 }

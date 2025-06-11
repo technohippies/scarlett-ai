@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --env development --local",
     "deploy": "wrangler deploy",
     "deploy:prod": "wrangler deploy --env production",
     "build": "tsc",
@@ -28,6 +28,7 @@
     "lrclib-api": "^1.0.0",
     "double-metaphone": "^2.0.1",
     "jose": "^5.9.6",
+    "ts-fsrs": "^4.2.0",
     "nanoid": "^5.0.7"
   },
   "devDependencies": {

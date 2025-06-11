@@ -26,19 +26,26 @@ export class KaraokeApiService {
 
   async startSession(
     trackId: string,
-    songData: { title: string; artist: string; genius_id?: string },
-    authToken: string
+    songData: { title: string; artist: string; geniusId?: string; duration?: number; difficulty?: string },
+    authToken?: string,
+    songCatalogId?: string
   ): Promise<KaraokeSession | null> {
     try {
-      const response = await fetch(`${this.serverUrl}/api/karaoke/start`, {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
+      const response = await fetch(`${this.serverUrl}/karaoke/start`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers,
         body: JSON.stringify({
-          track_id: trackId,
-          song_data: songData,
+          trackId,
+          songData,
+          songCatalogId,
         }),
       });
 
@@ -58,24 +65,31 @@ export class KaraokeApiService {
   async gradeRecording(
     sessionId: string,
     lineIndex: number,
-    audioData: string,
+    audioBuffer: string,
     expectedText: string,
-    attemptNumber: number,
-    authToken: string
+    startTime: number,
+    endTime: number,
+    authToken?: string
   ): Promise<LineScore | null> {
     try {
-      const response = await fetch(`${this.serverUrl}/api/karaoke/grade`, {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
+      const response = await fetch(`${this.serverUrl}/karaoke/grade`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers,
         body: JSON.stringify({
-          session_id: sessionId,
-          line_index: lineIndex,
-          audio_data: audioData,
-          expected_text: expectedText,
-          attempt_number: attemptNumber,
+          sessionId,
+          lineIndex,
+          audioBuffer,
+          expectedText,
+          startTime,
+          endTime,
         }),
       });
 
@@ -84,11 +98,8 @@ export class KaraokeApiService {
         return {
           score: Math.round(result.score),
           feedback: result.feedback,
-          attempts: result.attempts,
-          wordTimings: result.word_timings,
-          wordScores: result.word_scores,
-          transcriptionConfidence: result.transcription_confidence,
-          transcript: result.transcript,
+          transcript: result.transcription,
+          wordScores: result.wordScores,
         };
       }
       return null;
@@ -100,26 +111,39 @@ export class KaraokeApiService {
 
   async completeSession(
     sessionId: string,
-    sessionAudioData: string,
-    lyricsWithTiming: any[],
-    authToken: string
+    fullAudioBuffer?: string,
+    authToken?: string
   ): Promise<SessionResults | null> {
     try {
-      const response = await fetch(`${this.serverUrl}/api/karaoke/complete`, {
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      };
+      
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
+      const response = await fetch(`${this.serverUrl}/karaoke/complete`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`,
-        },
+        headers,
         body: JSON.stringify({
-          session_id: sessionId,
-          audio_data: sessionAudioData,
-          lyrics_with_timing: lyricsWithTiming,
+          sessionId,
+          fullAudioBuffer,
         }),
       });
 
       if (response.ok) {
-        return await response.json();
+        const result = await response.json();
+        return {
+          success: result.success,
+          finalScore: result.finalScore,
+          totalLines: result.totalLines,
+          perfectLines: result.perfectLines,
+          goodLines: result.goodLines,
+          needsWorkLines: result.needsWorkLines,
+          accuracy: result.accuracy,
+          sessionId: result.sessionId,
+        };
       }
       return null;
     } catch (error) {
@@ -131,7 +155,7 @@ export class KaraokeApiService {
   async getUserBestScore(songId: string, authToken: string): Promise<number | null> {
     try {
       const response = await fetch(
-        `${this.serverUrl}/api/users/me/songs/${songId}/best-score`,
+        `${this.serverUrl}/users/me/songs/${songId}/best-score`,
         {
           headers: {
             'Authorization': `Bearer ${authToken}`,
@@ -159,7 +183,7 @@ export class KaraokeApiService {
   async getSongLeaderboard(songId: string, limit: number = 10): Promise<any[]> {
     try {
       const response = await fetch(
-        `${this.serverUrl}/api/songs/${songId}/leaderboard?limit=${limit}`
+        `${this.serverUrl}/songs/${songId}/leaderboard?limit=${limit}`
       );
 
       if (response.ok) {
