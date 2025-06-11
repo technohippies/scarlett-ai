@@ -1,13 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Extension-specific styles that work in shadow DOM */
 /* Import the compiled Tailwind base without @layer directives */
-
+/* Import font */
 /* Reset and base styles */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-
 /* CSS variables matching your design system */
 :host, :root {
   /* Core colors - dark theme with vibrant accents */
@@ -37,7 +38,6 @@
   --color-border-default: #404040;
   --color-border-strong: #525252;
 }
-
 /* Base element styles */
 button {
   border: none;
@@ -49,11 +49,9 @@ button {
   color: inherit;
   cursor: pointer;
 }
-
 button:focus {
   outline: none;
 }
-
 /* Include essential Tailwind utilities that your components need */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
@@ -141,29 +139,23 @@ button:focus {
 .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
 .scale-95 { --tw-scale-x: .95; --tw-scale-y: .95; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
 .scale-105 { --tw-scale-x: 1.05; --tw-scale-y: 1.05; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
-
 /* Your custom utilities */
 .bg-base { background-color: var(--color-bg-base); }
 .bg-surface { background-color: var(--color-bg-surface); }
 .bg-elevated { background-color: var(--color-bg-elevated); }
 .bg-highlight { background-color: var(--color-bg-highlight); }
-
 .text-primary { color: var(--color-text-primary); }
 .text-secondary { color: var(--color-text-secondary); }
 .text-muted { color: var(--color-text-muted); }
-
 .text-accent { color: var(--color-accent-primary); }
 .bg-accent { background-color: var(--color-accent-primary); }
 .bg-accent-hover:hover { background-color: var(--color-accent-primary-hover); }
-
 .text-accent-primary { color: var(--color-accent-primary); }
 .text-accent-secondary { color: var(--color-accent-secondary); }
-
 /* Gradient backgrounds */
 .bg-gradient-primary { 
   background: linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%);
 }
-
 /* Button styles */
 .h-12 { height: 3rem; }
 .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
@@ -176,7 +168,6 @@ button:focus {
 .active\:bg-white\/20:active { background-color: rgb(255 255 255 / 0.2); }
 .text-white { color: #ffffff; }
 .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
-
 /* Pseudo element styles */
 .after\:content-\[\"\"\]::after { content: ""; }
 .after\:absolute::after { position: absolute; }
@@ -189,29 +180,64 @@ button:focus {
 .hover\:after\:translate-x-\[200\%\]:hover::after { --tw-translate-x: 200%; transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
 .after\:transition-transform::after { transition-property: transform; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
 .after\:duration-700::after { transition-duration: 700ms; }
-
 /* Disabled state */
 .disabled\:cursor-not-allowed:disabled { cursor: not-allowed; }
 .disabled\:opacity-50:disabled { opacity: 0.5; }
-
 .border-subtle { border-color: var(--color-border-subtle); }
 .border-default { border-color: var(--color-border-default); }
 .border-strong { border-color: var(--color-border-strong); }
-
 /* Focus styles */
 .focus-visible\:outline-none:focus-visible { outline: 2px solid transparent; outline-offset: 2px; }
 .focus-visible\:ring-2:focus-visible { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
 .focus-visible\:ring-accent-primary:focus-visible { --tw-ring-color: var(--color-accent-primary); }
 .focus-visible\:ring-offset-2:focus-visible { --tw-ring-offset-width: 2px; }
-
 .ring-offset-base { --tw-ring-offset-color: var(--color-bg-base); }
-
 /* Hover states */
 .hover\:text-primary:hover { color: var(--color-text-primary); }
-
 /* Extension-specific widget container */
-.karaoke-widget {
-  font-family: system-ui, -apple-system, sans-serif;
+.karaoke-widget-container {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--color-text-primary);
   overflow: hidden;
 }
+/* Add missing classes */
+.bg-surface-secondary { background-color: #1a1a1a; }
+.bg-surface-hover { background-color: #1f1f1f; }
+.hover\:bg-surface-hover:hover { background-color: #1f1f1f; }
+.text-tertiary { color: #525252; }
+.p-2 { padding: 0.5rem; }
+.p-8 { padding: 2rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.w-8 { width: 2rem; }
+.h-8 { height: 2rem; }
+.w-10 { width: 2.5rem; }
+.h-10 { height: 2.5rem; }
+/* Animation for loading spinner */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+/* Animation for pulse */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+/* Additional positioning classes */
+.absolute { position: absolute; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.z-50 { z-index: 50; }
+/* Text sizes */
+.text-8xl { font-size: 6rem; line-height: 1; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+/* Colors */
+.bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+.text-white { color: #ffffff; }
+.text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+/* Spacing */
+.mt-4 { margin-top: 1rem; }

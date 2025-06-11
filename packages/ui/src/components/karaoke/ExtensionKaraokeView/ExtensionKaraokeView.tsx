@@ -28,6 +28,12 @@ export interface ExtensionKaraokeViewProps {
 }
 
 export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props) => {
+  console.log('[ExtensionKaraokeView] Rendering with props:', {
+    isPlaying: props.isPlaying,
+    hasOnStart: !!props.onStart,
+    lyricsLength: props.lyrics?.length
+  });
+  
   return (
     <div class={cn('flex flex-col h-full bg-base', props.class)}>
       {/* Score Panel */}
@@ -62,6 +68,12 @@ export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props
           </div>
           
           {/* Footer with start button */}
+          {console.log('[ExtensionKaraokeView] Start button check:', {
+            isPlaying: props.isPlaying,
+            notPlaying: !props.isPlaying,
+            hasOnStart: !!props.onStart,
+            shouldShowButton: !props.isPlaying && props.onStart
+          })}
           {!props.isPlaying && props.onStart && (
             <div class="p-4 bg-surface border-t border-subtle">
               <SplitButton

@@ -1,6 +1,9 @@
 /* Extension-specific styles that work in shadow DOM */
 /* Import the compiled Tailwind base without @layer directives */
 
+/* Import font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 /* Reset and base styles */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -210,8 +213,56 @@ button:focus {
 .hover\:text-primary:hover { color: var(--color-text-primary); }
 
 /* Extension-specific widget container */
-.karaoke-widget {
-  font-family: system-ui, -apple-system, sans-serif;
+.karaoke-widget-container {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--color-text-primary);
   overflow: hidden;
 }
+
+/* Add missing classes */
+.bg-surface-secondary { background-color: #1a1a1a; }
+.bg-surface-hover { background-color: #1f1f1f; }
+.hover\:bg-surface-hover:hover { background-color: #1f1f1f; }
+.text-tertiary { color: #525252; }
+.p-2 { padding: 0.5rem; }
+.p-8 { padding: 2rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.w-8 { width: 2rem; }
+.h-8 { height: 2rem; }
+.w-10 { width: 2.5rem; }
+.h-10 { height: 2.5rem; }
+
+/* Animation for loading spinner */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Animation for pulse */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Additional positioning classes */
+.absolute { position: absolute; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.z-50 { z-index: 50; }
+
+/* Text sizes */
+.text-8xl { font-size: 6rem; line-height: 1; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+
+/* Colors */
+.bg-black\/80 { background-color: rgba(0, 0, 0, 0.8); }
+.text-white { color: #ffffff; }
+.text-white\/80 { color: rgba(255, 255, 255, 0.8); }
+
+/* Spacing */
+.mt-4 { margin-top: 1rem; }

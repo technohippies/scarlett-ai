@@ -32,22 +32,9 @@ export default defineContentScript({
         const shadowRoot = container.getRootNode() as ShadowRoot;
         console.log('[Content Script] Shadow root stylesheets:', shadowRoot.styleSheets?.length);
         
-        // Create wrapper with positioning
+        // Create wrapper div (ContentApp will handle positioning based on state)
         const wrapper = document.createElement('div');
-        wrapper.style.cssText = `
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          bottom: 20px;
-          width: 400px;
-          z-index: 99999;
-          overflow: hidden;
-          border-radius: 16px;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-          display: flex;
-          flex-direction: column;
-        `;
-        wrapper.className = 'karaoke-widget';
+        wrapper.className = 'karaoke-widget-container';
         container.appendChild(wrapper);
 
         console.log('[Content Script] Wrapper created and appended:', wrapper);

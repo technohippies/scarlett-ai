@@ -26,6 +26,9 @@ export * from './common/Tabs';
 export * from './common/SplitButton';
 export * from './common/ProgressBar';
 
+// Extension Components
+export * from './MinimizedKaraoke';
+
 // Practice Components
 export * from './practice/PracticeHeader';
 export * from './practice/ExerciseFooter';

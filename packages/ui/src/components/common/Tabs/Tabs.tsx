@@ -1,5 +1,5 @@
-import { createSignal, Show } from 'solid-js';
-import type { Component, JSX } from 'solid-js';
+import { createSignal, Show, createContext, useContext } from 'solid-js';
+import type { Component, JSX, ParentComponent } from 'solid-js';
 import { cn } from '../../../utils/cn';
 
 export interface Tab {
@@ -32,30 +32,40 @@ export interface TabsContentProps {
   children: JSX.Element;
 }
 
-// Global state for the current tabs instance
-let currentTabsState: {
+// Context for tabs state
+interface TabsContextValue {
   activeTab: () => string;
   setActiveTab: (id: string) => void;
-} | null = null;
+}
 
-export const Tabs: Component<TabsProps> = (props) => {
+const TabsContext = createContext<TabsContextValue>();
+
+export const Tabs: ParentComponent<TabsProps> = (props) => {
   const [activeTab, setActiveTab] = createSignal(props.defaultTab || props.tabs[0]?.id || '');
   
+  console.log('[Tabs] Initializing with:', {
+    defaultTab: props.defaultTab,
+    firstTabId: props.tabs[0]?.id,
+    activeTab: activeTab()
+  });
+  
   const handleTabChange = (id: string) => {
+    console.log('[Tabs] Tab changed to:', id);
     setActiveTab(id);
     props.onTabChange?.(id);
   };
 
-  // Set the global state for child components to access
-  currentTabsState = {
+  const contextValue: TabsContextValue = {
     activeTab,
     setActiveTab: handleTabChange
   };
 
   return (
-    <div class={cn('w-full', props.class)}>
-      {props.children}
-    </div>
+    <TabsContext.Provider value={contextValue}>
+      <div class={cn('w-full', props.class)}>
+        {props.children}
+      </div>
+    </TabsContext.Provider>
   );
 };
 
@@ -74,11 +84,17 @@ export const TabsList: Component<TabsListProps> = (props) => {
 };
 
 export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
-  const isActive = () => currentTabsState?.activeTab() === props.value;
+  const context = useContext(TabsContext);
+  if (!context) {
+    console.error('[TabsTrigger] No TabsContext found. TabsTrigger must be used within Tabs component.');
+    return null;
+  }
+  
+  const isActive = () => context.activeTab() === props.value;
 
   return (
     <button
-      onClick={() => currentTabsState?.setActiveTab(props.value)}
+      onClick={() => context.setActiveTab(props.value)}
       class={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5',
         'text-sm font-medium ring-offset-base transition-all',
@@ -97,8 +113,21 @@ export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
 };
 
 export const TabsContent: Component<TabsContentProps> = (props) => {
+  const context = useContext(TabsContext);
+  if (!context) {
+    console.error('[TabsContent] No TabsContext found. TabsContent must be used within Tabs component.');
+    return null;
+  }
+  
+  const isActive = context.activeTab() === props.value;
+  console.log('[TabsContent] Rendering:', {
+    value: props.value,
+    activeTab: context.activeTab(),
+    isActive
+  });
+  
   return (
-    <Show when={currentTabsState?.activeTab() === props.value}>
+    <Show when={isActive}>
       <div
         class={cn(
           'mt-2 ring-offset-base',
