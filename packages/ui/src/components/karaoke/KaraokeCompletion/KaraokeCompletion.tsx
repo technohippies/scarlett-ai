@@ -4,7 +4,6 @@ import { Button } from '../../common/Button';
 import { Card } from '../../common/Card';
 import { ProgressBar } from '../../common/ProgressBar';
 import type { SessionResults } from '../../../types/karaoke';
-import styles from './KaraokeCompletion.module.css';
 
 export interface KaraokeCompletionProps {
   overallScore: number;
@@ -33,16 +32,16 @@ export const KaraokeCompletion: Component<KaraokeCompletionProps> = (props) => {
 
   const getGradeColor = (grade: string): string => {
     switch (grade) {
-      case 'S': return '#FFD700';
+      case 'S': return 'text-yellow-500';
       case 'A+':
-      case 'A': return '#4CAF50';
+      case 'A': return 'text-green-500';
       case 'B+':
-      case 'B': return '#2196F3';
+      case 'B': return 'text-blue-500';
       case 'C+':
-      case 'C': return '#FF9800';
-      case 'D': return '#F44336';
-      case 'F': return '#9E9E9E';
-      default: return '#9E9E9E';
+      case 'C': return 'text-orange-500';
+      case 'D': return 'text-red-500';
+      case 'F': return 'text-gray-500';
+      default: return 'text-gray-500';
     }
   };
 
@@ -59,76 +58,70 @@ export const KaraokeCompletion: Component<KaraokeCompletionProps> = (props) => {
   const gradeColor = () => getGradeColor(grade());
 
   return (
-    <div class={styles.completion}>
+    <div class="p-6 max-w-2xl mx-auto">
       <Show when={props.isAnalyzing} fallback={
         <>
-          <div class={styles.header}>
-            <h2 class={styles.title}>Performance Complete!</h2>
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold mb-2">Performance Complete!</h2>
             <Show when={props.isNewBestScore}>
-              <div class={styles.newBestScore}>🏆 New Personal Best!</div>
+              <div class="text-center text-yellow-500 font-semibold mb-4">🏆 New Personal Best!</div>
             </Show>
           </div>
 
-          <Card class={styles.scoreCard}>
-            <div class={styles.songInfo}>
-              <h3>{props.song.title}</h3>
-              <p>{props.song.artist}</p>
+          <Card class="mb-8">
+            <div class="text-center mb-4">
+              <h3 class="text-xl font-semibold">{props.song.title}</h3>
+              <p class="text-gray-600 dark:text-gray-400">{props.song.artist}</p>
             </div>
 
-            <div class={styles.scoreDisplay}>
-              <div 
-                class={styles.grade} 
-                style={{ color: gradeColor() }}
-              >
+            <div class="text-center">
+              <div class={`text-6xl font-bold mb-4 ${gradeColor()}`}>
                 {grade()}
               </div>
-              <div class={styles.score}>
-                <span class={styles.scoreValue}>{Math.round(props.overallScore)}</span>
-                <span class={styles.scoreLabel}>/ 100</span>
+              <div class="text-4xl font-bold mb-2">
+                {props.overallScore}%
               </div>
+              <p class="text-gray-600 dark:text-gray-400">
+                {getFeedback(props.overallScore)}
+              </p>
             </div>
-
-            <p class={styles.feedback}>{getFeedback(props.overallScore)}</p>
           </Card>
 
-          <Show when={props.lineResults.length > 0}>
-            <Card class={styles.detailsCard}>
-              <h3 class={styles.detailsTitle}>Line Performance</h3>
-              <div class={styles.lineResults}>
-                <For each={props.lineResults}>
-                  {(line) => (
-                    <div class={styles.lineResult}>
-                      <div class={styles.lineText}>{line.text}</div>
-                      <div class={styles.lineScore}>
-                        <ProgressBar 
-                          current={line.score} 
-                          total={100}
-                          class={styles.lineProgress}
-                        />
-                        <span class={styles.lineScoreValue}>{line.score}%</span>
-                      </div>
+          <Show when={props.lineResults && props.lineResults.length > 0}>
+            <div class="mb-8">
+              <h3 class="text-xl font-semibold mb-4">Line by Line Performance</h3>
+              <For each={props.lineResults}>
+                {(line) => (
+                  <div class="mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <p class="text-sm mb-2">{line.text}</p>
+                    <div class="flex items-center justify-between">
+                      <span class={`text-sm font-semibold ${
+                        line.score >= 80 ? 'text-green-600 dark:text-green-400' :
+                        line.score >= 60 ? 'text-yellow-600 dark:text-yellow-400' :
+                        'text-red-600 dark:text-red-400'
+                      }`}>
+                        Score: {line.score}%
+                      </span>
+                      <span class="text-xs text-gray-500">
+                        Attempts: {line.attempts}
+                      </span>
                     </div>
-                  )}
-                </For>
-              </div>
-            </Card>
+                  </div>
+                )}
+              </For>
+            </div>
           </Show>
 
-          <div class={styles.actions}>
-            <Button 
-              variant="primary" 
-              size="lg"
-              onClick={props.onTryAgain}
-            >
+          <div class="flex justify-center gap-4">
+            <Button onClick={props.onTryAgain}>
               Try Again
             </Button>
           </div>
         </>
       }>
-        <div class={styles.analyzing}>
-          <div class={styles.spinner} />
-          <h2>Analyzing Performance...</h2>
-          <p>Processing your vocals and calculating scores</p>
+        <div class="text-center">
+          <p class="text-lg mb-4">Analyzing your performance...</p>
+          <div class="animate-spin h-8 w-8 mx-auto border-4 border-primary-500 border-t-transparent rounded-full"></div>
         </div>
       </Show>
     </div>

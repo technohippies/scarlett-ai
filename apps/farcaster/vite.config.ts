@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import solidPlugin from 'vite-plugin-solid';
+import path from 'path';
 
 export default defineConfig({
   plugins: [solidPlugin()],
@@ -9,8 +10,17 @@ export default defineConfig({
   build: {
     target: 'esnext',
   },
+  resolve: {
+    alias: {
+      '@scarlett/ui': path.resolve(__dirname, '../../packages/ui'),
+    },
+  },
   optimizeDeps: {
-    include: ['solid-js', '@scarlett/ui'],
-    exclude: ['@scarlett/ui/src/styles/globals.css'],
+    include: ['solid-js'],
+  },
+  css: {
+    modules: {
+      localsConvention: 'camelCase',
+    },
   },
 });

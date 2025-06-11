@@ -1,9 +1,9 @@
-import { Component, createSignal, onMount, Show } from 'solid-js';
+import { createSignal, onMount, Show } from 'solid-js';
 import { sdk } from '@farcaster/frame-sdk';
 import { FarcasterMiniApp } from '@scarlett/ui';
 import type { FrameContext } from '@farcaster/frame-sdk';
 
-const App: Component = () => {
+const App = () => {
   const [isLoading, setIsLoading] = createSignal(true);
   const [context, setContext] = createSignal<FrameContext | null>(null);
   const [credits, setCredits] = createSignal(0);
