@@ -13,7 +13,7 @@ const App: Component = () => {
   onMount(async () => {
     try {
       // Check if we're in a mini app
-      const inMiniApp = await sdk.isInMiniApp();
+      const inMiniApp = await sdk.isInMiniApp().catch(() => false);
       
       if (inMiniApp) {
         // Get context
@@ -24,7 +24,11 @@ const App: Component = () => {
         setCredits(100);
         
         // Hide splash screen
-        await sdk.actions.ready();
+        await sdk.actions.ready().catch(console.error);
+      } else {
+        // Dev mode - simulate context
+        console.log('Running in dev mode');
+        setCredits(100);
       }
       
       setIsLoading(false);

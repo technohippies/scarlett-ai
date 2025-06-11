@@ -65,8 +65,17 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     }
     
     // Create session on server if trackId provided
+    console.log('[KaraokeSession] Session creation check:', {
+      hasTrackId: !!options.trackId,
+      hasSongData: !!options.songData,
+      trackId: options.trackId,
+      songData: options.songData,
+      apiUrl
+    });
+    
     if (options.trackId && options.songData) {
       try {
+        console.log('[KaraokeSession] Creating session on server...');
         const response = await fetch(`${apiUrl}/karaoke/start`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -76,14 +85,21 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
           })
         });
         
+        console.log('[KaraokeSession] Session response:', response.status, response.statusText);
+        
         if (response.ok) {
           const data = await response.json();
           setSessionId(data.session.id);
           console.log('[KaraokeSession] Session created:', data.session.id);
+        } else {
+          const errorText = await response.text();
+          console.error('[KaraokeSession] Failed to create session:', response.status, errorText);
         }
       } catch (error) {
         console.error('[KaraokeSession] Failed to create session:', error);
       }
+    } else {
+      console.log('[KaraokeSession] Skipping session creation - missing trackId or songData');
     }
     
     // Start countdown
@@ -202,9 +218,21 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   };
   
   const gradeChunk = async (chunk: ChunkInfo, audioBase64: string) => {
-    if (!sessionId()) return;
+    const currentSessionId = sessionId();
+    console.log('[KaraokeSession] Grading chunk:', {
+      hasSessionId: !!currentSessionId,
+      sessionId: currentSessionId,
+      chunkIndex: chunk.startIndex,
+      audioLength: audioBase64.length
+    });
+    
+    if (!currentSessionId) {
+      console.warn('[KaraokeSession] No session ID, skipping grade');
+      return;
+    }
     
     try {
+      console.log('[KaraokeSession] Sending grade request...');
       const response = await fetch(`${apiUrl}/karaoke/grade`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

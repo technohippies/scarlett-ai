@@ -602,25 +602,45 @@ app.post('/start', async (c) => {
   const userId = 'demo-user'; // For now, use a demo user
   
   try {
-    const sessionService = new (await import('../services/session.service')).SessionService(c.env);
-    const session = await sessionService.createSession({
-      userId,
-      trackId,
-      songTitle: songData.title,
-      songArtist: songData.artist,
-      songAlbum: songData.album,
-      songDuration: songData.duration,
-    });
-    
-    return c.json({
-      success: true,
-      session: {
-        id: session.id,
-        trackId: session.trackId,
-        status: session.status,
-        createdAt: session.createdAt,
-      }
-    });
+    // Check if DB is available
+    if (c.env.DB) {
+      const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+      const session = await sessionService.createSession(
+        userId,
+        trackId,
+        {
+          title: songData.title,
+          artist: songData.artist,
+          geniusId: songData.geniusId,
+          duration: songData.duration,
+          difficulty: songData.difficulty
+        }
+      );
+      
+      return c.json({
+        success: true,
+        session: {
+          id: session.id,
+          trackId: session.trackId,
+          status: session.status,
+          createdAt: session.createdAt,
+        }
+      });
+    } else {
+      // Fallback for development without DB
+      const sessionId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+      console.log('[Karaoke] Creating mock session (no DB):', sessionId);
+      
+      return c.json({
+        success: true,
+        session: {
+          id: sessionId,
+          trackId: trackId,
+          status: 'active',
+          createdAt: new Date().toISOString(),
+        }
+      });
+    }
   } catch (error) {
     console.error('[Karaoke] Error starting session:', error);
     return c.json({
@@ -635,30 +655,46 @@ app.post('/grade', async (c) => {
   const body = await c.req.json();
   const { sessionId, lineIndex, audioBuffer, expectedText, startTime, endTime } = body;
   
+  console.log('[Karaoke] Grading request received:', {
+    sessionId,
+    lineIndex,
+    expectedText,
+    audioLength: audioBuffer?.length,
+    startTime,
+    endTime
+  });
+  
   try {
     // Convert base64 audio to buffer
     const audioData = Uint8Array.from(atob(audioBuffer), char => char.charCodeAt(0));
+    console.log('[Karaoke] Audio buffer size:', audioData.length, 'bytes');
     
     // Get STT transcription
     const sttService = new (await import('../services/stt.service')).STTService(c.env);
     const transcription = await sttService.transcribe(audioData);
+    console.log('[Karaoke] STT transcription:', transcription);
     
     // Grade the transcription
     const scoringService = new (await import('../services/scoring.service')).ScoringService();
     const score = scoringService.calculateScore(expectedText, transcription);
+    console.log('[Karaoke] Score calculated:', score);
     
-    // Record the line score
-    const sessionService = new (await import('../services/session.service')).SessionService(c.env);
-    await sessionService.recordLineScore({
-      sessionId,
-      lineIndex,
-      expectedText,
-      actualText: transcription,
-      score: score.score,
-      startTime,
-      endTime,
-      audioUrl: null, // TODO: Store audio if needed
-    });
+    // Record the line score if DB available
+    if (c.env.DB) {
+      const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+      await sessionService.recordLineScore({
+        sessionId,
+        lineIndex,
+        expectedText,
+        actualText: transcription,
+        score: score.score,
+        startTime,
+        endTime,
+        audioUrl: null, // TODO: Store audio if needed
+      });
+    } else {
+      console.log('[Karaoke] Skipping DB storage (no DB available)');
+    }
     
     return c.json({
       success: true,
@@ -681,25 +717,42 @@ app.post('/complete', async (c) => {
   const body = await c.req.json();
   const { sessionId, fullAudioBuffer } = body;
   
+  console.log('[Karaoke] Complete session request:', { sessionId, hasAudio: !!fullAudioBuffer });
+  
   try {
-    const sessionService = new (await import('../services/session.service')).SessionService(c.env);
-    
-    // TODO: Store full audio if needed
-    const audioUrl = null;
-    
-    // Complete the session and calculate final score
-    const result = await sessionService.completeSession(sessionId, audioUrl);
-    
-    return c.json({
-      success: true,
-      finalScore: result.finalScore,
-      totalLines: result.totalLines,
-      perfectLines: result.perfectLines,
-      goodLines: result.goodLines,
-      needsWorkLines: result.needsWorkLines,
-      accuracy: result.accuracy,
-      sessionId: result.sessionId,
-    });
+    if (c.env.DB) {
+      const sessionService = new (await import('../services/session.service')).SessionService(c.env);
+      
+      // TODO: Store full audio if needed
+      const audioUrl = null;
+      
+      // Complete the session and calculate final score
+      const result = await sessionService.completeSession(sessionId, audioUrl);
+      
+      return c.json({
+        success: true,
+        finalScore: result.finalScore,
+        totalLines: result.totalLines,
+        perfectLines: result.perfectLines,
+        goodLines: result.goodLines,
+        needsWorkLines: result.needsWorkLines,
+        accuracy: result.accuracy,
+        sessionId: result.sessionId,
+      });
+    } else {
+      // Mock response for development
+      console.log('[Karaoke] Returning mock completion (no DB)');
+      return c.json({
+        success: true,
+        finalScore: 85,
+        totalLines: 10,
+        perfectLines: 3,
+        goodLines: 5,
+        needsWorkLines: 2,
+        accuracy: 85,
+        sessionId: sessionId,
+      });
+    }
   } catch (error) {
     console.error('[Karaoke] Error completing session:', error);
     return c.json({

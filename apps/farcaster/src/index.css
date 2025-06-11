@@ -1,4 +1,5 @@
-@import '@scarlett/ui/src/styles/globals.css';
+/* Import globals directly without alias */
+@import '../../packages/ui/src/styles/globals.css';
 
 /* Farcaster Mini App specific styles */
 :root {
