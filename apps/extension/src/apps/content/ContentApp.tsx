@@ -336,10 +336,11 @@ export const ContentApp: Component<ContentAppProps> = () => {
                         lyrics={karaokeData()?.lyrics?.lines || []}
                         currentTime={karaokeSession() ? karaokeSession()!.currentTime() : currentTime() * 1000}
                         leaderboard={[]}
-                        isPlaying={karaokeSession() ? karaokeSession()!.isPlaying() : (isPlaying() || countdown() !== null)}
+                        isPlaying={karaokeSession() ? (karaokeSession()!.isPlaying() || karaokeSession()!.countdown() !== null) : (isPlaying() || countdown() !== null)}
                         onStart={handleStart}
                         onSpeedChange={(speed) => console.log('[ContentApp] Speed changed:', speed)}
                         isRecording={karaokeSession() ? karaokeSession()!.isRecording() : false}
+                        lineScores={karaokeSession() ? karaokeSession()!.lineScores() : []}
                       />
                     </div>
                     

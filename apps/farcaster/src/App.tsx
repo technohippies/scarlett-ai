@@ -1,11 +1,50 @@
 import { createSignal, onMount, Show } from 'solid-js';
-import { sdk } from '@farcaster/frame-sdk';
-import type { FrameContext } from '@farcaster/frame-sdk';
+import sdk from '@farcaster/frame-sdk';
+import { FarcasterKaraokeView, type LyricLine, type LeaderboardEntry } from '@scarlett/ui';
 
 const App = () => {
   const [isLoading, setIsLoading] = createSignal(true);
-  const [context, setContext] = createSignal<FrameContext | null>(null);
-  const [credits, setCredits] = createSignal(100);
+  const [, setContext] = createSignal<any>(null);
+  const [credits] = createSignal(100);
+  const [currentTime, setCurrentTime] = createSignal(0);
+  const [isPlaying, setIsPlaying] = createSignal(false);
+  const [score] = createSignal(0);
+  const [rank] = createSignal(1);
+  
+  // Mock data for demo
+  const mockLyrics: LyricLine[] = [
+    { id: '1', text: "Is this the real life?", startTime: 0, duration: 2000 },
+    { id: '2', text: "Is this just fantasy?", startTime: 2000, duration: 2000 },
+    { id: '3', text: "Caught in a landslide", startTime: 4000, duration: 2000 },
+    { id: '4', text: "No escape from reality", startTime: 6000, duration: 2000 },
+    { id: '5', text: "Open your eyes", startTime: 8000, duration: 2000 },
+    { id: '6', text: "Look up to the skies and see", startTime: 10000, duration: 2000 },
+    { id: '7', text: "I'm just a poor boy", startTime: 12000, duration: 2000 },
+    { id: '8', text: "I need no sympathy", startTime: 14000, duration: 2000 },
+  ];
+  
+  const mockLeaderboard: LeaderboardEntry[] = [
+    { rank: 1, username: "alice.eth", score: 980 },
+    { rank: 2, username: "bob.eth", score: 945 },
+    { rank: 3, username: "carol.eth", score: 920 },
+    { rank: 4, username: "dave.eth", score: 890 },
+    { rank: 5, username: "eve.eth", score: 875 },
+  ];
+  
+  const handleStart = () => {
+    console.log('Starting karaoke session');
+    setIsPlaying(true);
+    // Simulate playback
+    let time = 0;
+    const interval = setInterval(() => {
+      time += 100;
+      setCurrentTime(time);
+      if (time > 16000) {
+        clearInterval(interval);
+        setIsPlaying(false);
+      }
+    }, 100);
+  };
   const [error, setError] = createSignal<string | null>(null);
 
   onMount(async () => {
@@ -18,7 +57,8 @@ const App = () => {
       
       if (inMiniApp) {
         // Get context
-        setContext(sdk.context);
+        const frameContext = await sdk.context;
+        setContext(frameContext);
         
         // Hide splash screen
         await sdk.actions.ready().catch(console.error);
@@ -36,7 +76,7 @@ const App = () => {
   });
 
   return (
-    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", "padding": "16px" }}>
+    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff" }}>
       <Show
         when={!isLoading()}
         fallback={
@@ -54,18 +94,31 @@ const App = () => {
             </div>
           }
         >
-          <div style={{ "max-width": "400px", "margin": "0 auto" }}>
-            <h1 style={{ "font-size": "32px", "font-weight": "bold", "margin-bottom": "16px" }}>Scarlett Karaoke</h1>
-            <div style={{ "background-color": "#1a1a1a", "padding": "16px", "border-radius": "8px", "margin-bottom": "16px" }}>
-              <p style={{ "color": "#a8a8a8", "margin-bottom": "8px" }}>User: {context()?.user?.username || 'Guest'}</p>
-              <p style={{ "color": "#a8a8a8" }}>Credits: {credits()}</p>
-            </div>
-            <div style={{ "background-color": "#1a1a1a", "padding": "16px", "border-radius": "8px" }}>
-              <h2 style={{ "font-size": "20px", "font-weight": "600", "margin-bottom": "8px" }}>Coming Soon</h2>
-              <p style={{ "color": "#a8a8a8" }}>
-                The full karaoke experience is being built. For now, this is a test interface.
-              </p>
-            </div>
+          <div style={{ height: '100vh', display: 'flex', 'flex-direction': 'column' }}>
+            <FarcasterKaraokeView
+              songTitle="Bohemian Rhapsody"
+              artist="Queen"
+              score={score()}
+              rank={rank()}
+              lyrics={mockLyrics}
+              currentTime={currentTime()}
+              leaderboard={mockLeaderboard}
+              isPlaying={isPlaying()}
+              onStart={handleStart}
+              onSpeedChange={(speed) => console.log('Speed:', speed)}
+              onBack={() => console.log('Back')}
+            />
+          </div>
+          <div style={{ 
+            position: 'absolute', 
+            top: '8px', 
+            right: '8px',
+            padding: '4px 8px',
+            "background-color": "rgba(26, 26, 26, 0.8)",
+            "border-radius": "4px",
+            "font-size": "14px"
+          }}>
+            Credits: {credits()}
           </div>
         </Show>
       </Show>

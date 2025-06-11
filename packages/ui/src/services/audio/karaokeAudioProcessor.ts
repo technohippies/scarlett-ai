@@ -4,7 +4,7 @@ import type { AudioProcessorOptions } from '../../types/karaoke';
 export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
   const [audioContext, setAudioContext] = createSignal<AudioContext | null>(null);
   const [mediaStream, setMediaStream] = createSignal<MediaStream | null>(null);
-  const [audioWorkletNode, setAudioWorkletNode] = createSignal<AudioWorkletNode | null>(null);
+  const [, setAudioWorkletNode] = createSignal<AudioWorkletNode | null>(null);
   
   const [isReady, setIsReady] = createSignal(false);
   const [error, setError] = createSignal<Error | null>(null);

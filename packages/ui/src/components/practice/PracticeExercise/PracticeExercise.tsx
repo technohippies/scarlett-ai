@@ -26,7 +26,7 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
   const [isRecording, setIsRecording] = createSignal(false);
   const [isProcessing, setIsProcessing] = createSignal(false);
   const [userTranscript, setUserTranscript] = createSignal('');
-  const [isCorrect, setIsCorrect] = createSignal<boolean | undefined>(undefined);
+  const [, setIsCorrect] = createSignal<boolean | undefined>(undefined);
   const [results, setResults] = createSignal<{ exerciseId: string; userResponse: string; isCorrect: boolean }[]>([]);
   
   const currentExercise = () => props.exercises[props.currentIndex];

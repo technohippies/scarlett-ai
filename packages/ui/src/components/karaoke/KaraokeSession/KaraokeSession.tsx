@@ -23,13 +23,13 @@ export const KaraokeSession: Component<KaraokeSessionProps> = (props) => {
   
   const [currentAudioTime, setCurrentAudioTime] = createSignal(0);
   const [isAudioPlaying, setIsAudioPlaying] = createSignal(false);
-  const [countdownSeconds, setCountdownSeconds] = createSignal<number | undefined>();
+  const [, setCountdownSeconds] = createSignal<number | undefined>();
   const [showCompletion, setShowCompletion] = createSignal(false);
   const [isAnalyzing, setIsAnalyzing] = createSignal(false);
   const [sessionResults, setSessionResults] = createSignal<SessionResults | null>(null);
   const [userBestScore, setUserBestScore] = createSignal<number | undefined>();
   const [isNewBestScore, setIsNewBestScore] = createSignal(false);
-  const [message, setMessage] = createSignal('');
+  const [, setMessage] = createSignal('');
   
   const getAudioElement = (): HTMLAudioElement | null => {
     return document.querySelector('#track');
@@ -155,8 +155,17 @@ export const KaraokeSession: Component<KaraokeSessionProps> = (props) => {
     
     try {
       const data = store.karaokeData();
-      const lines = data?.lyrics?.lines || [];
-      const line = lines[lineIndex];
+      const karaokeLines = data?.lyrics?.lines || [];
+      
+      // Convert KaraokeLine[] to LyricLine[]
+      const lines = karaokeLines.map(line => ({
+        id: String(line.id),
+        text: line.text,
+        startTime: line.timestamp,
+        duration: line.duration || 3000
+      }));
+      
+      lines[lineIndex];
       
       const chunkInfo = shouldChunkLines(lines, lineIndex);
       const isChunked = chunkInfo.endIndex > lineIndex;
@@ -420,7 +429,7 @@ export const KaraokeSession: Component<KaraokeSessionProps> = (props) => {
         lyrics={store.karaokeData()?.lyrics?.lines.map((line, index) => ({
           id: `line-${index}`,
           text: line.text,
-          startTime: line.timestamp,
+          startTime: line.timestamp / 1000, // Convert from milliseconds to seconds
           duration: line.duration || 3000,
         })) || []}
         currentTime={currentAudioTime()}

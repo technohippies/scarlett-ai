@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onCleanup } from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 import type { LyricLine } from '../components/karaoke/LyricsDisplay';
 import { createKaraokeAudioProcessor } from '../services/audio/karaokeAudioProcessor';
 import { shouldChunkLines, calculateRecordingDuration } from '../services/karaoke/chunkingUtils';
@@ -45,6 +45,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   const [currentChunk, setCurrentChunk] = createSignal<ChunkInfo | null>(null);
   const [isRecording, setIsRecording] = createSignal(false);
   const [audioElement, setAudioElement] = createSignal<HTMLAudioElement | undefined>(options.audioElement);
+  const [recordedChunks, setRecordedChunks] = createSignal<Set<number>>(new Set());
   
   let audioUpdateInterval: number | null = null;
   let recordingTimeout: number | null = null;
@@ -78,7 +79,11 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         console.log('[KaraokeSession] Creating session on server...');
         const response = await fetch(`${apiUrl}/karaoke/start`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          mode: 'cors',
           body: JSON.stringify({
             trackId: options.trackId,
             songData: options.songData
@@ -137,7 +142,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         checkForUpcomingLines(time);
       };
       
-      audioUpdateInterval = setInterval(updateTime, 100);
+      audioUpdateInterval = setInterval(updateTime, 100) as unknown as number;
       
       audio.addEventListener('ended', handleEnd);
     } else {
@@ -148,16 +153,27 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   const checkForUpcomingLines = (currentTimeMs: number) => {
     if (isRecording() || !options.lyrics.length) return;
     
+    const recorded = recordedChunks();
+    
     // Look for chunks that should start recording soon
     for (let i = 0; i < options.lyrics.length; i++) {
+      // Skip if we've already recorded a chunk starting at this index
+      if (recorded.has(i)) {
+        continue;
+      }
+      
       const chunk = shouldChunkLines(options.lyrics, i);
       const firstLine = options.lyrics[chunk.startIndex];
       
       if (firstLine && firstLine.startTime !== undefined) {
         const recordingStartTime = firstLine.startTime * 1000 - 1000; // Start 1s early
+        const lineStartTime = firstLine.startTime * 1000;
         
-        if (currentTimeMs >= recordingStartTime && currentTimeMs < firstLine.startTime * 1000) {
-          console.log(`[KaraokeSession] Time to start recording chunk ${i}: ${currentTimeMs}ms >= ${recordingStartTime}ms`);
+        // Check if we're in the recording window and haven't passed the line start
+        if (currentTimeMs >= recordingStartTime && currentTimeMs < lineStartTime + 500) { // Allow 500ms buffer after line start
+          console.log(`[KaraokeSession] Time to start recording chunk ${chunk.startIndex}-${chunk.endIndex}: ${currentTimeMs}ms is between ${recordingStartTime}ms and ${lineStartTime + 500}ms`);
+          // Mark this chunk as recorded
+          setRecordedChunks(prev => new Set(prev).add(chunk.startIndex));
           // Start recording this chunk
           startRecordingChunk(chunk);
           break;
@@ -179,11 +195,12 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     
     // Calculate recording duration
     const duration = calculateRecordingDuration(options.lyrics, chunk);
+    console.log(`[KaraokeSession] Recording duration for chunk ${chunk.startIndex}-${chunk.endIndex}: ${duration}ms`);
     
     // Stop recording after duration
     recordingTimeout = setTimeout(() => {
       stopRecordingChunk();
-    }, duration);
+    }, duration) as unknown as number;
   };
   
   const stopRecordingChunk = async () => {
@@ -200,20 +217,33 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     console.log(`[KaraokeSession] Audio blob created:`, {
       hasBlob: !!wavBlob,
       blobSize: wavBlob?.size,
+      chunksLength: audioChunks.length,
       hasSessionId: !!sessionId(),
       sessionId: sessionId()
     });
     
-    if (wavBlob && sessionId()) {
+    // Check if we have enough audio data
+    if (wavBlob && wavBlob.size > 1000 && sessionId()) { // Minimum 1KB of audio data
       // Convert to base64 for API
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64Audio = reader.result?.toString().split(',')[1];
-        if (base64Audio) {
+        if (base64Audio && base64Audio.length > 100) { // Ensure we have meaningful base64 data
           await gradeChunk(chunk, base64Audio);
+        } else {
+          console.warn('[KaraokeSession] Base64 audio too short, skipping grade');
         }
       };
       reader.readAsDataURL(wavBlob);
+    } else if (wavBlob && wavBlob.size <= 1000) {
+      console.warn('[KaraokeSession] Audio blob too small, skipping grade:', wavBlob.size, 'bytes');
+      // Add a neutral score for UI feedback
+      setLineScores(prev => [...prev, {
+        lineIndex: chunk.startIndex,
+        score: 50,
+        transcription: '',
+        feedback: 'Recording too short'
+      }]);
     } else if (wavBlob && !sessionId()) {
       console.warn('[KaraokeSession] Have audio but no session ID - cannot grade');
     }
@@ -243,6 +273,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     try {
       console.log('[KaraokeSession] Sending grade request...');
       const response = await fetch(`${apiUrl}/karaoke/grade`, {
+        mode: 'cors',
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -251,7 +282,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
           audioBuffer: audioBase64,
           expectedText: chunk.expectedText,
           startTime: options.lyrics[chunk.startIndex]?.startTime || 0,
-          endTime: options.lyrics[chunk.endIndex]?.endTime || 0
+          endTime: (options.lyrics[chunk.endIndex]?.startTime || 0) + (options.lyrics[chunk.endIndex]?.duration || 0)
         })
       });
       
@@ -271,6 +302,21 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         const scores = [...lineScores(), { lineIndex: chunk.startIndex, score: data.score, transcription: data.transcription }];
         const avgScore = scores.reduce((sum, s) => sum + s.score, 0) / scores.length;
         setScore(Math.round(avgScore));
+      } else {
+        const errorText = await response.text();
+        console.warn(`[KaraokeSession] Failed to grade chunk:`, response.status, errorText);
+        
+        // Handle specific errors gracefully
+        if (errorText.includes('Audio too short') || errorText.includes('audio too short')) {
+          console.log('[KaraokeSession] Audio was too short, skipping this chunk');
+          // Optionally add a neutral score or skip scoring for this chunk
+          setLineScores(prev => [...prev, {
+            lineIndex: chunk.startIndex,
+            score: 50, // Neutral score
+            transcription: '',
+            feedback: 'Audio recording was too short'
+          }]);
+        }
       }
     } catch (error) {
       console.error('[KaraokeSession] Failed to grade chunk:', error);
@@ -371,6 +417,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     setCountdown(null);
     setIsRecording(false);
     setCurrentChunk(null);
+    setRecordedChunks(new Set<number>());
     
     if (audioUpdateInterval) {
       clearInterval(audioUpdateInterval);

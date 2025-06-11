@@ -2,7 +2,6 @@ import { Show, For } from 'solid-js';
 import type { Component } from 'solid-js';
 import { Button } from '../../common/Button';
 import { Card } from '../../common/Card';
-import { ProgressBar } from '../../common/ProgressBar';
 import type { SessionResults } from '../../../types/karaoke';
 
 export interface KaraokeCompletionProps {

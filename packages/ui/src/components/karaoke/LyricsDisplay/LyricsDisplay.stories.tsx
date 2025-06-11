@@ -4,11 +4,11 @@ import { solidStory } from '../../../utils/storybook';
 
 const mockLyrics = [
   { id: '1', text: "Never gonna give you up", startTime: 0, duration: 3000 },
-  { id: '2', text: "Never gonna let you down", startTime: 3000, duration: 3000 },
-  { id: '3', text: "Never gonna run around and desert you", startTime: 6000, duration: 4000 },
-  { id: '4', text: "Never gonna make you cry", startTime: 10000, duration: 3000 },
-  { id: '5', text: "Never gonna say goodbye", startTime: 13000, duration: 3000 },
-  { id: '6', text: "Never gonna tell a lie and hurt you", startTime: 16000, duration: 4000 },
+  { id: '2', text: "Never gonna let you down", startTime: 3, duration: 3000 },
+  { id: '3', text: "Never gonna run around and desert you", startTime: 6, duration: 4000 },
+  { id: '4', text: "Never gonna make you cry", startTime: 10, duration: 3000 },
+  { id: '5', text: "Never gonna say goodbye", startTime: 13, duration: 3000 },
+  { id: '6', text: "Never gonna tell a lie and hurt you", startTime: 16, duration: 4000 },
 ];
 
 const meta: Meta<LyricsDisplayProps> = {
@@ -55,7 +55,7 @@ export const Idle: Story = {
 export const Playing: Story = {
   args: {
     lyrics: mockLyrics,
-    currentTime: 7000,
+    currentTime: 7000, // This stays in milliseconds as per the component API
     isPlaying: true,
   },
 };

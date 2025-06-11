@@ -75,14 +75,11 @@ function cleanLyricsText(text: string): string {
 
 function processSyncedLyrics(rawLyrics: any[]): any[] {
   const lyricsService = new LyricsService();
-  return lyricsService.processSyncedLyrics(rawLyrics);
+  // Temporarily disable merging to fix jumping issue
+  return lyricsService.processSyncedLyrics(rawLyrics, { disableMerging: true });
 }
 
-// OPTIONS handling for all karaoke endpoints
-app.options('/*', async (c) => {
-  // CORS headers are already set by global middleware
-  return new Response(null, { status: 204 });
-});
+// OPTIONS handled by global CORS middleware
 
 // Core karaoke endpoint - check if track has karaoke data
 app.get('/*', async (c) => {
@@ -337,7 +334,16 @@ app.get('/*', async (c) => {
       });
 
       // Process synced lyrics with timing improvements
-      formattedLyrics = processSyncedLyrics(rawLyrics).map((line, index) => ({
+      const processedLyrics = processSyncedLyrics(rawLyrics);
+      
+      // Log before and after processing to debug jumping issue
+      console.log('[Karaoke] Raw lyrics count:', rawLyrics.length);
+      console.log('[Karaoke] Processed lyrics count:', processedLyrics.length);
+      if (rawLyrics.length !== processedLyrics.length) {
+        console.log('[Karaoke] Lines were merged during processing');
+      }
+      
+      formattedLyrics = processedLyrics.map((line, index) => ({
         id: index,
         timestamp: line.timestamp,
         text: cleanLyricsText(line.text),
@@ -599,6 +605,8 @@ app.get('/*', async (c) => {
 
 // Start a new karaoke session
 app.post('/start', async (c) => {
+  console.log('[Karaoke] POST /start received');
+  
   const body = await c.req.json();
   const { trackId, songData } = body;
   
@@ -675,13 +683,13 @@ app.post('/grade', async (c) => {
     
     // Get STT transcription
     const sttService = new (await import('../services/stt.service')).STTService(c.env);
-    const transcription = await sttService.transcribe(audioData);
+    const transcription = await sttService.transcribeAudio(audioData);
     console.log('[Karaoke] STT transcription:', transcription);
     
     // Grade the transcription
     const scoringService = new (await import('../services/scoring.service')).ScoringService();
-    const score = scoringService.calculateScore(expectedText, transcription);
-    console.log('[Karaoke] Score calculated:', score);
+    const scoreResult = scoringService.calculateKaraokeScore(expectedText, transcription.transcript);
+    console.log('[Karaoke] Score calculated:', scoreResult);
     
     // Record the line score if DB available
     if (c.env.DB) {
@@ -690,8 +698,8 @@ app.post('/grade', async (c) => {
         sessionId,
         lineIndex,
         expectedText,
-        actualText: transcription,
-        score: score.score,
+        actualText: transcription.transcript,
+        score: scoreResult.finalScore,
         startTime,
         endTime,
         audioUrl: null, // TODO: Store audio if needed
@@ -700,12 +708,20 @@ app.post('/grade', async (c) => {
       console.log('[Karaoke] Skipping DB storage (no DB available)');
     }
     
+    // Generate feedback
+    const feedback = scoringService.generateFeedback(
+      scoreResult.finalScore,
+      expectedText,
+      transcription.transcript,
+      1 // attempt number, could be tracked per session
+    );
+    
     return c.json({
       success: true,
-      score: score.score,
-      transcription,
-      feedback: score.feedback,
-      details: score.details,
+      score: scoreResult.finalScore,
+      transcription: transcription.transcript,
+      feedback: feedback,
+      wordScores: scoreResult.wordScores,
     });
   } catch (error) {
     console.error('[Karaoke] Error grading recording:', error);

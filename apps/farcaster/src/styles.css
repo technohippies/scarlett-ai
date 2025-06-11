@@ -1,0 +1,181 @@
+/* Temporary styles for Farcaster app */
+
+/* Component styles */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-1 { flex: 1; }
+.h-full { height: 100%; }
+.min-h-0 { min-height: 0; }
+.overflow-hidden { overflow: hidden; }
+.overflow-y-auto { overflow-y: auto; }
+
+/* Spacing */
+.p-4 { padding: 1rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+.space-y-8 > * + * { margin-top: 2rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+
+/* Text */
+.text-center { text-align: center; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.font-semibold { font-weight: 600; }
+.leading-relaxed { line-height: 1.625; }
+
+/* Borders */
+.border-b { border-bottom-width: 1px; }
+.border-t { border-top-width: 1px; }
+.border-subtle { border-color: var(--color-subtle); }
+
+/* Colors */
+.bg-base { background-color: var(--color-base); }
+.bg-surface { background-color: var(--color-surface); }
+.bg-surface-hover { background-color: #2a2a2a; }
+.bg-accent-primary { background-color: var(--color-accent-primary); }
+.hover\:bg-surface-hover:hover { background-color: #2a2a2a; }
+
+/* Opacity */
+.opacity-60 { opacity: 0.6; }
+
+/* Transitions */
+.transition-all { transition-property: all; }
+.transition-colors { transition-property: background-color, border-color, color, fill, stroke; }
+.duration-300 { transition-duration: 300ms; }
+
+/* Transform */
+.scale-110 { transform: scale(1.1); }
+
+/* Layout */
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.rounded-lg { border-radius: 0.5rem; }
+
+/* Custom component styles */
+.score-panel {
+  background-color: var(--color-surface);
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid var(--color-subtle);
+}
+
+.score-display {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--color-accent-primary);
+  margin: 0.5rem 0;
+}
+
+.rank-display {
+  font-size: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+/* Tabs */
+.tabs-list {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-subtle);
+}
+
+.tab-trigger {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-trigger:hover {
+  color: var(--color-text-primary);
+}
+
+.tab-trigger[data-state="active"] {
+  color: var(--color-accent-primary);
+  border-bottom-color: var(--color-accent-primary);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content[data-state="active"] {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+/* Karaoke header */
+.karaoke-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: var(--color-surface);
+}
+
+/* Split button */
+.split-button {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.split-button button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.split-button .primary {
+  background-color: var(--color-accent-primary);
+  color: white;
+}
+
+.split-button .primary:hover {
+  background-color: var(--color-accent-secondary);
+}
+
+.split-button .secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-subtle);
+}
+
+/* Leaderboard */
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+/* Lyrics display */
+.lyrics-display {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-subtle) transparent;
+}
+
+.lyrics-display::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lyrics-display::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lyrics-display::-webkit-scrollbar-thumb {
+  background-color: var(--color-subtle);
+  border-radius: 2px;
+}

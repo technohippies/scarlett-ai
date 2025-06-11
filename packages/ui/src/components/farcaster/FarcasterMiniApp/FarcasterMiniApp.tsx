@@ -5,7 +5,6 @@ import { UserProfile } from '../UserProfile';
 import { CreditPack } from '../CreditPack';
 import { WalletConnect } from '../WalletConnect';
 import { FarcasterKaraokeView } from '../../karaoke/FarcasterKaraokeView';
-import { Button } from '../../common/Button';
 import type { LyricLine } from '../../karaoke/LyricsDisplay';
 import type { LeaderboardEntry } from '../../karaoke/LeaderboardPanel';
 
@@ -40,16 +39,16 @@ export const FarcasterMiniApp: Component<FarcasterMiniAppProps> = (props) => {
   
   // Mock data for demo
   const mockLyrics: LyricLine[] = [
-    { text: "Is this the real life?", start: 0, end: 2000 },
-    { text: "Is this just fantasy?", start: 2000, end: 4000 },
-    { text: "Caught in a landslide", start: 4000, end: 6000 },
-    { text: "No escape from reality", start: 6000, end: 8000 },
+    { id: '1', text: "Is this the real life?", startTime: 0, duration: 2000 },
+    { id: '2', text: "Is this just fantasy?", startTime: 2000, duration: 2000 },
+    { id: '3', text: "Caught in a landslide", startTime: 4000, duration: 2000 },
+    { id: '4', text: "No escape from reality", startTime: 6000, duration: 2000 },
   ];
   
   const mockLeaderboard: LeaderboardEntry[] = [
-    { rank: 1, name: "alice", score: 980, fid: 1234 },
-    { rank: 2, name: "bob", score: 945, fid: 5678 },
-    { rank: 3, name: "carol", score: 920, fid: 9012 },
+    { rank: 1, username: "alice", score: 980 },
+    { rank: 2, username: "bob", score: 945 },
+    { rank: 3, username: "carol", score: 920 },
   ];
 
   const creditPacks = [

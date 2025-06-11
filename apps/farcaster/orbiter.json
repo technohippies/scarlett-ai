@@ -1,5 +1,6 @@
 {
   "buildCommand": "bun run build",
   "buildDir": "dist",
-  "domain": "scarlett-karaoke.orbiter.website"
+  "domain": "scarlett-karaoke",
+  "siteId": "f158b609-d7ae-4d5e-91a7-1b18f87a5b76"
 }

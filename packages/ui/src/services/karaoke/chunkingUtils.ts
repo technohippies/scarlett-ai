@@ -1,4 +1,5 @@
-import type { KaraokeLine, ChunkInfo } from '../../types/karaoke';
+import type { ChunkInfo } from '../../types/karaoke';
+import type { LyricLine } from '../../components/karaoke/LyricsDisplay';
 
 const MIN_WORDS = 8;
 const MAX_WORDS = 15;
@@ -12,7 +13,7 @@ export function countWords(text: string): number {
 }
 
 export function shouldChunkLines(
-  lines: KaraokeLine[],
+  lines: LyricLine[],
   startIndex: number
 ): ChunkInfo {
   let totalWords = 0;
@@ -45,7 +46,7 @@ export function shouldChunkLines(
 }
 
 export function calculateRecordingDuration(
-  lines: KaraokeLine[],
+  lines: LyricLine[],
   chunkInfo: ChunkInfo
 ): number {
   const { startIndex, endIndex } = chunkInfo;
@@ -54,29 +55,26 @@ export function calculateRecordingDuration(
   if (!line) return 3000;
 
   if (endIndex > startIndex) {
-    const lastLine = lines[endIndex];
-    
-    if (lastLine && line.recordingStart && lastLine.recordingEnd) {
-      return lastLine.recordingEnd - line.recordingStart;
-    } else if (endIndex + 1 < lines.length) {
+    if (endIndex + 1 < lines.length) {
       const nextLine = lines[endIndex + 1];
       if (nextLine) {
-        return nextLine.timestamp - line.timestamp;
+        // Convert seconds to milliseconds
+        return (nextLine.startTime - line.startTime) * 1000;
       }
     }
     
     let duration = 0;
     for (let i = startIndex; i <= endIndex; i++) {
+      // duration is already in milliseconds
       duration += lines[i]?.duration || 3000;
     }
     return Math.min(duration, 8000);
   } else {
-    if (line.recordingStart && line.recordingEnd) {
-      return line.recordingEnd - line.recordingStart;
-    } else if (startIndex + 1 < lines.length) {
+    if (startIndex + 1 < lines.length) {
       const nextLine = lines[startIndex + 1];
       if (nextLine) {
-        const calculatedDuration = nextLine.timestamp - line.timestamp;
+        // Convert seconds to milliseconds
+        const calculatedDuration = (nextLine.startTime - line.startTime) * 1000;
         return Math.min(Math.max(calculatedDuration, 1000), 5000);
       }
     }

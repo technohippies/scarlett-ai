@@ -36,6 +36,15 @@ export async function corsHeaders(c: Context, next: Next): Promise<void | Respon
   } else {
     c.header('Access-Control-Allow-Origin', config.cors.origins[0]);
   }
+  
+  // Debug logging
+  console.log('[CORS] Request:', {
+    method: c.req.method,
+    path: c.req.path,
+    origin,
+    isAllowed,
+    headers: c.req.header()
+  });
 
   c.header('Access-Control-Allow-Methods', config.cors.methods.join(', '));
   c.header('Access-Control-Allow-Headers', config.cors.headers.join(', '));
@@ -46,7 +55,18 @@ export async function corsHeaders(c: Context, next: Next): Promise<void | Respon
   }
 
   if (c.req.method === 'OPTIONS') {
-    return new Response(null, { status: 204 });
+    console.log('[CORS] Handling OPTIONS request');
+    // Return a response with all the headers already set
+    return new Response(null, { 
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': origin && isAllowed ? origin : config.cors.origins[0],
+        'Access-Control-Allow-Methods': config.cors.methods.join(', '),
+        'Access-Control-Allow-Headers': config.cors.headers.join(', '),
+        'Access-Control-Max-Age': '86400',
+        ...(config.cors.credentials && { 'Access-Control-Allow-Credentials': 'true' })
+      }
+    });
   }
 
   await next();

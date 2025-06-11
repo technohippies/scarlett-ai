@@ -42,14 +42,14 @@ export default meta;
 type Story = StoryObj<FarcasterKaraokeViewProps>;
 
 const sampleLyrics: LyricLine[] = [
-  { id: '1', text: "Is this the real life?", startTime: 0, duration: 3 },
-  { id: '2', text: "Is this just fantasy?", startTime: 3, duration: 3 },
-  { id: '3', text: "Caught in a landslide", startTime: 6, duration: 3 },
-  { id: '4', text: "No escape from reality", startTime: 9, duration: 4 },
-  { id: '5', text: "Open your eyes", startTime: 13, duration: 3 },
-  { id: '6', text: "Look up to the skies and see", startTime: 16, duration: 5 },
-  { id: '7', text: "I'm just a poor boy", startTime: 21, duration: 3 },
-  { id: '8', text: "I need no sympathy", startTime: 24, duration: 3 },
+  { id: '1', text: "Is this the real life?", startTime: 0, duration: 3000 },
+  { id: '2', text: "Is this just fantasy?", startTime: 3, duration: 3000 },
+  { id: '3', text: "Caught in a landslide", startTime: 6, duration: 3000 },
+  { id: '4', text: "No escape from reality", startTime: 9, duration: 4000 },
+  { id: '5', text: "Open your eyes", startTime: 13, duration: 3000 },
+  { id: '6', text: "Look up to the skies and see", startTime: 16, duration: 5000 },
+  { id: '7', text: "I'm just a poor boy", startTime: 21, duration: 3000 },
+  { id: '8', text: "I need no sympathy", startTime: 24, duration: 3000 },
 ];
 
 const sampleLeaderboard: LeaderboardEntry[] = [

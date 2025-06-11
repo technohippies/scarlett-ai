@@ -126,7 +126,7 @@ export class LyricsService {
     }
   }
 
-  processSyncedLyrics(lyrics: LRCLine[]): LyricsLine[] {
+  processSyncedLyrics(lyrics: LRCLine[], options?: { disableMerging?: boolean }): LyricsLine[] {
     const processed: LyricsLine[] = [];
 
     for (let i = 0; i < lyrics.length; i++) {
@@ -155,6 +155,11 @@ export class LyricsService {
       });
     }
 
+    // Only merge short lines if not disabled
+    if (options?.disableMerging) {
+      return processed;
+    }
+    
     // Merge short lines for better UX
     return this.mergeShortLines(processed);
   }

@@ -1,4 +1,5 @@
-import { Component, createSignal, onMount } from 'solid-js';
+import type { Component } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { 
   FarcasterKaraokeView, 
   Countdown, 
@@ -17,14 +18,14 @@ interface FarcasterKaraokeProps {
 
 export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const audioService = new WebAudioService(props.songUrl);
+  const [score] = createSignal(0);
+  const [rank] = createSignal(1);
   
   const {
     isPlaying,
     currentTime,
-    score,
     countdown,
-    startSession,
-    stopSession
+    startSession
   } = useKaraokeSession({
     lyrics: props.lyrics,
     audioElement: audioService.findAudioElement(),
@@ -37,17 +38,15 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   return (
     <div class="relative h-full">
       <FarcasterKaraokeView
-        track={{
-          trackId: props.trackId,
-          title: props.title,
-          artist: props.artist,
-          platform: 'farcaster',
-          url: ''
-        }}
+        songTitle={props.title}
+        artist={props.artist}
+        score={score()}
+        rank={rank()}
         lyrics={props.lyrics}
         currentTime={currentTime()}
         isPlaying={isPlaying()}
         onStart={startSession}
+        leaderboard={[]}
       />
       
       {/* Shared countdown component */}

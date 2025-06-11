@@ -1,5 +1,5 @@
 import type { Component } from 'solid-js';
-import { Show, createSignal } from 'solid-js';
+import { Show } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import { Button } from '../../common/Button';
 

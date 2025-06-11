@@ -44,3 +44,6 @@ export * from './farcaster/CreditPack';
 export * from './farcaster/WalletConnect';
 export * from './farcaster/UserProfile';
 export * from './farcaster/FarcasterMiniApp';
+
+// Page Components
+export * from './pages/HomePage';

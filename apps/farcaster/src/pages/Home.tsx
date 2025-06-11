@@ -1,11 +1,11 @@
-import { Component, createSignal, Show } from 'solid-js';
-import { FarcasterKaraokeView } from '@scarlett/ui';
-import type { FrameContext } from '@farcaster/frame-sdk';
+import type { Component } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
+import { FarcasterKaraokeView, type LyricLine } from '@scarlett/ui';
 import { CreditPacks } from '../components/CreditPacks';
 import { UserHeader } from '../components/UserHeader';
 
 interface HomeProps {
-  context: FrameContext | null;
+  context: any;
 }
 
 export const Home: Component<HomeProps> = (props) => {
@@ -18,11 +18,11 @@ export const Home: Component<HomeProps> = (props) => {
     artist: "Queen"
   };
   
-  const mockLyrics = [
-    { text: "Is this the real life?", start: 0, end: 2000 },
-    { text: "Is this just fantasy?", start: 2000, end: 4000 },
-    { text: "Caught in a landslide", start: 4000, end: 6000 },
-    { text: "No escape from reality", start: 6000, end: 8000 },
+  const mockLyrics: LyricLine[] = [
+    { id: '1', text: "Is this the real life?", startTime: 0, duration: 2000 },
+    { id: '2', text: "Is this just fantasy?", startTime: 2000, duration: 2000 },
+    { id: '3', text: "Caught in a landslide", startTime: 4000, duration: 2000 },
+    { id: '4', text: "No escape from reality", startTime: 6000, duration: 2000 },
   ];
 
   const handlePurchaseCredits = (amount: number) => {
@@ -68,8 +68,10 @@ export const Home: Component<HomeProps> = (props) => {
           }
         >
           <FarcasterKaraokeView
-            song={mockSong}
-            scores={{ score: 0, rank: 1 }}
+            songTitle={mockSong.title}
+            artist={mockSong.artist}
+            score={0}
+            rank={1}
             lyrics={mockLyrics}
             currentTime={0}
             leaderboard={[]}

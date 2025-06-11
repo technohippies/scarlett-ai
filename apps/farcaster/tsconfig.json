@@ -19,8 +19,5 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*"],
-  "references": [
-    { "path": "../../packages/ui" }
-  ]
+  "include": ["src/**/*"]
 }
