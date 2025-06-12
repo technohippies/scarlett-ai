@@ -40,10 +40,27 @@ export class STTService {
   ): Promise<TranscriptionResult> {
     const errors: Array<{ service: string; error: any }> = [];
     
-    // Try ElevenLabs first with timeout
+    // Try Deepgram first since it's faster
+    if (this.env.DEEPGRAM_API_KEY) {
+      try {
+        console.log('[STT] Trying Deepgram first (faster)');
+        const result = await this.withTimeout(
+          this.transcribeWithDeepgram(audioData, expectedText),
+          this.DEEPGRAM_TIMEOUT,
+          'Deepgram timeout'
+        );
+        console.log('[STT] Deepgram succeeded');
+        return result;
+      } catch (error) {
+        console.error('[STT] Deepgram error:', error);
+        errors.push({ service: 'Deepgram', error });
+      }
+    }
+    
+    // Fallback to ElevenLabs if Deepgram fails
     if (this.env.ELEVENLABS_API_KEY) {
       try {
-        console.log('[STT] Trying ElevenLabs with timeout of', this.ELEVENLABS_TIMEOUT, 'ms');
+        console.log('[STT] Falling back to ElevenLabs with timeout of', this.ELEVENLABS_TIMEOUT, 'ms');
         const result = await this.withTimeout(
           this.transcribeWithElevenLabs(audioData),
           this.ELEVENLABS_TIMEOUT,
@@ -57,27 +74,11 @@ export class STTService {
         
         // If it was a timeout, log that specifically
         if (error instanceof Error && error.message.includes('timeout')) {
-          console.log('[STT] ElevenLabs timed out, falling back to Deepgram');
+          console.log('[STT] ElevenLabs timed out');
         }
       }
     }
 
-    // Fallback to Deepgram
-    if (this.env.DEEPGRAM_API_KEY) {
-      try {
-        console.log('[STT] Falling back to Deepgram');
-        const result = await this.withTimeout(
-          this.transcribeWithDeepgram(audioData, expectedText),
-          this.DEEPGRAM_TIMEOUT,
-          'Deepgram timeout'
-        );
-        console.log('[STT] Deepgram succeeded');
-        return result;
-      } catch (error) {
-        console.error('[STT] Deepgram error:', error);
-        errors.push({ service: 'Deepgram', error });
-      }
-    }
 
     // If all services failed, throw a descriptive error
     const errorSummary = errors.map(e => `${e.service}: ${e.error.message || e.error}`).join('; ');
@@ -122,7 +123,6 @@ export class STTService {
       alternatives: '1',
     });
     
-    console.log('[STT] Deepgram params:', params.toString());
 
     // Add keywords for better accuracy with intensifiers
     if (expectedText) {
@@ -131,7 +131,6 @@ export class STTService {
         // Add keywords with moderate intensifier for better recognition
         const keywordsWithIntensifier = keywords.map(k => `${k}:2`).join(',');
         params.append('keywords', keywordsWithIntensifier);
-        console.log('[STT] Deepgram keywords:', keywords);
       }
     }
 
