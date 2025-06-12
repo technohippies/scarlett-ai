@@ -6,7 +6,7 @@ import { KaraokeApiService } from '../../../services/karaoke/karaokeApi';
 import { shouldChunkLines, calculateRecordingDuration } from '../../../services/karaoke/chunkingUtils';
 import { LyricsDisplay } from '../LyricsDisplay';
 import { KaraokeCompletion } from '../KaraokeCompletion';
-import type { SessionResults } from '../../../types/karaoke';
+import type { SessionResults } from '@scarlett/core';
 
 export interface KaraokeSessionProps {
   trackId: string;

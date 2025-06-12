@@ -16,10 +16,7 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   };
 }
 
-export interface ApiError extends Error {
-  statusCode: number;
-  code?: string;
-}
+// ApiError is exported from errors.ts
 
 // Farcaster API Types
 export interface DemoTokenResponse {

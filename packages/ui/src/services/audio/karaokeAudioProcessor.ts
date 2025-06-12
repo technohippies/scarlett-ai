@@ -1,5 +1,5 @@
 import { createSignal, onCleanup } from 'solid-js';
-import type { AudioProcessorOptions } from '../../types/karaoke';
+import type { AudioProcessorOptions } from '@scarlett/core';
 
 export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
   const [audioContext, setAudioContext] = createSignal<AudioContext | null>(null);

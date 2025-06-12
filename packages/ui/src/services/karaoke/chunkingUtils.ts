@@ -1,4 +1,4 @@
-import type { ChunkInfo } from '../../types/karaoke';
+import type { ChunkInfo } from '@scarlett/core';
 import type { LyricLine } from '../../components/karaoke/LyricsDisplay';
 
 export function countWords(text: string): number {

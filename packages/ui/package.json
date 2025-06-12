@@ -16,6 +16,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@scarlett/core": "workspace:*",
     "@solid-primitives/i18n": "^2.2.1",
     "clsx": "^2.1.1",
     "motion": "^12.16.0",

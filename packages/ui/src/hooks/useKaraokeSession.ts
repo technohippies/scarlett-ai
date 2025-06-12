@@ -3,7 +3,7 @@ import type { LyricLine } from '../components/karaoke/LyricsDisplay';
 import { createKaraokeAudioProcessor } from '../services/audio/karaokeAudioProcessor';
 import { shouldChunkLines, calculateRecordingDuration } from '../services/karaoke/chunkingUtils';
 import { KaraokeApiService } from '../services/karaoke/karaokeApi';
-import type { ChunkInfo } from '../types/karaoke';
+import type { ChunkInfo } from '@scarlett/core';
 import type { PlaybackSpeed } from '../components/common/SplitButton';
 
 export interface UseKaraokeSessionOptions {

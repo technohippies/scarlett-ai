@@ -1,5 +1,5 @@
 import { createSignal, createMemo } from 'solid-js';
-import type { KaraokeData, KaraokeSession, LineScore, WordTiming } from '../types/karaoke';
+import type { KaraokeData, KaraokeSession, LineScore, WordTiming } from '@scarlett/core';
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'no-karaoke';
 

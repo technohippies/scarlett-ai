@@ -14,8 +14,7 @@ export type { UseKaraokeSessionOptions, KaraokeResults } from './hooks/useKaraok
 // Services
 export * from './services'
 
-// Types - export everything including LineScore
-export * from './types/karaoke'
+// Types are now exported from @scarlett/core
 
 // I18n
 export { I18nProvider } from './i18n'

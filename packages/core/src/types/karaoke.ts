@@ -95,6 +95,18 @@ export interface RecordingChunk {
   endTime: number;
 }
 
+export interface ChunkInfo {
+  startIndex: number;
+  endIndex: number;
+  expectedText: string;
+  wordCount: number;
+}
+
+export interface AudioProcessorOptions {
+  sampleRate?: number;
+  onLineProcessed?: (lineIndex: number, audioBlob: Blob | null) => void;
+}
+
 export interface SessionCompletionData {
   score: number;
   accuracy: number;

@@ -1,4 +1,4 @@
-import type { KaraokeData, KaraokeSession, LineScore, SessionResults } from '../../types/karaoke';
+import type { KaraokeData, KaraokeSession, LineScore, SessionResults } from '@scarlett/core';
 
 export class KaraokeApiService {
   constructor(private serverUrl: string = import.meta.env.VITE_API_URL || 'http://localhost:8787') {}

@@ -6,20 +6,7 @@ import { PracticeHeader } from '../PracticeHeader';
 import { ExerciseTemplate } from '../ExerciseTemplate';
 import { ExerciseFooter } from '../ExerciseFooter';
 import { ResponseFooter } from '../ResponseFooter';
-
-export interface Exercise {
-  id: string;
-  type: 'read_aloud';
-  full_line: string;
-  focus_words: string[];
-  card_ids: string[];
-  song_context: {
-    title: string;
-    artist: string;
-    song_id: string;
-    line_index: number;
-  };
-}
+import type { ReadAloudExercise as Exercise } from '@scarlett/core';
 
 export interface PracticeExerciseViewProps {
   sessionId?: string;

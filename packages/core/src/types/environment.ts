@@ -2,7 +2,7 @@
 
 export interface Env {
   // Bindings
-  DB: D1Database;
+  DB: any; // D1Database from Cloudflare Workers
   
   // Environment variables
   ENVIRONMENT: 'development' | 'production' | 'test';

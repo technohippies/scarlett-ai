@@ -13,5 +13,8 @@
     "noEmit": true
   },
   "include": ["src/**/*", ".storybook/**/*"],
-  "exclude": ["node_modules", "dist", ".next"]
+  "exclude": ["node_modules", "dist", ".next"],
+  "references": [
+    { "path": "../core" }
+  ]
 }
