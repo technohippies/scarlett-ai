@@ -86,7 +86,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       artist: props.artist
     },
     songCatalogId: props.songCatalogId,
-    apiUrl: 'http://localhost:8787/api',
+    apiUrl: 'http://localhost:8787',
     onComplete: (results) => {
       setCompletionData(results);
       setViewState('completion');
