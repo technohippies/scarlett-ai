@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "description": "Unified API client for Scarlett",
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./src/index.ts"
     }
   },
   "scripts": {

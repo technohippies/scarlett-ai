@@ -3,22 +3,24 @@
   "version": "0.0.1",
   "description": "Core business logic and shared types for Scarlett",
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./src/index.ts"
     },
     "./types": {
       "types": "./dist/types/index.d.ts",
-      "import": "./dist/types/index.js"
+      "import": "./src/types/index.ts"
     },
     "./services": {
       "types": "./dist/services/index.d.ts",
-      "import": "./dist/services/index.js"
+      "import": "./src/services/index.ts"
     },
     "./models": {
       "types": "./dist/models/index.d.ts",
-      "import": "./dist/models/index.js"
+      "import": "./src/models/index.ts"
     }
   },
   "scripts": {
