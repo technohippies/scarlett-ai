@@ -257,7 +257,6 @@ app.get('/*', async (c) => {
         for (const artist of artistVariations) {
           if (!title || !artist) continue;
           
-          console.log(`[Karaoke] Trying: "${title}" by "${artist}"`);
           
           try {
             // Skip cache for direct searches to avoid missing valid results
@@ -709,7 +708,6 @@ app.post('/grade', async (c) => {
   const body = await c.req.json();
   const { sessionId, lineIndex, audioBuffer, expectedText, startTime, endTime } = body;
   
-  console.log('[Karaoke] Grading request for line', lineIndex);
   
   try {
     // Convert base64 audio to buffer
@@ -719,7 +717,6 @@ app.post('/grade', async (c) => {
     // Get STT transcription
     const sttService = new (await import('../services/stt.service')).STTService(c.env);
     const transcription = await sttService.transcribeAudio(audioData);
-    console.log('[Karaoke] STT transcription:', transcription.transcript);
     
     // Grade the transcription
     const scoringService = new (await import('../services/scoring.service')).ScoringService();
@@ -749,13 +746,7 @@ app.post('/grade', async (c) => {
       // Skipping DB storage (no DB available)
     }
     
-    // Log scoring details for debugging
-    console.log('[Karaoke] Scoring details:', {
-      expectedText,
-      transcript: transcription.transcript,
-      score: scoreResult.finalScore,
-      wordScores: scoreResult.wordScores
-    });
+    // Scoring complete
     
     return c.json({
       success: true,
@@ -796,11 +787,6 @@ app.post('/complete', async (c) => {
   const body = await c.req.json();
   const { sessionId, fullAudioBuffer } = body;
   
-  console.log('[Karaoke] Complete session request:', {
-    hasSessionId: !!sessionId,
-    hasFullAudio: !!fullAudioBuffer,
-    audioLength: fullAudioBuffer?.length
-  });
   
   try {
     let finalScore = 0;
@@ -809,7 +795,6 @@ app.post('/complete', async (c) => {
     // Process full audio with ElevenLabs if provided
     if (fullAudioBuffer && c.env.ELEVENLABS_API_KEY) {
       try {
-        console.log('[Karaoke] Processing full session audio with ElevenLabs');
         
         // Convert base64 to Uint8Array
         const audioData = Uint8Array.from(atob(fullAudioBuffer), c => c.charCodeAt(0));
@@ -821,7 +806,6 @@ app.post('/complete', async (c) => {
         const transcriptionResult = await sttService.transcribeAudio(audioData);
         elevenLabsTranscript = transcriptionResult.transcript;
         
-        console.log('[Karaoke] ElevenLabs full session transcript:', elevenLabsTranscript);
         
         // TODO: Implement full session scoring logic
         // For now, use the confidence as a basis for the score

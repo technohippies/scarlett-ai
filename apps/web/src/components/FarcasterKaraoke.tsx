@@ -47,25 +47,48 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const audioUrl = getAudioUrl();
   
   // Create audio element with the actual URL
-  const audio = new Audio();
+  const [audio] = createSignal(new Audio());
   
-  // Set the source immediately if we have a URL
-  if (audioUrl) {
-    audio.src = audioUrl;
-    // Don't set crossOrigin for local proxy as it handles CORS
-    if (!audioUrl.includes('localhost')) {
-      audio.crossOrigin = 'anonymous';
+  // Initialize audio element
+  onMount(() => {
+    const audioElement = audio();
+    
+    if (audioUrl) {
+      // Add error handler first
+      audioElement.addEventListener('error', (e) => {
+        console.error('[FarcasterKaraoke] Audio error:', {
+          error: audioElement.error,
+          src: audioElement.src,
+          readyState: audioElement.readyState,
+          networkState: audioElement.networkState
+        });
+        
+        // Try to handle specific error types
+        if (audioElement.error?.code === MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED) {
+          console.error('[FarcasterKaraoke] Audio format not supported');
+        }
+      });
+      
+      // Add loadeddata handler
+      audioElement.addEventListener('loadeddata', () => {
+        console.log('[FarcasterKaraoke] Audio loaded successfully');
+      });
+      
+      // Set source after handlers are attached
+      audioElement.src = audioUrl;
+      
+      // Don't set crossOrigin for local proxy as it handles CORS
+      if (!audioUrl.includes('localhost')) {
+        audioElement.crossOrigin = 'anonymous';
+      }
+      
+      // Preload the audio
+      audioElement.preload = 'auto';
+      
+      // Set the audio element in the karaoke session
+      setAudioElement(audioElement);
     }
-    
-    // Add error handler
-    audio.addEventListener('error', (e) => {
-      console.error('[FarcasterKaraoke] Audio error:', e, audio.error);
-    });
-    
-    // Add loadeddata handler
-    audio.addEventListener('loadeddata', () => {
-    });
-  }
+  });
   
   
   const {
@@ -76,10 +99,11 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     stopSession,
     score: sessionScore,
     lineScores,
-    handleSpeedChange
+    handleSpeedChange,
+    setAudioElement
   } = useKaraokeSession({
     lyrics: props.lyrics,
-    audioElement: audio,
+    audioElement: undefined, // Will be set after mount
     trackId: props.trackId,
     songData: {
       title: props.title,
