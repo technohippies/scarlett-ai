@@ -15,6 +15,7 @@
   "include": ["src/**/*", ".storybook/**/*"],
   "exclude": ["node_modules", "dist", ".next"],
   "references": [
-    { "path": "../core" }
+    { "path": "../core" },
+    { "path": "../api-client" }
   ]
 }

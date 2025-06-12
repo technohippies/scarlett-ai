@@ -39,9 +39,9 @@ export class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     try {
-      const headers: HeadersInit = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(options.headers as Record<string, string> || {}),
       };
 
       // Add auth token if available
@@ -62,7 +62,7 @@ export class ApiClient {
         throw new Error(`API Error ${response.status}: ${error}`);
       }
 
-      return await response.json();
+      return await response.json() as T;
     } catch (error) {
       if (this.onError) {
         this.onError(error as Error);

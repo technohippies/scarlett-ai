@@ -157,6 +157,7 @@
       "name": "@scarlett/ui",
       "version": "0.0.1",
       "dependencies": {
+        "@scarlett/api-client": "workspace:*",
         "@scarlett/core": "workspace:*",
         "@solid-primitives/i18n": "^2.2.1",
         "clsx": "^2.1.1",
