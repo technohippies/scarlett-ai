@@ -673,7 +673,7 @@ app.post('/start', async (c) => {
       
       return c.json({
         success: true,
-        session: {
+        data: {
           id: session.id,
           trackId: session.trackId,
           status: session.status,
@@ -687,7 +687,7 @@ app.post('/start', async (c) => {
       
       return c.json({
         success: true,
-        session: {
+        data: {
           id: sessionId,
           trackId: trackId,
           status: 'active',
@@ -759,10 +759,12 @@ app.post('/grade', async (c) => {
     
     return c.json({
       success: true,
-      score: scoreResult.finalScore,
-      transcription: transcription.transcript,
-      feedback: feedback,
-      wordScores: scoreResult.wordScores,
+      data: {
+        score: scoreResult.finalScore,
+        transcript: transcription.transcript,
+        feedback: feedback,
+        wordScores: scoreResult.wordScores,
+      }
     });
   } catch (error) {
     console.error('[Karaoke] Error grading recording:', error);
@@ -772,10 +774,12 @@ app.post('/grade', async (c) => {
       console.log('[Karaoke] STT services unavailable, returning neutral score');
       return c.json({
         success: true,
-        score: 70, // Neutral score
-        transcription: '',
-        feedback: 'Recording received but transcription service is temporarily unavailable. Keep going! 🎵',
-        wordScores: [],
+        data: {
+          score: 70, // Neutral score
+          transcript: '',
+          feedback: 'Recording received but transcription service is temporarily unavailable. Keep going! 🎵',
+          wordScores: [],
+        },
         error: 'STT temporarily unavailable'
       });
     }
@@ -888,27 +892,31 @@ app.post('/complete', async (c) => {
       
       return c.json({
         success: true,
-        finalScore: finalScore || result.finalScore,
-        totalLines: result.totalLines,
-        perfectLines: result.perfectLines,
-        goodLines: result.goodLines,
-        needsWorkLines: result.needsWorkLines,
-        accuracy: result.accuracy,
-        sessionId: result.sessionId,
-        elevenLabsTranscript: elevenLabsTranscript || undefined
+        data: {
+          finalScore: finalScore || result.finalScore,
+          totalLines: result.totalLines,
+          perfectLines: result.perfectLines,
+          goodLines: result.goodLines,
+          needsWorkLines: result.needsWorkLines,
+          accuracy: result.accuracy,
+          sessionId: result.sessionId,
+          elevenLabsTranscript: elevenLabsTranscript || undefined
+        }
       });
     } else {
       // Mock response for development - use ElevenLabs score if available
       return c.json({
         success: true,
-        finalScore: finalScore || 85,
-        totalLines: 3, // Test mode with 3 lines
-        perfectLines: finalScore >= 90 ? 2 : 1,
-        goodLines: finalScore >= 70 ? 2 : 1,
-        needsWorkLines: finalScore < 70 ? 1 : 0,
-        accuracy: finalScore || 85,
-        sessionId: sessionId,
-        elevenLabsTranscript: elevenLabsTranscript || undefined
+        data: {
+          finalScore: finalScore || 85,
+          totalLines: 3, // Test mode with 3 lines
+          perfectLines: finalScore >= 90 ? 2 : 1,
+          goodLines: finalScore >= 70 ? 2 : 1,
+          needsWorkLines: finalScore < 70 ? 1 : 0,
+          accuracy: finalScore || 85,
+          sessionId: sessionId,
+          elevenLabsTranscript: elevenLabsTranscript || undefined
+        }
       });
     }
   } catch (error) {
