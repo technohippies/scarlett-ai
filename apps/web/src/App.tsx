@@ -3,12 +3,14 @@ import sdk from '@farcaster/frame-sdk';
 import { HomePage, type Song, type LyricLine } from '@scarlett/ui';
 import { apiService } from './services/api';
 import { FarcasterKaraoke } from './components/FarcasterKaraoke';
+import { AuthHeader } from './components/AuthHeader';
 
 const App = () => {
   const [isLoading, setIsLoading] = createSignal(true);
-  const [, setContext] = createSignal<any>(null);
+  const [context, setContext] = createSignal<any>(null);
   const [credits] = createSignal(100);
   const [error, setError] = createSignal<string | null>(null);
+  const [farcasterUser, setFarcasterUser] = createSignal<any>(null);
   
   // Song selection state
   const [selectedSong, setSelectedSong] = createSignal<Song | null>(null);
@@ -17,7 +19,8 @@ const App = () => {
 
   // Fetch popular songs from the API
   const [popularSongs] = createResource(async () => {
-    const response = await fetch('http://localhost:8787/api/songs/popular');
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
+    const response = await fetch(`${apiUrl}/api/songs/popular`);
     if (!response.ok) {
       throw new Error('Failed to fetch popular songs');
     }
@@ -32,6 +35,17 @@ const App = () => {
       artist: song.artist
     })) || [];
   });
+
+  // Handle wallet authentication success
+  const handleAuthSuccess = async (walletAddress: string) => {
+    try {
+      // You can implement JWT token generation here if needed
+      console.log('Wallet connected:', walletAddress);
+      // Store auth token or update user state as needed
+    } catch (error) {
+      console.error('Auth error:', error);
+    }
+  };
 
   // Handle song selection
   const handleSongSelect = async (song: Song) => {
@@ -95,6 +109,16 @@ const App = () => {
         const frameContext = await sdk.context;
         setContext(frameContext);
         
+        // Extract Farcaster user data
+        if (frameContext?.user) {
+          setFarcasterUser({
+            fid: frameContext.user.fid,
+            username: frameContext.user.username,
+            displayName: frameContext.user.displayName,
+            pfpUrl: frameContext.user.pfpUrl
+          });
+        }
+        
         // Hide splash screen
         await sdk.actions.ready().catch(console.error);
       }
@@ -108,7 +132,7 @@ const App = () => {
   });
 
   return (
-    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff" }}>
+    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
       <Show
         when={!isLoading()}
         fallback={
@@ -117,15 +141,23 @@ const App = () => {
           </div>
         }
       >
-        <Show
-          when={!error()}
-          fallback={
-            <div style={{ "text-align": "center", "color": "#ef4444" }}>
-              <h1 style={{ "font-size": "24px", "font-weight": "bold" }}>Error</h1>
-              <p>{error()}</p>
-            </div>
-          }
-        >
+        <Show when={!selectedSong()}>
+          <AuthHeader 
+            farcasterUser={farcasterUser()} 
+            onAuthSuccess={handleAuthSuccess}
+          />
+        </Show>
+        
+        <div style={{ flex: 1, display: "flex", "flex-direction": "column" }}>
+          <Show
+            when={!error()}
+            fallback={
+              <div style={{ "text-align": "center", "color": "#ef4444", padding: "50px" }}>
+                <h1 style={{ "font-size": "24px", "font-weight": "bold" }}>Error</h1>
+                <p>{error()}</p>
+              </div>
+            }
+          >
           <Show
             when={!selectedSong()}
             fallback={
@@ -143,17 +175,15 @@ const App = () => {
                   </div>
                 }
               >
-                <div style={{ height: '100vh', display: 'flex', 'flex-direction': 'column' }}>
-                  <FarcasterKaraoke
+                <FarcasterKaraoke
                     songUrl="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
                     lyrics={lyrics()}
                     trackId={selectedSong()!.trackId}
                     title={selectedSong()!.title}
                     artist={selectedSong()!.artist}
                     songCatalogId={songData()?.song_catalog_id}
-                    apiUrl="http://localhost:8787/api"
+                    apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
                   />
-                </div>
               </Show>
             }
           >
@@ -176,7 +206,8 @@ const App = () => {
             </Show>
           </Show>
           
-        </Show>
+          </Show>
+        </div>
       </Show>
     </div>
   );
