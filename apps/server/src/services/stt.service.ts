@@ -29,6 +29,9 @@ interface TranscriptionResult {
 }
 
 export class STTService {
+  private readonly ELEVENLABS_TIMEOUT = 5000; // 5 seconds timeout for ElevenLabs
+  private readonly DEEPGRAM_TIMEOUT = 10000; // 10 seconds timeout for Deepgram
+  
   constructor(private env: Env) {}
 
   async transcribeAudio(
@@ -37,13 +40,25 @@ export class STTService {
   ): Promise<TranscriptionResult> {
     const errors: Array<{ service: string; error: any }> = [];
     
-    // Try ElevenLabs first
+    // Try ElevenLabs first with timeout
     if (this.env.ELEVENLABS_API_KEY) {
       try {
-        return await this.transcribeWithElevenLabs(audioData);
+        console.log('[STT] Trying ElevenLabs with timeout of', this.ELEVENLABS_TIMEOUT, 'ms');
+        const result = await this.withTimeout(
+          this.transcribeWithElevenLabs(audioData),
+          this.ELEVENLABS_TIMEOUT,
+          'ElevenLabs timeout'
+        );
+        console.log('[STT] ElevenLabs succeeded');
+        return result;
       } catch (error) {
         console.error('[STT] ElevenLabs error:', error);
         errors.push({ service: 'ElevenLabs', error });
+        
+        // If it was a timeout, log that specifically
+        if (error instanceof Error && error.message.includes('timeout')) {
+          console.log('[STT] ElevenLabs timed out, falling back to Deepgram');
+        }
       }
     }
 
@@ -51,7 +66,13 @@ export class STTService {
     if (this.env.DEEPGRAM_API_KEY) {
       try {
         console.log('[STT] Falling back to Deepgram');
-        return await this.transcribeWithDeepgram(audioData, expectedText);
+        const result = await this.withTimeout(
+          this.transcribeWithDeepgram(audioData, expectedText),
+          this.DEEPGRAM_TIMEOUT,
+          'Deepgram timeout'
+        );
+        console.log('[STT] Deepgram succeeded');
+        return result;
       } catch (error) {
         console.error('[STT] Deepgram error:', error);
         errors.push({ service: 'Deepgram', error });
@@ -62,6 +83,30 @@ export class STTService {
     const errorSummary = errors.map(e => `${e.service}: ${e.error.message || e.error}`).join('; ');
     throw new Error(`All STT services failed: ${errorSummary}`);
   }
+  
+  private async withTimeout<T>(
+    promise: Promise<T>,
+    timeoutMs: number,
+    timeoutMessage: string
+  ): Promise<T> {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+    });
+    
+    return Promise.race([promise, timeoutPromise]);
+  }
+  
+  // Public method for direct Deepgram access when preferred
+  async transcribeWithDeepgramDirect(
+    audioData: Uint8Array,
+    expectedText?: string
+  ): Promise<TranscriptionResult> {
+    return this.withTimeout(
+      this.transcribeWithDeepgram(audioData, expectedText),
+      this.DEEPGRAM_TIMEOUT,
+      'Deepgram timeout'
+    );
+  }
 
   private async transcribeWithDeepgram(
     audioData: Uint8Array,
@@ -71,11 +116,13 @@ export class STTService {
       model: 'nova-2',
       smart_format: 'true',
       detect_language: 'false',
-      language: 'en-US',
+      language: 'en-US', // Explicitly set to US English
       punctuate: 'true',
       profanity_filter: 'false',
       alternatives: '1',
     });
+    
+    console.log('[STT] Deepgram params:', params.toString());
 
     // Add keywords for better accuracy with intensifiers
     if (expectedText) {
@@ -110,6 +157,13 @@ export class STTService {
 
     if (!alternative) {
       throw new Error('No transcription available');
+    }
+    
+    // Log if transcript seems to be in a different language
+    const transcript = alternative.transcript;
+    if (transcript && /[äöüßÄÖÜ]/.test(transcript)) {
+      console.warn('[STT] Deepgram returned what appears to be German text:', transcript);
+      console.warn('[STT] Expected text was:', expectedText);
     }
 
     return {

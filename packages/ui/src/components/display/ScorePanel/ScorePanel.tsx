@@ -2,8 +2,8 @@ import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
 
 export interface ScorePanelProps {
-  score: number;
-  rank: number;
+  score: number | null;
+  rank: number | null;
   class?: string;
 }
 
@@ -13,7 +13,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
       {/* Score Box */}
       <div class="bg-surface rounded-lg p-4 flex flex-col items-center justify-center min-h-[80px]">
         <div class="text-2xl font-mono font-bold text-purple-500">
-          {props.score}
+          {props.score !== null ? props.score : '—'}
         </div>
         <div class="text-sm text-secondary mt-1">
           Score
@@ -23,7 +23,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
       {/* Rank Box */}
       <div class="bg-surface rounded-lg p-4 flex flex-col items-center justify-center min-h-[80px]">
         <div class="text-2xl font-mono font-bold text-pink-500">
-          {props.rank}
+          {props.rank !== null ? props.rank : '—'}
         </div>
         <div class="text-sm text-secondary mt-1">
           Rank

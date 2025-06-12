@@ -176,18 +176,6 @@ const App = () => {
             </Show>
           </Show>
           
-          {/* Credits display */}
-          <div style={{ 
-            position: 'absolute', 
-            top: '8px', 
-            right: '8px',
-            padding: '4px 8px',
-            "background-color": "rgba(26, 26, 26, 0.8)",
-            "border-radius": "4px",
-            "font-size": "14px"
-          }}>
-            Credits: {credits()}
-          </div>
         </Show>
       </Show>
     </div>

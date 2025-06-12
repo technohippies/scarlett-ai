@@ -45,6 +45,7 @@ export * from './practice/ExerciseTemplate';
 export * from './practice/ReadAloud';
 export * from './practice/MCQ';
 export * from './practice/PracticeExercise';
+export * from './practice/PracticeExerciseView';
 
 // Farcaster Components
 export * from './farcaster/CreditPack';

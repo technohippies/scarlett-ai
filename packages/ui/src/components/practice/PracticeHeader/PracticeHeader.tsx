@@ -11,23 +11,12 @@ export interface PracticeHeaderProps {
 
 export const PracticeHeader: Component<PracticeHeaderProps> = (props) => {
   return (
-    <header class={cn('flex items-center justify-between h-14 px-4 bg-transparent', props.class)}>
-      <button
-        onClick={props.onExit}
-        class="p-2 -ml-2 rounded-full hover:bg-highlight transition-colors"
-        aria-label="Exit practice"
-      >
-        <IconXRegular class="text-secondary w-6 h-6" />
-      </button>
-      
-      <Show when={props.title}>
-        <h1 class="text-lg font-semibold text-primary absolute left-1/2 transform -translate-x-1/2">
+    <Show when={props.title}>
+      <header class={cn('flex items-center justify-center h-14 px-4 bg-transparent', props.class)}>
+        <h1 class="text-lg font-semibold text-primary">
           {props.title}
         </h1>
-      </Show>
-      
-      {/* Spacer to balance the layout */}
-      <div class="w-10" />
-    </header>
+      </header>
+    </Show>
   );
 };

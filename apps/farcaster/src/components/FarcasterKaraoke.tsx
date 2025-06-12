@@ -7,7 +7,8 @@ import {
   useKaraokeSession, 
   I18nProvider,
   type LyricLine,
-  type KaraokeResults
+  type KaraokeResults,
+  type PlaybackSpeed
 } from '@scarlett/ui';
 import { PracticeExercises } from './PracticeExercises';
 
@@ -24,10 +25,11 @@ interface FarcasterKaraokeProps {
 type ViewState = 'karaoke' | 'completion' | 'practice';
 
 export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
-  const [score, setScore] = createSignal(0);
-  const [rank, setRank] = createSignal(1);
+  const [score, setScore] = createSignal<number | null>(null);
+  const [rank, setRank] = createSignal<number | null>(null);
   const [viewState, setViewState] = createSignal<ViewState>('karaoke');
   const [completionData, setCompletionData] = createSignal<KaraokeResults | null>(null);
+  const [playbackSpeed, setPlaybackSpeed] = createSignal<PlaybackSpeed>('1x');
   
   // Construct audio URL based on trackId
   const getAudioUrl = () => {
@@ -108,7 +110,8 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const handleRetry = () => {
     setViewState('karaoke');
     setCompletionData(null);
-    setScore(0);
+    setScore(null);
+    setRank(null);
     // Reset the audio
     if (audio) {
       audio.currentTime = 0;
@@ -119,6 +122,13 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const handleBackFromPractice = () => {
     setViewState('completion');
   };
+  
+  // Handle speed change
+  const handleSpeedChange = (speed: PlaybackSpeed) => {
+    setPlaybackSpeed(speed);
+    const rate = speed === '1x' ? 1 : speed === '0.75x' ? 0.75 : 0.5;
+    audio.playbackRate = rate;
+  };
 
   return (
     <div class="relative h-full">
@@ -127,13 +137,14 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
           <FarcasterKaraokeView
             songTitle={props.title}
             artist={props.artist}
-            score={sessionScore() || score()}
+            score={sessionScore() ?? score()}
             rank={rank()}
             lyrics={props.lyrics}
             currentTime={currentTime()}
             isPlaying={isPlaying() || countdown() !== null}
             onStart={startSession}
             onBack={handleStop}
+            onSpeedChange={handleSpeedChange}
             leaderboard={[]}
             lineScores={lineScores()}
           />
@@ -153,7 +164,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
               <CompletionView
                 score={completionData()!.score}
                 rank={1}
-                speed={'1x'}
+                speed={playbackSpeed()}
                 feedbackText={
                   completionData()!.score >= 95 ? "Perfect! You nailed it!" :
                   completionData()!.score >= 85 ? "Excellent performance!" :

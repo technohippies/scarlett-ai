@@ -16,9 +16,9 @@ export const ReadAloud: Component<ReadAloudProps> = (props) => {
       </p>
       
       <Show when={props.userTranscript}>
-        <div class="mt-6 pt-6 border-t border-border">
-          <p class="text-sm text-muted-foreground mb-2">You said:</p>
-          <p class="text-lg text-foreground">
+        <div class="mt-8">
+          <p class="text-lg text-muted-foreground mb-4">You said:</p>
+          <p class="text-2xl text-left leading-relaxed">
             {props.userTranscript}
           </p>
         </div>

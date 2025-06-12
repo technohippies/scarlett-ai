@@ -15,8 +15,8 @@ export interface ExerciseFooterProps {
 
 export const ExerciseFooter: Component<ExerciseFooterProps> = (props) => {
   return (
-    <footer class={cn('fixed bottom-0 left-0 right-0 bg-base border-t border-secondary/20', props.class)}>
-      <div class="p-4">
+    <footer class={cn('border-t border-gray-700 bg-surface p-6', props.class)}>
+      <div class="max-w-2xl mx-auto">
         <Show
           when={!props.isRecording}
           fallback={

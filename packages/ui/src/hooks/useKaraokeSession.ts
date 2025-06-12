@@ -288,7 +288,8 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       );
       
       if (lineScore) {
-        console.log(`[KaraokeSession] Chunk graded:`, lineScore);
+        const { feedback, ...scoreWithoutFeedback } = lineScore;
+        console.log(`[KaraokeSession] Chunk graded:`, scoreWithoutFeedback);
         
         // Update line scores
         const newLineScore = {

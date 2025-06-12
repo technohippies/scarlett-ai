@@ -16,24 +16,25 @@ export interface ResponseFooterProps {
 export const ResponseFooter: Component<ResponseFooterProps> = (props) => {
   return (
     <div class="border-t border-gray-700 bg-surface p-6">
-      <Show
-        when={props.mode === 'check'}
-        fallback={
-          <div class="flex items-center gap-4">
+      <div class="max-w-2xl mx-auto">
+        <Show
+          when={props.mode === 'check'}
+          fallback={
+            <div class="flex items-center justify-between gap-6">
             <Show when={props.isCorrect !== undefined}>
-              <div class="flex items-center gap-3">
+              <div class="flex items-center gap-4">
                 <Show
                   when={props.isCorrect}
-                  fallback={<IconXCircleFill class="text-red-500 w-12 h-12" />}
+                  fallback={<IconXCircleFill style="color: #ef4444;" class="w-16 h-16 flex-shrink-0" />}
                 >
-                  <IconCheckCircleFill class="text-green-500 w-12 h-12" />
+                  <IconCheckCircleFill style="color: #22c55e;" class="w-16 h-16 flex-shrink-0" />
                 </Show>
-                <div class="flex-1">
-                  <p class={`font-semibold ${props.isCorrect ? 'text-green-500' : 'text-red-500'}`}>
+                <div>
+                  <p class="text-2xl font-bold" style={`color: ${props.isCorrect ? '#22c55e' : '#ef4444'};`}>
                     {props.isCorrect ? 'Correct!' : 'Incorrect'}
                   </p>
                   <Show when={props.feedbackText && !props.isCorrect}>
-                    <p class="text-sm text-secondary mt-1">{props.feedbackText}</p>
+                    <p class="text-base text-secondary mt-1">{props.feedbackText}</p>
                   </Show>
                 </div>
               </div>
@@ -41,8 +42,8 @@ export const ResponseFooter: Component<ResponseFooterProps> = (props) => {
             <Button
               variant="primary"
               size="lg"
-              fullWidth
               onClick={props.onContinue}
+              class="min-w-[180px]"
             >
               {props.continueLabel || 'Next'}
             </Button>
@@ -58,6 +59,7 @@ export const ResponseFooter: Component<ResponseFooterProps> = (props) => {
           Check
         </Button>
       </Show>
+      </div>
     </div>
   );
 };

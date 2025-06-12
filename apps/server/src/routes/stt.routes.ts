@@ -49,7 +49,7 @@ app.post('/', async (c) => {
 // POST /api/stt/transcribe - JSON-based transcription endpoint
 app.post('/transcribe', async (c) => {
   const body = await c.req.json();
-  const { audioBase64, expectedText } = body;
+  const { audioBase64, expectedText, preferDeepgram } = body;
   
   if (!audioBase64) {
     throw new ValidationError('No audio data provided');
@@ -60,6 +60,25 @@ app.post('/transcribe', async (c) => {
     const audioBuffer = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
     
     const sttService = new STTService(c.env);
+    
+    // If preferDeepgram is true and we have the API key, skip ElevenLabs
+    if (preferDeepgram && c.env.DEEPGRAM_API_KEY) {
+      console.log('[STT] Using Deepgram as preferred provider');
+      // Temporarily set ElevenLabs key to null to force Deepgram usage
+      const tempEnv = { ...c.env, ELEVENLABS_API_KEY: undefined };
+      const tempSttService = new STTService(tempEnv);
+      const result = await tempSttService.transcribeAudio(audioBuffer, expectedText);
+      return c.json({
+        success: true,
+        data: {
+          transcript: result.transcript,
+          confidence: result.confidence,
+          provider: 'deepgram'
+        }
+      });
+    }
+    
+    // Otherwise use normal flow with ElevenLabs first
     const result = await sttService.transcribeAudio(audioBuffer, expectedText);
     
     return c.json({

@@ -14,8 +14,8 @@ export interface FarcasterKaraokeViewProps {
   artist: string;
   
   // Scores
-  score: number;
-  rank: number;
+  score: number | null;
+  rank: number | null;
   lineScores?: number[];
   
   // Lyrics

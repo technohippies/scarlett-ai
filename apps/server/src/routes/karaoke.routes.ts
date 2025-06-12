@@ -615,6 +615,48 @@ app.post('/start', async (c) => {
   try {
     // Check if DB is available
     if (c.env.DB) {
+      // First, ensure the song exists in the catalog
+      let catalogId = songCatalogId;
+      
+      if (!catalogId) {
+        // Check if song already exists in catalog
+        const existing = await c.env.DB
+          .prepare('SELECT id FROM song_catalog WHERE track_id = ?')
+          .bind(trackId)
+          .first<{ id: string }>();
+          
+        if (existing) {
+          catalogId = existing.id;
+        } else {
+          // Create a new catalog entry
+          catalogId = crypto.randomUUID();
+          const difficulty = songData.difficulty || 'intermediate';
+          
+          await c.env.DB.prepare(
+            `
+            INSERT INTO song_catalog (
+              id, track_id, title, artist, album, duration_ms, difficulty,
+              genius_id, lyrics_source, lyrics_type, total_attempts,
+              unique_users_attempted, last_played_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'lrclib', 'synced', 1, 1, CURRENT_TIMESTAMP)
+            `
+          )
+          .bind(
+            catalogId,
+            trackId,
+            songData.title,
+            songData.artist,
+            songData.album || null,
+            songData.duration || null,
+            difficulty,
+            songData.geniusId || null
+          )
+          .run();
+          
+          console.log('[Karaoke] Created song catalog entry for session start:', catalogId);
+        }
+      }
+      
       const sessionService = new (await import('../services/session.service')).SessionService(c.env);
       const session = await sessionService.createSession(
         userId,
@@ -625,7 +667,7 @@ app.post('/start', async (c) => {
           geniusId: songData.geniusId,
           duration: songData.duration,
           difficulty: songData.difficulty,
-          catalogId: songCatalogId || songData.song_catalog_id
+          catalogId
         }
       );
       
