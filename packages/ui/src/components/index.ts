@@ -28,6 +28,8 @@ export * from './common/Tabs';
 export * from './common/SplitButton';
 export * from './common/ProgressBar';
 export * from './common/Modal';
+export * from './common/ErrorBoundary';
+export * from './common/LoadingScreen';
 
 // Effects Components
 export * from './effects/FireEmojiAnimation';
@@ -51,6 +53,9 @@ export * from './practice/PracticeExerciseView';
 
 // Web Components
 export * from './web/CreditPack';
+export * from './web/SubscriptionPlan';
+export * from './web/SubscriptionModal';
+export * from './web/SubscriptionSlider';
 export * from './web/WalletConnect';
 export * from './web/UserProfile';
 export * from './web/FarcasterMiniApp';

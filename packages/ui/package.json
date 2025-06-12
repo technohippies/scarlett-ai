@@ -16,13 +16,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@scarlett/core": "workspace:*",
     "@scarlett/api-client": "workspace:*",
+    "@scarlett/core": "workspace:*",
     "@solid-primitives/i18n": "^2.2.1",
     "clsx": "^2.1.1",
     "motion": "^12.16.0",
     "phosphor-icons-solid": "^1.0.0",
-    "solid-js": "^1.9.7"
+    "solid-js": "^1.9.7",
+    "solid-transition-group": "^0.3.0"
   },
   "devDependencies": {
     "@storybook/addon-docs": "^9.0.6",
