@@ -188,9 +188,27 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
     }
   };
 
+  // Normalize text for comparison (same as server-side)
+  const normalizeText = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s'-]/g, '') // Remove punctuation except apostrophes and hyphens
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+  
   const calculateScore = (expected: string, actual: string): number => {
-    const expectedWords = expected.toLowerCase().split(/\s+/);
-    const actualWords = actual.toLowerCase().split(/\s+/);
+    const normalizedExpected = normalizeText(expected);
+    const normalizedActual = normalizeText(actual);
+    
+    // If they're exactly the same after normalization, it's 100%
+    if (normalizedExpected === normalizedActual) {
+      return 100;
+    }
+    
+    // Otherwise, do word-by-word comparison
+    const expectedWords = normalizedExpected.split(/\s+/);
+    const actualWords = normalizedActual.split(/\s+/);
     let matches = 0;
     
     for (let i = 0; i < expectedWords.length; i++) {
@@ -207,8 +225,8 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
     const chunks = audioChunks();
     const blob = chunks.length > 0 ? new Blob(chunks, { type: 'audio/webm' }) : null;
     
-    // Determine if correct (80% or higher)
-    setIsCorrect(score >= 80);
+    // Determine if correct (100% after normalization)
+    setIsCorrect(score === 100);
     setShowFeedback(true);
     
     if (currentExercise && currentExercise.card_ids.length > 0 && blob) {

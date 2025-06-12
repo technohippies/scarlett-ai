@@ -51,12 +51,22 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
     }, 1500);
   };
   
+  // Normalize text for comparison (same as server-side)
+  const normalizeText = (text: string): string => {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s'-]/g, '') // Remove punctuation except apostrophes and hyphens
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+  
   const handleSubmit = () => {
     const exercise = currentExercise();
     if (!exercise) return;
     
-    const correct = userTranscript().toLowerCase().trim() === 
-                   (exercise.correctAnswer || exercise.prompt).toLowerCase().trim();
+    const normalizedTranscript = normalizeText(userTranscript());
+    const normalizedAnswer = normalizeText(exercise.correctAnswer || exercise.prompt);
+    const correct = normalizedTranscript === normalizedAnswer;
     
     setIsCorrect(correct);
     

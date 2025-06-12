@@ -1,8 +1,9 @@
 import { Show, createSignal } from 'solid-js';
 import type { JSX } from 'solid-js';
 import { Button } from '../../common/Button';
-import { HiOutlineUser, HiOutlineChevronDown } from 'solid-icons/hi';
-import { FiLogOut } from 'solid-icons/fi';
+import IconUserRegular from 'phosphor-icons-solid/IconUserRegular';
+import IconCaretDownRegular from 'phosphor-icons-solid/IconCaretDownRegular';
+import IconSignOutRegular from 'phosphor-icons-solid/IconSignOutRegular';
 
 export interface AuthButtonProps {
   user?: {
@@ -50,7 +51,7 @@ export function AuthButton(props: AuthButtonProps) {
             loading={props.isLoading}
             class={props.class}
           >
-            <HiOutlineUser class="w-4 h-4 mr-2" />
+            <IconUserRegular class="w-4 h-4 mr-2" />
             Sign In
           </Button>
         }
@@ -69,7 +70,7 @@ export function AuthButton(props: AuthButtonProps) {
             when={props.user?.avatarUrl}
             fallback={
               <div class="w-8 h-8 rounded-full bg-surface flex items-center justify-center">
-                <HiOutlineUser class="w-4 h-4 text-content-secondary" />
+                <IconUserRegular class="w-4 h-4 text-content-secondary" />
               </div>
             }
           >
