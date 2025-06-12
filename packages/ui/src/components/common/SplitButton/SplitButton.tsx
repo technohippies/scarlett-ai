@@ -20,12 +20,19 @@ export const SplitButton: Component<SplitButtonProps> = (props) => {
   
   const cycleSpeed = (e: MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     const nextIndex = (currentSpeedIndex() + 1) % speeds.length;
     setCurrentSpeedIndex(nextIndex);
     const newSpeed = speeds[nextIndex];
     if (newSpeed) {
       props.onSpeedChange?.(newSpeed);
     }
+  };
+  
+  const handleStart = (e: MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    props.onStart?.();
   };
 
   return (
@@ -39,14 +46,15 @@ export const SplitButton: Component<SplitButtonProps> = (props) => {
     >
       {/* Main button */}
       <button
-        onClick={props.onStart}
+        onClick={handleStart}
         disabled={props.disabled}
         class={cn(
           'flex-1 inline-flex items-center justify-center relative overflow-hidden',
           'h-12 px-6 text-lg font-medium',
           'cursor-pointer border-none outline-none',
           'disabled:cursor-not-allowed disabled:opacity-50',
-          'hover:bg-white/10 active:bg-white/20'
+          'hover:bg-white/10 active:bg-white/20',
+          'transition-colors'
         )}
       >
         <span class="relative z-10">Start</span>
@@ -61,18 +69,22 @@ export const SplitButton: Component<SplitButtonProps> = (props) => {
         disabled={props.disabled}
         class={cn(
           'inline-flex items-center justify-center relative',
-          'w-20 text-lg font-medium',
+          'w-16 text-base font-medium',
           'cursor-pointer border-none outline-none',
           'disabled:cursor-not-allowed disabled:opacity-50',
           'hover:bg-white/10 active:bg-white/20',
-          'after:content-[""] after:absolute after:inset-0',
-          'after:bg-gradient-to-r after:from-transparent after:via-white/20 after:to-transparent',
-          'after:translate-x-[-200%] hover:after:translate-x-[200%]',
-          'after:transition-transform after:duration-700'
+          'transition-colors',
+          'border-l border-l-black/20'
         )}
         aria-label="Change playback speed"
+        title="Change playback speed"
       >
-        <span class="relative z-10">{currentSpeed()}</span>
+        <span class="relative z-10 flex items-center gap-1">
+          <span>{currentSpeed()}</span>
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg" class="opacity-60">
+            <path d="M2 3L4 5L6 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
       </button>
     </div>
   );
