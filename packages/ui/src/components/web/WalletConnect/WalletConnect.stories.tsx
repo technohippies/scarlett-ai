@@ -3,7 +3,7 @@ import { WalletConnect, type WalletConnectProps } from './WalletConnect';
 import { solidStory } from '../../../utils/storybook';
 
 const meta: Meta<WalletConnectProps> = {
-  title: 'Farcaster/WalletConnect',
+  title: 'Web/WalletConnect',
   render: solidStory(WalletConnect),
   argTypes: {
     address: {

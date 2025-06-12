@@ -3,7 +3,7 @@ import { CreditPack, type CreditPackProps } from './CreditPack';
 import { solidStory } from '../../../utils/storybook';
 
 const meta: Meta<CreditPackProps> = {
-  title: 'Farcaster/CreditPack',
+  title: 'Web/CreditPack',
   render: solidStory(CreditPack),
   argTypes: {
     credits: {

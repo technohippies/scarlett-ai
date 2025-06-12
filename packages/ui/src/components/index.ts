@@ -49,11 +49,11 @@ export * from './practice/MCQ';
 export * from './practice/PracticeExercise';
 export * from './practice/PracticeExerciseView';
 
-// Farcaster Components
-export * from './farcaster/CreditPack';
-export * from './farcaster/WalletConnect';
-export * from './farcaster/UserProfile';
-export * from './farcaster/FarcasterMiniApp';
+// Web Components
+export * from './web/CreditPack';
+export * from './web/WalletConnect';
+export * from './web/UserProfile';
+export * from './web/FarcasterMiniApp';
 
 // Page Components
 export * from './pages/HomePage';

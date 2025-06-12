@@ -3,7 +3,7 @@ import { FarcasterMiniApp, type FarcasterMiniAppProps } from './FarcasterMiniApp
 import { solidStory } from '../../../utils/storybook';
 
 const meta: Meta<FarcasterMiniAppProps> = {
-  title: 'Farcaster/FarcasterMiniApp',
+  title: 'Web/FarcasterMiniApp',
   render: solidStory(FarcasterMiniApp),
   parameters: {
     layout: 'fullscreen',

@@ -81,6 +81,7 @@ export class PracticeService {
           sessionId,
           lineIndex: lineScore.line_index,
           fullLine: lineScore.line_text,
+          normalizedLine: normalization.normalized_text,
           score: lineScore.score
         });
       }
@@ -120,14 +121,16 @@ export class PracticeService {
     }
     
     const prompt = `
-Analyze this song lyric for slang, vernacular, and pronunciation challenges.
+Analyze this song lyric for slang, vernacular, stuttering, and pronunciation challenges.
 Return ONLY valid JSON with no additional text or formatting.
 
 Lyric: "${text}"
 
+IMPORTANT: Remove any stuttering or repetition (e.g., "N-now-now that, that" → "Now that")
+
 Required JSON format:
 {
-  "normalized_text": "Standard English version (keeping contractions is OK)",
+  "normalized_text": "Standard English version without stuttering/repetition (keeping contractions is OK)",
   "has_slang": true/false,
   "slang_terms": {"slang": "standard"},
   "dialect_info": "dialect name or null",
@@ -228,7 +231,7 @@ Required JSON format:
         // 2. Common pronunciation mistakes (er → a, ing → in, th → f/d)
         if (similarity < 0.8 || this.isCommonPronunciationError(exp, trans)) {
           problems.push({
-            expected: exp,
+            expected: norm, // Use normalized word for practice
             actual: trans,
             position: i,
             score: Math.round(similarity * 100)
@@ -307,6 +310,7 @@ Required JSON format:
       sessionId: string;
       lineIndex: number;
       fullLine: string;
+      normalizedLine: string;
       score: number;
     }
   ): Promise<void> {
@@ -354,7 +358,7 @@ Required JSON format:
           nanoid(),
           userId,
           problem.expected,
-          problem.expected, // Will be updated if different
+          context.normalizedLine, // Use the normalized version for practice
           fsrsCard.due.toISOString(),
           fsrsCard.stability,
           fsrsCard.difficulty,

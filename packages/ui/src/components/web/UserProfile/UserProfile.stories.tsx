@@ -3,7 +3,7 @@ import { UserProfile, type UserProfileProps } from './UserProfile';
 import { solidStory } from '../../../utils/storybook';
 
 const meta: Meta<UserProfileProps> = {
-  title: 'Farcaster/UserProfile',
+  title: 'Web/UserProfile',
   render: solidStory(UserProfile),
   argTypes: {
     fid: {
