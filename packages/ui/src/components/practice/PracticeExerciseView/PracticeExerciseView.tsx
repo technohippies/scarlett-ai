@@ -45,7 +45,6 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
   // Fetch exercises from the API
   const [exercises] = createResource(async () => {
     try {
-      console.log('[PracticeExerciseView] Fetching exercises...');
       // Include sessionId if provided to get exercises from this session only
       const url = props.sessionId 
         ? `${apiBaseUrl()}/api/practice/exercises?limit=10&sessionId=${props.sessionId}`
@@ -63,7 +62,6 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
         throw new Error('Failed to fetch exercises');
       }
       const data = await response.json();
-      console.log('[PracticeExerciseView] Fetched exercises:', data);
       
       if (data.data && data.data.exercises) {
         return data.data.exercises as Exercise[];
@@ -78,13 +76,9 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
   // Log when exercises load
   createEffect(() => {
     const exerciseList = exercises();
-    if (exerciseList && exerciseList.length > 0) {
-      console.log('[PracticeExerciseView] Exercises loaded, count:', exerciseList.length);
-    }
   });
 
   const handleStartRecording = async () => {
-    console.log('[PracticeExerciseView] Starting recording...');
     setUserTranscript('');
     setCurrentScore(null);
     setAudioChunks([]);
@@ -155,7 +149,6 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
       
       while (attempts < maxAttempts) {
         try {
-          console.log(`[PracticeExerciseView] STT attempt ${attempts + 1}/${maxAttempts}`);
           response = await fetch(`${apiBaseUrl()}/api/speech-to-text/transcribe`, {
             method: 'POST',
             headers,
@@ -176,14 +169,12 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
         
         attempts++;
         if (attempts < maxAttempts) {
-          console.log('[PracticeExerciseView] Retrying with Deepgram...');
           await new Promise(resolve => setTimeout(resolve, 500)); // Small delay before retry
         }
       }
 
       if (response && response.ok) {
         const result = await response.json();
-        console.log('[PracticeExerciseView] STT provider:', result.data.provider || 'elevenlabs');
         setUserTranscript(result.data.transcript);
         
         // Calculate a simple score based on matching words
@@ -203,7 +194,6 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
   };
 
   const handleStopRecording = () => {
-    console.log('[PracticeExerciseView] Stopping recording...');
     const recorder = mediaRecorder();
     if (recorder && recorder.state !== 'inactive') {
       recorder.stop();
@@ -266,7 +256,6 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
         });
 
         if (response.ok) {
-          console.log('[PracticeExerciseView] Review submitted successfully');
         }
       } catch (error) {
         console.error('[PracticeExerciseView] Failed to submit review:', error);
@@ -298,7 +287,6 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
   };
 
   const handleSkip = () => {
-    console.log('[PracticeExerciseView] Skipping exercise');
     
     // Move to next exercise
     if (currentExerciseIndex() < (exercises()?.length || 0) - 1) {

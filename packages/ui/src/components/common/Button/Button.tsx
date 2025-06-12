@@ -34,7 +34,7 @@ export const Button = (props: ButtonProps) => {
         'inline-flex items-center justify-center font-medium transition-all cursor-pointer outline-none disabled:cursor-not-allowed disabled:opacity-50',
         {
           // Variants
-          'bg-gradient-primary text-white hover:shadow-lg hover:scale-105 glow-primary':
+          'bg-gradient-primary text-white hover:shadow-lg hover:brightness-110 glow-primary':
             variant() === 'primary',
           'bg-surface text-primary border border-default hover:bg-elevated hover:border-strong':
             variant() === 'secondary',

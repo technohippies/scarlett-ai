@@ -23,7 +23,6 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
     setError(null);
     
     try {
-      console.log('[KaraokeAudioProcessor] Initializing audio capture...');
       
       const ctx = new AudioContext({ sampleRate });
       setAudioContext(ctx);
@@ -71,7 +70,6 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
       gainNode.connect(workletNode);
       
       setIsReady(true);
-      console.log('[KaraokeAudioProcessor] Audio capture initialized successfully.');
     } catch (e) {
       console.error('[KaraokeAudioProcessor] Failed to initialize:', e);
       setError(e instanceof Error ? e : new Error('Unknown audio initialization error'));
@@ -132,7 +130,6 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
       ctx.resume();
     }
     setIsListening(true);
-    console.log('[KaraokeAudioProcessor] Started listening for audio.');
   };
   
   const pauseListening = () => {
@@ -141,11 +138,9 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
       ctx.suspend();
     }
     setIsListening(false);
-    console.log('[KaraokeAudioProcessor] Paused listening for audio.');
   };
   
   const cleanup = () => {
-    console.log('[KaraokeAudioProcessor] Cleaning up audio capture...');
     
     const stream = mediaStream();
     if (stream) {
@@ -162,13 +157,11 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
     setAudioWorkletNode(null);
     setIsReady(false);
     setIsListening(false);
-    console.log('[KaraokeAudioProcessor] Audio capture cleaned up.');
   };
   
   onCleanup(cleanup);
   
   const startRecordingLine = (lineIndex: number) => {
-    console.log(`[KaraokeAudioProcessor] Starting audio capture for line ${lineIndex}`);
     
     setCurrentRecordingLine(lineIndex);
     setRecordedAudioBuffer([]);
@@ -181,12 +174,10 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
   const stopRecordingLineAndGetRawAudio = (): Float32Array[] => {
     const lineIndex = currentRecordingLine();
     if (lineIndex === null) {
-      console.warn('[KaraokeAudioProcessor] No active recording line.');
       return [];
     }
     
     const audioBuffer = recordedAudioBuffer();
-    console.log(`[KaraokeAudioProcessor] Stopping capture for line ${lineIndex}. Collected ${audioBuffer.length} chunks.`);
     
     setCurrentRecordingLine(null);
     
@@ -194,7 +185,6 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
     setRecordedAudioBuffer([]);
     
     if (result.length === 0) {
-      console.log(`[KaraokeAudioProcessor] No audio captured for line ${lineIndex}.`);
     }
     
     return result;
@@ -249,22 +239,16 @@ export function createKaraokeAudioProcessor(options?: AudioProcessorOptions) {
   };
   
   const startFullSession = () => {
-    console.log('[KaraokeAudioProcessor] Starting full session recording');
     setFullSessionBuffer([]);
     setIsSessionActive(true);
   };
   
   const stopFullSessionAndGetWav = (): Blob | null => {
-    console.log('[KaraokeAudioProcessor] Stopping full session recording');
     setIsSessionActive(false);
     
     const sessionChunks = fullSessionBuffer();
     const wavBlob = convertAudioToWavBlob(sessionChunks);
     
-    console.log(
-      `[KaraokeAudioProcessor] Full session: ${sessionChunks.length} chunks, ` +
-        `${wavBlob ? (wavBlob.size / 1024).toFixed(1) + 'KB' : 'null'}`
-    );
     
     setFullSessionBuffer([]);
     

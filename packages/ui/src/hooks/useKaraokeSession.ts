@@ -63,23 +63,14 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     // Initialize audio capture
     try {
       await audioProcessor.initialize();
-      console.log('[KaraokeSession] Audio processor initialized');
     } catch (error) {
       console.error('[KaraokeSession] Failed to initialize audio:', error);
     }
     
     // Create session on server if trackId provided
-    console.log('[KaraokeSession] Session creation check:', {
-      hasTrackId: !!options.trackId,
-      hasSongData: !!options.songData,
-      trackId: options.trackId,
-      songData: options.songData,
-      apiUrl: options.apiUrl
-    });
     
     if (options.trackId && options.songData) {
       try {
-        console.log('[KaraokeSession] Creating session on server...');
         const session = await karaokeApi.startSession(
           options.trackId,
           {
@@ -94,7 +85,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         
         if (session) {
           setSessionId(session.id);
-          console.log('[KaraokeSession] Session created:', session.id);
         } else {
           console.error('[KaraokeSession] Failed to create session');
         }
@@ -102,7 +92,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         console.error('[KaraokeSession] Failed to create session:', error);
       }
     } else {
-      console.log('[KaraokeSession] Skipping session creation - missing trackId or songData');
     }
     
     // Start countdown
@@ -128,7 +117,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     
     const audio = audioElement() || options.audioElement;
     if (audio) {
-      console.log('[KaraokeSession] Starting playback with audio element');
       // If audio element is provided, use it
       audio.play().catch(console.error);
       
@@ -144,7 +132,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       
       audio.addEventListener('ended', handleEnd);
     } else {
-      console.log('[KaraokeSession] No audio element available for playback');
     }
   };
   
@@ -169,7 +156,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         
         // Check if we're in the recording window and haven't passed the line start
         if (currentTimeMs >= recordingStartTime && currentTimeMs < lineStartTime + 500) { // Allow 500ms buffer after line start
-          console.log(`[KaraokeSession] Time to start recording chunk ${chunk.startIndex}-${chunk.endIndex}: ${currentTimeMs}ms is between ${recordingStartTime}ms and ${lineStartTime + 500}ms`);
           // Mark this chunk as recorded
           setRecordedChunks(prev => new Set(prev).add(chunk.startIndex));
           // Start recording this chunk
@@ -184,11 +170,8 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   };
   
   const startRecordingChunk = async (chunk: ChunkInfo) => {
-    console.log(`[KaraokeSession] Starting recording for chunk ${chunk.startIndex}-${chunk.endIndex}`);
-    
     // TESTING MODE: Auto-complete after 5 lines
     if (chunk.startIndex >= 5) {
-      console.log('[KaraokeSession] TEST MODE: Stopping after 5 lines');
       handleEnd();
       return;
     }
@@ -201,7 +184,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     
     // Calculate recording duration
     const duration = calculateRecordingDuration(options.lyrics, chunk);
-    console.log(`[KaraokeSession] Recording duration for chunk ${chunk.startIndex}-${chunk.endIndex}: ${duration}ms`);
     
     // Stop recording after duration
     recordingTimeout = setTimeout(() => {
@@ -213,20 +195,12 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     const chunk = currentChunk();
     if (!chunk) return;
     
-    console.log(`[KaraokeSession] Stopping recording for chunk ${chunk.startIndex}-${chunk.endIndex}`);
     setIsRecording(false);
     
     // Get the recorded audio
     const audioChunks = audioProcessor.stopRecordingLineAndGetRawAudio();
     const wavBlob = audioProcessor.convertAudioToWavBlob(audioChunks);
     
-    console.log(`[KaraokeSession] Audio blob created:`, {
-      hasBlob: !!wavBlob,
-      blobSize: wavBlob?.size,
-      chunksLength: audioChunks.length,
-      hasSessionId: !!sessionId(),
-      sessionId: sessionId()
-    });
     
     // Check if we have enough audio data
     if (wavBlob && wavBlob.size > 1000 && sessionId()) { // Minimum 1KB of audio data
@@ -237,12 +211,10 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         if (base64Audio && base64Audio.length > 100) { // Ensure we have meaningful base64 data
           await gradeChunk(chunk, base64Audio);
         } else {
-          console.warn('[KaraokeSession] Base64 audio too short, skipping grade');
-        }
+            }
       };
       reader.readAsDataURL(wavBlob);
     } else if (wavBlob && wavBlob.size <= 1000) {
-      console.warn('[KaraokeSession] Audio blob too small, skipping grade:', wavBlob.size, 'bytes');
       // Add a neutral score for UI feedback
       setLineScores(prev => [...prev, {
         lineIndex: chunk.startIndex,
@@ -251,7 +223,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         feedback: 'Recording too short'
       }]);
     } else if (wavBlob && !sessionId()) {
-      console.warn('[KaraokeSession] Have audio but no session ID - cannot grade');
     }
     
     setCurrentChunk(null);
@@ -264,20 +235,12 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   
   const gradeChunk = async (chunk: ChunkInfo, audioBase64: string) => {
     const currentSessionId = sessionId();
-    console.log('[KaraokeSession] Grading chunk:', {
-      hasSessionId: !!currentSessionId,
-      sessionId: currentSessionId,
-      chunkIndex: chunk.startIndex,
-      audioLength: audioBase64.length
-    });
     
     if (!currentSessionId) {
-      console.warn('[KaraokeSession] No session ID, skipping grade');
       return;
     }
     
     try {
-      console.log('[KaraokeSession] Sending grade request...');
       const lineScore = await karaokeApi.gradeRecording(
         currentSessionId,
         chunk.startIndex,
@@ -288,8 +251,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       );
       
       if (lineScore) {
-        const { feedback, ...scoreWithoutFeedback } = lineScore;
-        console.log(`[KaraokeSession] Chunk graded:`, scoreWithoutFeedback);
         
         // Update line scores
         const newLineScore = {
@@ -310,7 +271,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         
         // Removed test mode limit
       } else {
-        console.warn(`[KaraokeSession] Failed to grade chunk`);
         
         // Add a neutral score for UI feedback
         setLineScores(prev => [...prev, {
@@ -326,7 +286,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   };
 
   const handleEnd = async () => {
-    console.log('[KaraokeSession] Handling session end');
     setIsPlaying(false);
     if (audioUpdateInterval) {
       clearInterval(audioUpdateInterval);
@@ -358,20 +317,14 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     
     // Get full session audio
     const fullAudioBlob = audioProcessor.stopFullSessionAndGetWav();
-    console.log('[KaraokeSession] Full session audio blob:', {
-      hasBlob: !!fullAudioBlob,
-      blobSize: fullAudioBlob?.size
-    });
     
     // Complete session on server
     const currentSessionId = sessionId();
     if (currentSessionId && fullAudioBlob && fullAudioBlob.size > 1000) {
       try {
-        console.log('[KaraokeSession] Converting full audio to base64...');
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64Audio = reader.result?.toString().split(',')[1];
-          console.log('[KaraokeSession] Sending completion request with full audio');
           
           const sessionResults = await karaokeApi.completeSession(
             currentSessionId,
@@ -379,7 +332,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
           );
           
           if (sessionResults) {
-            console.log('[KaraokeSession] Session completed:', sessionResults);
             
             const results: KaraokeResults = {
               score: sessionResults.finalScore,
@@ -393,7 +345,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
             
             options.onComplete?.(results);
           } else {
-            console.log('[KaraokeSession] No session results, calculating locally');
             // Fallback to local calculation
             calculateLocalResults();
           }
@@ -404,14 +355,12 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         calculateLocalResults();
       }
     } else {
-      console.log('[KaraokeSession] No session/audio, returning local results');
       // No session, just return local results
       calculateLocalResults();
     }
   };
   
   const calculateLocalResults = () => {
-    console.log('[KaraokeSession] Calculating local results');
     const scores = lineScores();
     const avgScore = scores.length > 0 
       ? scores.reduce((sum, s) => sum + s.score, 0) / scores.length
@@ -427,7 +376,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
       sessionId: sessionId() || undefined
     };
     
-    console.log('[KaraokeSession] Local results calculated:', results);
     options.onComplete?.(results);
   };
 

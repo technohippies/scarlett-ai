@@ -45,7 +45,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   };
   
   const audioUrl = getAudioUrl();
-  console.log('[FarcasterKaraoke] Audio URL:', audioUrl);
   
   // Create audio element with the actual URL
   const audio = new Audio();
@@ -65,7 +64,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     
     // Add loadeddata handler
     audio.addEventListener('loadeddata', () => {
-      console.log('[FarcasterKaraoke] Audio loaded successfully');
     });
   }
   
@@ -89,7 +87,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     songCatalogId: props.songCatalogId,
     apiUrl: 'http://localhost:8787/api',
     onComplete: (results) => {
-      console.log('[FarcasterKaraoke] Session complete, results:', results);
       setCompletionData(results);
       setViewState('completion');
     }
@@ -102,7 +99,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
 
   // Handle practice errors navigation
   const handlePracticeErrors = async () => {
-    console.log('[FarcasterKaraoke] Practice errors clicked');
     setViewState('practice');
   };
 

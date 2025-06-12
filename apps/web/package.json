@@ -1,5 +1,5 @@
 {
-  "name": "@scarlett/farcaster",
+  "name": "@scarlett/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
     "deploy:orbiter": "npm run build && orbiter deploy",
-    "deploy:cloudflare": "npm run build && wrangler pages deploy dist --project-name=scarlett-farcaster"
+    "deploy:cloudflare": "npm run build && wrangler pages deploy dist --project-name=scarlett-web"
   },
   "dependencies": {
     "@farcaster/frame-sdk": "^0.0.61",

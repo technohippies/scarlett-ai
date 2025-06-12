@@ -2,7 +2,7 @@ import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root';
 import { defineContentScript } from 'wxt/utils/define-content-script';
 import type { ContentScriptContext } from 'wxt/utils/content-script-context';
 import { render } from 'solid-js/web';
-import { ContentApp } from '../src/apps/content/ContentApp';
+import { ContentApp } from '../src/views/content/ContentApp';
 import '../src/styles/extension.css';
 
 export default defineContentScript({

@@ -12,8 +12,7 @@ Scarlett is a comprehensive karaoke platform that combines AI-powered speech rec
 ├── apps/
 │   ├── server/        # Cloudflare Workers API backend
 │   ├── extension/     # Chrome extension for YouTube integration
-│   ├── web/          # Web application (coming soon)
-│   └── farcaster/    # Farcaster frame integration (coming soon)
+│   └── web/          # Web application (Farcaster frames, web, wallet)
 ├── packages/
 │   ├── ui/           # Shared UI components (Solid.js)
 │   ├── typescript-config/  # Shared TypeScript config
@@ -74,22 +73,24 @@ Integrates with YouTube to provide:
 
 ### Web Application
 
-Standalone web interface for:
+Multi-context web app supporting:
 - Full karaoke experience
+- Farcaster frame integration
+- Wallet-based authentication
 - User profiles and stats
 - Social features
 - Song catalog browsing
 
-**Status**: 📅 Planned
+**Status**: ✅ Active
 
 ### Farcaster Integration
 
-Farcaster frame for:
+The web app includes Farcaster frame support for:
 - Sharing karaoke performances
 - Social challenges
 - Community leaderboards
 
-**Status**: 📅 Planned
+**Status**: ✅ Active (within web app)
 
 ## Development
 
