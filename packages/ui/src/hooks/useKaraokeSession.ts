@@ -206,12 +206,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   };
   
   const startRecordingChunk = async (chunk: ChunkInfo) => {
-    // TESTING MODE: Auto-complete after 5 lines
-    if (chunk.startIndex >= 5) {
-      handleEnd();
-      return;
-    }
-    
     setCurrentChunk(chunk);
     setIsRecording(true);
     
