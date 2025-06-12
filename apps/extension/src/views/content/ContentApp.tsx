@@ -1,5 +1,5 @@
 import { Component, createSignal, createEffect, onMount, onCleanup, Show } from 'solid-js';
-import { ExtensionKaraokeView, MinimizedKaraoke, Countdown, CompletionView, useKaraokeSession, ExtensionAudioService, I18nProvider } from '@scarlett/ui';
+import { ExtensionKaraokeView, MinimizedKaraoke, Countdown, CompletionView, useKaraokeSession, ExtensionAudioService, I18nProvider, type PlaybackSpeed } from '@scarlett/ui';
 import { trackDetector, type TrackInfo } from '../../services/track-detector';
 import { getAuthToken } from '../../utils/storage';
 import { browser } from 'wxt/browser';
@@ -26,6 +26,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
   const [karaokeSession, setKaraokeSession] = createSignal<ReturnType<typeof useKaraokeSession> | null>(null);
   const [completionData, setCompletionData] = createSignal<any>(null);
   const [showPractice, setShowPractice] = createSignal(false);
+  const [selectedSpeed, setSelectedSpeed] = createSignal<PlaybackSpeed>('1x');
   
   // Load auth token on mount
   onMount(async () => {
@@ -117,6 +118,10 @@ export const ContentApp: Component<ContentAppProps> = () => {
           }
         }
       });
+      
+      // Apply the selected speed to the new session
+      console.log('[ContentApp] Applying selected speed to new session:', selectedSpeed());
+      newSession.handleSpeedChange(selectedSpeed());
       
       setKaraokeSession(newSession);
       
@@ -359,7 +364,26 @@ export const ContentApp: Component<ContentAppProps> = () => {
                           leaderboard={[]}
                           isPlaying={karaokeSession() ? (karaokeSession()!.isPlaying() || karaokeSession()!.countdown() !== null) : (isPlaying() || countdown() !== null)}
                           onStart={handleStart}
-                          onSpeedChange={(speed) => console.log('[ContentApp] Speed changed:', speed)}
+                          onSpeedChange={(speed) => {
+                            console.log('[ContentApp] Speed changed:', speed);
+                            setSelectedSpeed(speed);
+                            
+                            const session = karaokeSession();
+                            if (session) {
+                              console.log('[ContentApp] Applying speed change to session');
+                              session.handleSpeedChange(speed);
+                            } else {
+                              console.log('[ContentApp] No session yet, speed will be applied when session starts');
+                            }
+                            
+                            // Also apply to audio element directly if it exists
+                            const audio = audioRef();
+                            if (audio) {
+                              const rate = speed === '0.5x' ? 0.5 : speed === '0.75x' ? 0.75 : 1.0;
+                              console.log('[ContentApp] Setting audio playback rate directly to:', rate);
+                              audio.playbackRate = rate;
+                            }
+                          }}
                           isRecording={karaokeSession() ? karaokeSession()!.isRecording() : false}
                           lineScores={karaokeSession() ? karaokeSession()!.lineScores() : []}
                         />
@@ -397,7 +421,7 @@ export const ContentApp: Component<ContentAppProps> = () => {
                           class="h-full"
                           score={completionData().score}
                           rank={1}
-                          speed={'1x'}
+                          speed={selectedSpeed()}
                           feedbackText={
                             completionData().score >= 95 ? "Perfect! You nailed it!" :
                             completionData().score >= 85 ? "Excellent performance!" :

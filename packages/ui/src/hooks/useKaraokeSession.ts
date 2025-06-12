@@ -4,6 +4,7 @@ import { createKaraokeAudioProcessor } from '../services/audio/karaokeAudioProce
 import { shouldChunkLines, calculateRecordingDuration } from '../services/karaoke/chunkingUtils';
 import { KaraokeApiService } from '../services/karaoke/karaokeApi';
 import type { ChunkInfo } from '../types/karaoke';
+import type { PlaybackSpeed } from '../components/common/SplitButton';
 
 export interface UseKaraokeSessionOptions {
   lyrics: LyricLine[];
@@ -49,6 +50,7 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   const [isRecording, setIsRecording] = createSignal(false);
   const [audioElement, setAudioElement] = createSignal<HTMLAudioElement | undefined>(options.audioElement);
   const [recordedChunks, setRecordedChunks] = createSignal<Set<number>>(new Set());
+  const [playbackSpeed, setPlaybackSpeed] = createSignal<PlaybackSpeed>('1x');
   
   let audioUpdateInterval: number | null = null;
   let recordingTimeout: number | null = null;
@@ -58,6 +60,40 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   });
   
   const karaokeApi = new KaraokeApiService(options.apiUrl);
+
+  // Helper to convert speed to playback rate
+  const getPlaybackRate = (speed: PlaybackSpeed): number => {
+    switch (speed) {
+      case '0.5x': return 0.5;
+      case '0.75x': return 0.75;
+      case '1x': return 1.0;
+      default: return 1.0;
+    }
+  };
+
+  // Helper to get speed multiplier for scoring
+  const getSpeedMultiplier = (speed: PlaybackSpeed): number => {
+    switch (speed) {
+      case '0.5x': return 1.2;  // 20% score boost for slowest speed
+      case '0.75x': return 1.1; // 10% score boost for medium speed
+      case '1x': return 1.0;    // No adjustment for normal speed
+      default: return 1.0;
+    }
+  };
+
+  // Handle speed change
+  const handleSpeedChange = (speed: PlaybackSpeed) => {
+    console.log('[KaraokeSession] handleSpeedChange called with:', speed);
+    setPlaybackSpeed(speed);
+    const audio = audioElement();
+    if (audio) {
+      const rate = getPlaybackRate(speed);
+      console.log('[KaraokeSession] Setting audio playback rate to:', rate, 'audio paused:', audio.paused);
+      audio.playbackRate = rate;
+    } else {
+      console.log('[KaraokeSession] No audio element available yet');
+    }
+  };
 
   const startSession = async () => {
     // Initialize audio capture
@@ -80,7 +116,8 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
             difficulty: 'intermediate', // Default difficulty
           },
           undefined, // authToken
-          options.songCatalogId
+          options.songCatalogId,
+          playbackSpeed()
         );
         
         if (session) {
@@ -117,6 +154,10 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     
     const audio = audioElement() || options.audioElement;
     if (audio) {
+      // Set playback rate based on current speed
+      const rate = getPlaybackRate(playbackSpeed());
+      console.log('[KaraokeSession] Starting playback with speed:', playbackSpeed(), 'rate:', rate);
+      audio.playbackRate = rate;
       // If audio element is provided, use it
       audio.play().catch(console.error);
       
@@ -182,8 +223,10 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     // Start audio capture for this chunk
     audioProcessor.startRecordingLine(chunk.startIndex);
     
-    // Calculate recording duration
-    const duration = calculateRecordingDuration(options.lyrics, chunk);
+    // Calculate recording duration adjusted for playback speed
+    const baseDuration = calculateRecordingDuration(options.lyrics, chunk);
+    const speedFactor = 1 / getPlaybackRate(playbackSpeed()); // Inverse of playback rate
+    const duration = baseDuration * speedFactor;
     
     // Stop recording after duration
     recordingTimeout = setTimeout(() => {
@@ -247,15 +290,21 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
         audioBase64,
         chunk.expectedText,
         options.lyrics[chunk.startIndex]?.startTime || 0,
-        (options.lyrics[chunk.endIndex]?.startTime || 0) + (options.lyrics[chunk.endIndex]?.duration || 0) / 1000
+        (options.lyrics[chunk.endIndex]?.startTime || 0) + (options.lyrics[chunk.endIndex]?.duration || 0) / 1000,
+        undefined, // authToken
+        playbackSpeed()
       );
       
       if (lineScore) {
         
+        // Apply speed multiplier to score for language learners
+        const speedMultiplier = getSpeedMultiplier(playbackSpeed());
+        const adjustedScore = Math.min(100, Math.round(lineScore.score * speedMultiplier));
+        
         // Update line scores
         const newLineScore = {
           lineIndex: chunk.startIndex,
-          score: lineScore.score,
+          score: adjustedScore,
           transcription: lineScore.transcript || '',
           feedback: lineScore.feedback
         };
@@ -421,15 +470,23 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     lineScores,
     isRecording,
     currentChunk,
+    playbackSpeed,
     
     // Actions
     startSession,
     stopSession,
+    handleSpeedChange,
     
     // Audio processor (for direct access if needed)
     audioProcessor,
     
     // Method to update audio element after initialization
-    setAudioElement
+    setAudioElement: (element: HTMLAudioElement | undefined) => {
+      setAudioElement(element);
+      // Apply current playback rate to new audio element
+      if (element) {
+        element.playbackRate = getPlaybackRate(playbackSpeed());
+      }
+    }
   };
 }

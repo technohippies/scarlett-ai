@@ -28,7 +28,8 @@ export class KaraokeApiService {
     trackId: string,
     songData: { title: string; artist: string; geniusId?: string; duration?: number; difficulty?: string },
     authToken?: string,
-    songCatalogId?: string
+    songCatalogId?: string,
+    playbackSpeed?: string
   ): Promise<KaraokeSession | null> {
     try {
       const headers: HeadersInit = {
@@ -46,6 +47,7 @@ export class KaraokeApiService {
           trackId,
           songData,
           songCatalogId,
+          playbackSpeed,
         }),
       });
 
@@ -69,7 +71,8 @@ export class KaraokeApiService {
     expectedText: string,
     startTime: number,
     endTime: number,
-    authToken?: string
+    authToken?: string,
+    playbackSpeed?: string
   ): Promise<LineScore | null> {
     try {
       const headers: HeadersInit = {
@@ -90,6 +93,7 @@ export class KaraokeApiService {
           expectedText,
           startTime,
           endTime,
+          playbackSpeed,
         }),
       });
 

@@ -75,7 +75,8 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     startSession,
     stopSession,
     score: sessionScore,
-    lineScores
+    lineScores,
+    handleSpeedChange
   } = useKaraokeSession({
     lyrics: props.lyrics,
     audioElement: audio,
@@ -119,11 +120,10 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     setViewState('completion');
   };
   
-  // Handle speed change
-  const handleSpeedChange = (speed: PlaybackSpeed) => {
+  // Handle speed change from UI
+  const onSpeedChange = (speed: PlaybackSpeed) => {
     setPlaybackSpeed(speed);
-    const rate = speed === '1x' ? 1 : speed === '0.75x' ? 0.75 : 0.5;
-    audio.playbackRate = rate;
+    handleSpeedChange(speed); // Use the handler from useKaraokeSession
   };
 
   return (
@@ -140,7 +140,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
             isPlaying={isPlaying() || countdown() !== null}
             onStart={startSession}
             onBack={handleStop}
-            onSpeedChange={handleSpeedChange}
+            onSpeedChange={onSpeedChange}
             leaderboard={[]}
             lineScores={lineScores()}
           />
