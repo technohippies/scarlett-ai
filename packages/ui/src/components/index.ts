@@ -54,6 +54,7 @@ export * from './web/CreditPack';
 export * from './web/WalletConnect';
 export * from './web/UserProfile';
 export * from './web/FarcasterMiniApp';
+export * from './web/AuthButton';
 
 // Page Components
 export * from './pages/HomePage';

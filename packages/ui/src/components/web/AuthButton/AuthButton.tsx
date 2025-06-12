@@ -1,8 +1,8 @@
-import { Component, Show, createSignal } from 'solid-js';
+import { Show, createSignal } from 'solid-js';
+import type { JSX } from 'solid-js';
 import { Button } from '../../common/Button';
 import { HiOutlineUser, HiOutlineChevronDown } from 'solid-icons/hi';
 import { FiLogOut } from 'solid-icons/fi';
-import { Motion, Presence } from 'solid-motionone';
 
 export interface AuthButtonProps {
   user?: {
@@ -19,7 +19,7 @@ export interface AuthButtonProps {
   class?: string;
 }
 
-export const AuthButton: Component<AuthButtonProps> = (props) => {
+export function AuthButton(props: AuthButtonProps) {
   const [showDropdown, setShowDropdown] = createSignal(false);
 
   const formatAddress = (address: string) => {
@@ -91,15 +91,10 @@ export const AuthButton: Component<AuthButtonProps> = (props) => {
           />
         </button>
 
-        <Presence>
-          <Show when={showDropdown()}>
-            <Motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              transition={{ duration: 0.15 }}
-              class="absolute right-0 mt-2 w-56 rounded-lg bg-surface-elevated border border-border-subtle shadow-lg overflow-hidden z-50"
-            >
+        <Show when={showDropdown()}>
+          <div
+            class="absolute right-0 mt-2 w-56 rounded-lg bg-surface-elevated border border-border-subtle shadow-lg overflow-hidden z-50"
+          >
               <div class="p-2">
                 <div class="px-3 py-2">
                   <p class="text-sm font-medium text-content">
@@ -122,10 +117,9 @@ export const AuthButton: Component<AuthButtonProps> = (props) => {
                   Sign Out
                 </button>
               </div>
-            </Motion.div>
+            </div>
           </Show>
-        </Presence>
       </Show>
     </div>
   );
-};
+}

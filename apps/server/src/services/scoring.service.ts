@@ -16,6 +16,12 @@ export class ScoringService {
     // Normalize texts
     const normalizedExpected = this.normalizeText(expectedText);
     const normalizedTranscribed = this.normalizeText(transcribedText);
+    
+    // Debug log normalized texts
+    console.log('[Scoring] Normalized comparison:', {
+      expected: normalizedExpected,
+      transcribed: normalizedTranscribed
+    });
 
     // Calculate base similarity score
     const baseSimilarity = this.calculateStringSimilarity(
