@@ -25,9 +25,9 @@ export const ResponseFooter: Component<ResponseFooterProps> = (props) => {
               <div class="flex items-center gap-4">
                 <Show
                   when={props.isCorrect}
-                  fallback={<IconXCircleFill style="color: #ef4444;" class="w-16 h-16 flex-shrink-0" />}
+                  fallback={<IconXCircleFill class="w-16 h-16 flex-shrink-0 text-red-500" style="color: #ef4444;" />}
                 >
-                  <IconCheckCircleFill style="color: #22c55e;" class="w-16 h-16 flex-shrink-0" />
+                  <IconCheckCircleFill class="w-16 h-16 flex-shrink-0 text-green-500" style="color: #22c55e;" />
                 </Show>
                 <div>
                   <p class="text-2xl font-bold" style={`color: ${props.isCorrect ? '#22c55e' : '#ef4444'};`}>

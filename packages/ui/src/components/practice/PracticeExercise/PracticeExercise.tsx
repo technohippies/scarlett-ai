@@ -6,6 +6,7 @@ import { ExerciseFooter } from '../ExerciseFooter';
 import { ExerciseTemplate } from '../ExerciseTemplate';
 import { ReadAloud } from '../ReadAloud';
 import { cn } from '../../../utils/cn';
+import { soundManager } from '../../../utils/sound';
 
 export interface Exercise {
   id: string;
@@ -69,6 +70,9 @@ export const PracticeExercise: Component<PracticeExerciseProps> = (props) => {
     const correct = normalizedTranscript === normalizedAnswer;
     
     setIsCorrect(correct);
+    
+    // Play appropriate sound
+    soundManager.play(correct ? 'correct' : 'incorrect');
     
     // Add result
     const newResult = {

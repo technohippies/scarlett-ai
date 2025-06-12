@@ -7,6 +7,7 @@ import { ExerciseTemplate } from '../ExerciseTemplate';
 import { ExerciseFooter } from '../ExerciseFooter';
 import { ResponseFooter } from '../ResponseFooter';
 import type { ReadAloudExercise as Exercise } from '@scarlett/core';
+import { soundManager } from '../../../utils/sound';
 
 export interface PracticeExerciseViewProps {
   sessionId?: string;
@@ -228,6 +229,9 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
     // Determine if correct (100% after normalization)
     setIsCorrect(score === 100);
     setShowFeedback(true);
+    
+    // Play appropriate sound
+    soundManager.play(score === 100 ? 'correct' : 'incorrect');
     
     if (currentExercise && currentExercise.card_ids.length > 0 && blob) {
       try {

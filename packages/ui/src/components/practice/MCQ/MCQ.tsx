@@ -2,6 +2,7 @@ import { createSignal, For, Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import { Button } from '../../common/Button';
 import { cn } from '../../../utils/cn';
+import { soundManager } from '../../../utils/sound';
 
 export interface Option {
   id: string | number;
@@ -32,6 +33,13 @@ export const MCQ: Component<MCQProps> = (props) => {
     
     setSelectedOptionId(optionId);
     setShowFeedback(true);
+    
+    // Play appropriate sound
+    if (optionId === props.correctOptionId) {
+      soundManager.play('correct');
+    } else {
+      soundManager.play('incorrect');
+    }
     
     // Small delay before calling onComplete to allow user to see feedback
     setTimeout(() => {
