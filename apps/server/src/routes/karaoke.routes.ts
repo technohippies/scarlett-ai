@@ -721,7 +721,13 @@ app.post('/grade', async (c) => {
     // Grade the transcription
     const scoringService = new (await import('../services/scoring.service')).ScoringService();
     const scoreResult = scoringService.calculateKaraokeScore(expectedText, transcription.transcript);
-    // Score calculated
+    
+    // Log comparison for debugging
+    console.log('[Karaoke] Comparison:', {
+      expected: expectedText,
+      transcribed: transcription.transcript,
+      score: scoreResult.finalScore
+    });
     
     // Generate feedback
     const feedback = scoringService.generateFeedback(
