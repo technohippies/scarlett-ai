@@ -8,6 +8,7 @@ export function parseJWT(token: string): JWTPayload | null {
     }
 
     const payload = parts[1];
+    if (!payload) return null;
     const decoded = atob(payload);
     return JSON.parse(decoded);
   } catch {

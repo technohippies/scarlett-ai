@@ -7,6 +7,12 @@ interface EthereumProvider {
   removeListener?: (event: string, handler: (...args: any[]) => void) => void;
 }
 
+declare global {
+  interface Window {
+    ethereum?: EthereumProvider;
+  }
+}
+
 export class WalletAuthProvider extends BaseAuthProvider {
   private provider?: EthereumProvider;
   private address?: string;
@@ -69,7 +75,7 @@ export class WalletAuthProvider extends BaseAuthProvider {
         throw new Error('Failed to authenticate with wallet');
       }
 
-      const data = await response.json();
+      const data = await response.json() as { token: string; user: User };
       return {
         token: data.token,
         user: data.user,

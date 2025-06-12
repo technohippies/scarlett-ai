@@ -83,15 +83,11 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
 
   // Handle speed change
   const handleSpeedChange = (speed: PlaybackSpeed) => {
-    console.log('[KaraokeSession] handleSpeedChange called with:', speed);
     setPlaybackSpeed(speed);
     const audio = audioElement();
     if (audio) {
       const rate = getPlaybackRate(speed);
-      console.log('[KaraokeSession] Setting audio playback rate to:', rate, 'audio paused:', audio.paused);
       audio.playbackRate = rate;
-    } else {
-      console.log('[KaraokeSession] No audio element available yet');
     }
   };
 
@@ -156,7 +152,6 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
     if (audio) {
       // Set playback rate based on current speed
       const rate = getPlaybackRate(playbackSpeed());
-      console.log('[KaraokeSession] Starting playback with speed:', playbackSpeed(), 'rate:', rate);
       audio.playbackRate = rate;
       // If audio element is provided, use it
       audio.play().catch(console.error);

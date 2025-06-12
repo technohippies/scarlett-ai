@@ -26,6 +26,7 @@ export * from './common/Card';
 export * from './common/Tabs';
 export * from './common/SplitButton';
 export * from './common/ProgressBar';
+export * from './common/Modal';
 
 // Effects Components
 export * from './effects/FireEmojiAnimation';

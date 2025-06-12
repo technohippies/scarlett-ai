@@ -1,12 +1,15 @@
 import { BaseAuthProvider } from './base';
 import type { User } from '@scarlett/core';
-import { createApiClient } from '@scarlett/api-client';
+import { createApiClient, type ApiClientConfig } from '@scarlett/api-client';
 
 export class DemoAuthProvider extends BaseAuthProvider {
   private apiClient: ReturnType<typeof createApiClient>;
 
-  constructor(config: Parameters<typeof createApiClient>[0]) {
-    super(config);
+  constructor(config: ApiClientConfig & { apiUrl?: string }) {
+    super({ 
+      apiUrl: config.apiUrl || config.baseUrl,
+      onError: config.onError 
+    });
     this.apiClient = createApiClient(config);
   }
 

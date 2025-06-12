@@ -24,8 +24,11 @@ export class FarcasterAuthProvider extends BaseAuthProvider {
   private sdk: FarcasterSDK;
   private apiClient: ReturnType<typeof createApiClient>;
 
-  constructor(config: { sdk: FarcasterSDK } & ApiClientConfig) {
-    super(config);
+  constructor(config: { sdk: FarcasterSDK } & ApiClientConfig & { apiUrl?: string }) {
+    super({ 
+      apiUrl: config.apiUrl || config.baseUrl,
+      onError: config.onError 
+    });
     this.sdk = config.sdk;
     this.apiClient = createApiClient(config);
   }
@@ -70,7 +73,7 @@ export class FarcasterAuthProvider extends BaseAuthProvider {
         throw new Error('Failed to authenticate with Farcaster');
       }
 
-      const data = await response.json();
+      const data = await response.json() as { token: string; user: User };
       return {
         token: data.token,
         user: data.user,

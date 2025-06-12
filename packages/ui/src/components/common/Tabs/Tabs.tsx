@@ -43,14 +43,8 @@ const TabsContext = createContext<TabsContextValue>();
 export const Tabs: ParentComponent<TabsProps> = (props) => {
   const [activeTab, setActiveTab] = createSignal(props.defaultTab || props.tabs[0]?.id || '');
   
-  console.log('[Tabs] Initializing with:', {
-    defaultTab: props.defaultTab,
-    firstTabId: props.tabs[0]?.id,
-    activeTab: activeTab()
-  });
   
   const handleTabChange = (id: string) => {
-    console.log('[Tabs] Tab changed to:', id);
     setActiveTab(id);
     props.onTabChange?.(id);
   };

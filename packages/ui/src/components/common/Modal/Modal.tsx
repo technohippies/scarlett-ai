@@ -77,13 +77,13 @@ export const Modal: Component<ModalProps> = (props) => {
           {...others}
         >
           {/* Backdrop */}
-          <div class="absolute inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" />
+          <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-200" />
           
           {/* Modal */}
           <div
             class={cn(
               'relative bg-elevated rounded-xl shadow-2xl border border-subtle',
-              'animate-in zoom-in-95 fade-in duration-200',
+              'transition-all duration-200 scale-100 opacity-100',
               'max-h-[90vh] overflow-hidden flex flex-col',
               {
                 // Sizes

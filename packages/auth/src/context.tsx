@@ -1,4 +1,4 @@
-import { createContext, useContext, ParentComponent } from 'solid-js';
+import { createContext, useContext, type ParentComponent } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { User, AuthProvider as AuthProviderType } from '@scarlett/core';
 import type { BaseAuthProvider } from './providers';
@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextValue>();
 
 export interface AuthProviderProps {
   providers: Record<AuthProviderType, BaseAuthProvider>;
-  storage?: Storage;
+  storage?: Storage | null;
   storageKey?: string;
 }
 
