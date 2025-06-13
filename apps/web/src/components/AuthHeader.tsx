@@ -64,7 +64,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
 
   return (
     <header class="bg-surface border-b border-subtle p-4">
-      <div class="flex items-center justify-between gap-4">
+      <div class="flex items-center">
         {/* Left side: Streak and Crown */}
         <div 
           class="flex items-center gap-3"
@@ -73,8 +73,10 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
             transform: isSearchActive() ? 'translateX(-20px)' : 'translateX(0)',
             transition: 'all 0.3s ease-out',
             width: isSearchActive() ? 0 : 'auto',
+            'max-width': isSearchActive() ? 0 : '200px',
             overflow: 'hidden',
-            'white-space': 'nowrap'
+            'white-space': 'nowrap',
+            'margin-right': isSearchActive() ? 0 : '8px'
           }}
         >
             <Show when={props.currentStreak !== undefined}>
@@ -97,7 +99,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
         <div 
           style={{
             flex: '1',
-            'margin': isSearchActive() ? '0' : '0 8px'
+            width: '100%'
           }}
         >
           <div
@@ -195,12 +197,14 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
         {/* Right side: Wallet Button */}
         <div 
           style={{ 
-            'min-width': '40px',
+            'min-width': isSearchActive() ? 0 : '40px',
+            'max-width': isSearchActive() ? 0 : '40px',
             opacity: isSearchActive() ? 0 : 1,
             transform: isSearchActive() ? 'translateX(20px)' : 'translateX(0)',
             transition: 'all 0.3s ease-out',
-            width: isSearchActive() ? 0 : 'auto',
-            overflow: 'hidden'
+            width: isSearchActive() ? 0 : '40px',
+            overflow: 'hidden',
+            'margin-left': isSearchActive() ? 0 : '8px'
           }}
         >
             <Show 

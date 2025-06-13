@@ -13,6 +13,10 @@ export interface Song {
   source?: 'local' | 'soundcloak';
   plays?: number;
   likes?: number;
+  artworkUrl?: string;
+  artworkUrlSmall?: string;
+  artworkUrlMedium?: string;
+  artworkUrlLarge?: string;
 }
 
 export interface SearchPageProps {
