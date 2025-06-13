@@ -23,6 +23,54 @@ type Story = StoryObj<LyricDetailSliderProps>;
 // Wrapper component to handle state
 const LyricDetailSliderDemo = (props: LyricDetailSliderProps) => {
   const [isOpen, setIsOpen] = createSignal(props.isOpen ?? true);
+  const [translatedText, setTranslatedText] = createSignal(props.lyric.translatedText);
+  const [annotations, setAnnotations] = createSignal(props.lyric.annotations);
+  const [isLoading, setIsLoading] = createSignal(false);
+  
+  // Simulate streaming translation
+  const handleTranslate = async (targetLang: 'en' | 'es') => {
+    console.log('Translating to:', targetLang);
+    props.onTranslate?.(targetLang);
+    
+    setIsLoading(true);
+    setTranslatedText(undefined);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Simulate streaming response
+    const mockTranslation = targetLang === 'es' 
+      ? "El tiempo de encender un fósforo"
+      : "Time to strike a match";
+    
+    setTranslatedText(mockTranslation);
+    setIsLoading(false);
+  };
+  
+  // Simulate annotation loading
+  const handleAnnotate = async () => {
+    console.log('Getting annotations');
+    props.onAnnotate?.();
+    
+    setIsLoading(true);
+    setAnnotations(undefined);
+    
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    setAnnotations([
+      {
+        word: "strike",
+        meaning: "to hit forcefully; to light (a match) by rubbing",
+        pronunciation: "straɪk"
+      },
+      {
+        word: "match",
+        meaning: "a small stick with a substance that burns when rubbed",
+        pronunciation: "mætʃ"
+      }
+    ]);
+    setIsLoading(false);
+  };
   
   return (
     <div style={{ 'min-height': '100vh', background: '#0a0a0a', padding: '20px' }}>
@@ -41,11 +89,19 @@ const LyricDetailSliderDemo = (props: LyricDetailSliderProps) => {
       </button>
       <LyricDetailSlider
         {...props}
+        lyric={{
+          ...props.lyric,
+          translatedText: translatedText(),
+          annotations: annotations()
+        }}
         isOpen={isOpen()}
+        isLoading={isLoading()}
         onClose={() => {
           setIsOpen(false);
           props.onClose?.();
         }}
+        onTranslate={handleTranslate}
+        onAnnotate={handleAnnotate}
       />
     </div>
   );
@@ -56,13 +112,13 @@ export const Default: Story = {
   args: {
     isOpen: true,
     lyric: {
-      text: "What doesn't kill you makes you stronger"
+      text: "Time to strike a match"
     },
     songContext: {
-      title: "Stronger",
-      artist: "Kelly Clarkson",
-      lineIndex: 5,
-      totalLines: 42
+      title: "TYRANT",
+      artist: "Beyoncé",
+      lineIndex: 1,
+      totalLines: 70
     },
     userLanguage: 'en',
     onClose: () => console.log('Close'),
