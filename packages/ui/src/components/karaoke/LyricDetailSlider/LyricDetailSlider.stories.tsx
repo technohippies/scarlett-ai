@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from 'storybook-solidjs';
 import { LyricDetailSlider } from './LyricDetailSlider';
 import { createSignal } from 'solid-js';
+import { I18nProvider } from '../../../i18n';
 
 const meta = {
   title: 'Karaoke/LyricDetailSlider',
@@ -13,22 +14,24 @@ const meta = {
       const [isOpen, setIsOpen] = createSignal(true);
       
       return (
-        <div style={{ 'min-height': '100vh', background: '#0a0a0a', padding: '20px' }}>
-          <button
-            onClick={() => setIsOpen(true)}
-            style={{
-              padding: '10px 20px',
-              background: '#ff3838',
-              color: 'white',
-              border: 'none',
-              'border-radius': '8px',
-              cursor: 'pointer'
-            }}
-          >
-            Open Lyric Detail
-          </button>
-          <Story isOpen={isOpen()} onClose={() => setIsOpen(false)} />
-        </div>
+        <I18nProvider defaultLocale="en">
+          <div style={{ 'min-height': '100vh', background: '#0a0a0a', padding: '20px' }}>
+            <button
+              onClick={() => setIsOpen(true)}
+              style={{
+                padding: '10px 20px',
+                background: '#ff3838',
+                color: 'white',
+                border: 'none',
+                'border-radius': '8px',
+                cursor: 'pointer'
+              }}
+            >
+              Open Lyric Detail
+            </button>
+            <Story isOpen={isOpen()} onClose={() => setIsOpen(false)} />
+          </div>
+        </I18nProvider>
       );
     }
   ],

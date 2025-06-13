@@ -268,6 +268,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
             onBack={handleStop}
             leaderboard={[]}
             lineScores={lineScores()}
+            onLyricClick={handleLyricClick}
           />
         </Match>
         
@@ -309,6 +310,27 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       
       {/* Shared countdown component - overlays everything */}
       <Countdown count={countdown()} />
+      
+      {/* Lyric Detail Slider */}
+      <LyricDetailSlider
+        isOpen={showLyricDetail()}
+        lyric={{
+          text: selectedLyric()?.lyric.text || '',
+          translatedText: lyricTranslation(),
+          annotations: lyricAnnotations()
+        }}
+        songContext={{
+          title: props.title,
+          artist: props.artist,
+          lineIndex: selectedLyric()?.index || 0,
+          totalLines: props.lyrics.length
+        }}
+        userLanguage={getUserLanguage()}
+        isLoading={isLoadingLyricDetail()}
+        onClose={() => setShowLyricDetail(false)}
+        onTranslate={handleTranslate}
+        onAnnotate={handleAnnotate}
+      />
     </div>
   );
 };

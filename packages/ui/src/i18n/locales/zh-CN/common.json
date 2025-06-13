@@ -35,5 +35,13 @@
     "tryDifferent": "试试搜索其他内容",
     "resultsCount": "{{count}} 个结果",
     "loadMore": "加载更多"
+  },
+  "lyricDetail": {
+    "close": "关闭",
+    "translateTo": "翻译成{{lang}}",
+    "showAnnotations": "显示注释",
+    "practiceThisLine": "练习这一行",
+    "translation": "翻译",
+    "annotations": "注释"
   }
 }

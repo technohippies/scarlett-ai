@@ -29,6 +29,7 @@ export interface FarcasterKaraokeViewProps {
   isPlaying?: boolean;
   onStart?: () => void;
   onBack?: () => void;
+  onLyricClick?: (lyric: LyricLine, index: number) => void;
   
   class?: string;
 }
@@ -80,6 +81,7 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
               currentTime={props.currentTime}
               isPlaying={props.isPlaying}
               lineScores={props.lineScores}
+              onLyricClick={props.onLyricClick}
             />
           </div>
           

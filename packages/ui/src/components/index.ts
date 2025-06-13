@@ -20,6 +20,7 @@ export * from './karaoke/CompletionView';
 export * from './karaoke/KaraokeSession';
 export * from './karaoke/KaraokeCompletion';
 export * from './karaoke/Countdown';
+export * from './karaoke/LyricDetailSlider';
 
 // Common Components
 export * from './common/Button';

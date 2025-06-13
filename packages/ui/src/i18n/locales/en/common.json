@@ -35,5 +35,13 @@
     "tryDifferent": "Try searching for something else",
     "resultsCount": "{{count}} results",
     "loadMore": "Load more"
+  },
+  "lyricDetail": {
+    "close": "Close",
+    "translateTo": "Translate to {{lang}}",
+    "showAnnotations": "Show Annotations",
+    "practiceThisLine": "Practice This Line",
+    "translation": "Translation",
+    "annotations": "Annotations"
   }
 }
