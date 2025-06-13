@@ -119,16 +119,13 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                         <p class="text-text-secondary text-sm">
                           {song.artist}
                         </p>
-                        <Show when={song.source || song.plays}>
+                        <Show when={song.plays || song.hasLyrics}>
                           <p class="text-text-tertiary text-xs mt-1">
-                            <Show when={song.source === 'soundcloak'}>
-                              <span>From SoundCloud</span>
-                              <Show when={song.plays}>
-                                <span> • {song.plays.toLocaleString()} plays</span>
-                              </Show>
+                            <Show when={song.plays}>
+                              <span>{song.plays.toLocaleString()} plays</span>
                             </Show>
                             <Show when={song.hasLyrics}>
-                              <span class="text-accent-success"> • Has lyrics ✓</span>
+                              <span class="text-accent-success"><Show when={song.plays}> • </Show>Has lyrics ✓</span>
                             </Show>
                           </p>
                         </Show>
