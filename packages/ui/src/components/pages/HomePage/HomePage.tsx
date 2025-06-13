@@ -1,7 +1,8 @@
 import type { Component } from 'solid-js';
-import { For, Show } from 'solid-js';
+import { For, Show, createSignal } from 'solid-js';
 import { useI18n } from '../../../i18n/provider';
 import { Button } from '../../common/Button';
+import { SearchInput } from '../../common/SearchInput';
 
 export interface Song {
   id: string;
@@ -15,10 +16,12 @@ export interface HomePageProps {
   onSongSelect?: (song: Song) => void;
   showHero?: boolean;
   onGetStarted?: () => void;
+  onSearch?: (query: string) => void;
 }
 
 export const HomePage: Component<HomePageProps> = (props) => {
   const { t } = useI18n();
+  const [searchQuery, setSearchQuery] = createSignal('');
   
   const songItemStyle = {
     padding: '16px',
@@ -101,17 +104,43 @@ export const HomePage: Component<HomePageProps> = (props) => {
         </div>
       </Show>
       
-      {/* Popular Songs Section */}
-      <div style={{ padding: '24px 16px 8px 16px' }}>
-        <h2 style={{ margin: '0 0 8px 0', 'font-size': '28px', 'font-weight': 'bold' }}>
-          {t('homepage.popularSongs.title')}
-        </h2>
-        <p style={{ margin: '0 0 16px 0', color: 'var(--color-text-secondary)', 'font-size': '16px' }}>
-          {t('homepage.popularSongs.subtitle')}
-        </p>
+      {/* Search Section */}
+      <div style={{ 
+        'background-color': 'var(--color-bg-surface)',
+        'border-bottom': '1px solid var(--color-border-default)',
+        padding: '32px 16px'
+      }}>
+        <div style={{ 
+          'max-width': '672px',
+          margin: '0 auto'
+        }}>
+          <SearchInput
+            value={searchQuery()}
+            onInput={(e) => {
+              const value = e.currentTarget.value;
+              setSearchQuery(value);
+              props.onSearch?.(value);
+            }}
+            onClear={() => {
+              setSearchQuery('');
+              props.onSearch?.('');
+            }}
+            placeholder={t('search.placeholder', 'Search songs, artists...')}
+            style={{
+              width: '100%'
+            }}
+          />
+        </div>
       </div>
       
-      <div style={{ padding: '16px' }}>
+      {/* Trending Songs Section */}
+      <div style={{ padding: '16px 16px 0 16px' }}>
+        <h2 style={{ margin: '0', 'font-size': '20px', 'font-weight': 'bold' }}>
+          Trending Songs
+        </h2>
+      </div>
+      
+      <div style={{ padding: '8px 16px 16px 16px' }}>
         <For each={props.songs}>
           {(song, index) => (
             <div 

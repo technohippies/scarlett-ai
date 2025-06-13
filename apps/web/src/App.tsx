@@ -289,6 +289,8 @@ const App = () => {
           <AuthHeader 
             farcasterUser={farcasterUser()} 
             onAuthSuccess={handleAuthSuccess}
+            currentStreak={7}
+            hasTopPosition={true}
           />
         </Show>
         
@@ -349,8 +351,6 @@ const App = () => {
                 songs={popularSongs() || []}
                 onSongSelect={handleSongSelect}
                 showHero={true}
-                showStreak={true}
-                currentStreak={7}
               />
             </Show>
           </Show>

@@ -26,18 +26,8 @@ export const Default: Story = {
     songs: mockSongs,
     onSongSelect: (song) => console.log('Selected:', song),
     showHero: true,
-    onGetStarted: () => console.log('Get started clicked')
-  },
-};
-
-export const WithStreak: Story = {
-  args: {
-    songs: mockSongs,
-    onSongSelect: (song) => console.log('Selected:', song),
-    showHero: true,
-    showStreak: true,
-    currentStreak: 7,
-    onGetStarted: () => console.log('Get started clicked')
+    onGetStarted: () => console.log('Get started clicked'),
+    onSearch: (query) => console.log('Search:', query)
   },
 };
 
@@ -45,16 +35,18 @@ export const NoHero: Story = {
   args: {
     songs: mockSongs,
     onSongSelect: (song) => console.log('Selected:', song),
-    showHero: false
+    showHero: false,
+    onSearch: (query) => console.log('Search:', query)
   },
 };
 
-export const EmptyStreak: Story = {
+export const WithSearch: Story = {
   args: {
     songs: mockSongs,
     onSongSelect: (song) => console.log('Selected:', song),
     showHero: true,
-    showStreak: true,
-    currentStreak: 0
+    onGetStarted: () => console.log('Get started clicked'),
+    onSearch: (query) => console.log('Search:', query)
   },
+  name: 'With Search Focused'
 };

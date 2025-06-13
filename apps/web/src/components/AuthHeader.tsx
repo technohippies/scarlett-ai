@@ -3,6 +3,7 @@ import { Show, createEffect, createSignal } from 'solid-js';
 import { AuthButton } from '@scarlett/ui';
 import { address, isConnected, connectWallet, disconnectWallet } from '../services/wallet';
 import IconFireFill from 'phosphor-icons-solid/IconFireFill';
+import IconCrownFill from 'phosphor-icons-solid/IconCrownFill';
 
 interface AuthHeaderProps {
   farcasterUser?: {
@@ -12,6 +13,8 @@ interface AuthHeaderProps {
     pfpUrl?: string;
   };
   onAuthSuccess?: (walletAddress: string) => void;
+  currentStreak?: number;
+  hasTopPosition?: boolean;
 }
 
 export const AuthHeader: Component<AuthHeaderProps> = (props) => {
@@ -46,7 +49,23 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
   return (
     <header class="bg-surface border-b border-subtle p-4">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-4">
+          <Show when={props.currentStreak !== undefined}>
+            <div class="flex items-center gap-2">
+              <IconFireFill class="w-8 h-8 text-orange-500" style="color: #ff6b35;" />
+              <span class="text-2xl font-bold">
+                {props.currentStreak}
+              </span>
+            </div>
+          </Show>
+          <Show when={props.hasTopPosition}>
+            <div class="flex items-center gap-2">
+              <IconCrownFill class="w-8 h-8 text-yellow-500" style="color: #fbbf24;" />
+              <span class="text-xl font-bold" style="color: #fbbf24;">
+                1
+              </span>
+            </div>
+          </Show>
           <Show when={props.farcasterUser}>
             <span class="text-sm text-secondary">
               via Farcaster
