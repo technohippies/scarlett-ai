@@ -415,6 +415,42 @@ app.get('/*', async (c) => {
 
     // Processed lyrics with timing
 
+    // Step 4.5: Fetch and cache artwork images
+    let artworkData: any = null;
+    let soundcloudMetadata: any = null;
+    
+    if (c.env.DB && formattedLyrics.length > 0) {
+      try {
+        // Fetch soundcloak page to extract images and metadata
+        const soundcloakUrl = `https://sc.maid.zone/${trackId}`;
+        const scResponse = await fetch(soundcloakUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml',
+          }
+        });
+        
+        if (scResponse.ok) {
+          const html = await scResponse.text();
+          const imageService = new ImageService(c.env.DB);
+          
+          // Extract images
+          artworkData = imageService.extractSoundcloudImages(html);
+          
+          // Extract additional metadata
+          soundcloudMetadata = imageService.extractSoundcloudMetadata(html);
+          
+          console.log('[Image Service] Extracted artwork:', artworkData?.url);
+          console.log('[Image Service] Extracted metadata:', { 
+            likes: soundcloudMetadata?.likes,
+            plays: soundcloudMetadata?.plays 
+          });
+        }
+      } catch (error) {
+        console.error('[Image Service] Failed to fetch soundcloak data:', error);
+      }
+    }
+
     // Step 5: Track successful song match in database (optional - only if DB exists)
     let isNewDiscovery = false;
     let catalogId: string | null = null;
@@ -443,6 +479,17 @@ app.get('/*', async (c) => {
           )
             .bind(catalogId)
             .run();
+
+          // Update image metadata if we have fresh data
+          if (artworkData && catalogId) {
+            const imageService = new ImageService(c.env.DB);
+            await imageService.cacheImageMetadata(catalogId, artworkData);
+            
+            // Update with soundcloud metadata if available
+            if (soundcloudMetadata) {
+              await imageService.updateSongMetadata(catalogId, soundcloudMetadata);
+            }
+          }
 
           // Updated existing song
         } else {
@@ -483,7 +530,7 @@ app.get('/*', async (c) => {
               song?.url || null,
               song ? geniusMatch.confidence || 0.5 : 0,
               geniusMatch.confidence > 0.9 ? true : false,
-              song?.song_art_image_url || null,
+              artworkData?.url || song?.song_art_image_url || null,
               'lrclib',
               lyricsResult.type,
               formattedLyrics.length
@@ -491,6 +538,17 @@ app.get('/*', async (c) => {
             .run();
 
           console.log('[Song Tracking] Created new song catalog entry');
+          
+          // Cache image metadata if available
+          if (artworkData && catalogId) {
+            const imageService = new ImageService(c.env.DB);
+            await imageService.cacheImageMetadata(catalogId, artworkData);
+            
+            // Update with soundcloud metadata if available
+            if (soundcloudMetadata) {
+              await imageService.updateSongMetadata(catalogId, soundcloudMetadata);
+            }
+          }
         }
 
         // Log the match event
@@ -541,7 +599,10 @@ app.get('/*', async (c) => {
             genius_id: song.id.toString(),
             genius_url: song.url,
             album: song.album?.name,
-            artwork_url: song.song_art_image_url,
+            artwork_url: artworkData?.url || song.song_art_image_url,
+            artwork_small: artworkData?.small,
+            artwork_medium: artworkData?.medium,
+            artwork_large: artworkData?.large,
             duration: lyricsResult.metadata?.duration
               ? lyricsResult.metadata.duration * 1000
               : null,
@@ -556,6 +617,10 @@ app.get('/*', async (c) => {
         : {
             title: foundTitle || trackTitle,
             artist: foundArtist,
+            artwork_url: artworkData?.url,
+            artwork_small: artworkData?.small,
+            artwork_medium: artworkData?.medium,
+            artwork_large: artworkData?.large,
             duration: lyricsResult.metadata?.duration
               ? lyricsResult.metadata.duration * 1000
               : null,
@@ -583,6 +648,14 @@ app.get('/*', async (c) => {
       song_catalog_id: catalogId,
       is_new_discovery: isNewDiscovery,
       match_tracked: !!c.env.DB,
+      // Include soundcloud metadata if available
+      soundcloud_metadata: soundcloudMetadata ? {
+        likes: soundcloudMetadata.likes,
+        plays: soundcloudMetadata.plays,
+        reposts: soundcloudMetadata.reposts,
+        genre: soundcloudMetadata.genre,
+        user: soundcloudMetadata.user
+      } : undefined
     };
 
     return c.json(songData);
