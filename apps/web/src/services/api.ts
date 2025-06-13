@@ -139,10 +139,11 @@ class ApiService {
     return response.json();
   }
 
-  async searchSongs(query: string, limit: number = 20) {
+  async searchSongs(query: string, limit: number = 20, offset: number = 0) {
     const url = new URL(`${API_BASE_URL}/api/search`);
     url.searchParams.set('q', query);
     url.searchParams.set('limit', limit.toString());
+    url.searchParams.set('offset', offset.toString());
     
     console.log('[ApiService] Searching:', url.toString());
     

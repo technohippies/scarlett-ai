@@ -19,8 +19,11 @@ export interface SearchPageProps {
   songs?: Song[];
   onSongSelect?: (song: Song) => void;
   onSearch?: (query: string) => void;
+  onLoadMore?: () => void;
   loading?: boolean;
   searchQuery?: string;
+  hasMore?: boolean;
+  loadingMore?: boolean;
 }
 
 export const SearchPage: Component<SearchPageProps> = (props) => {
@@ -131,6 +134,25 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                 )}
               </For>
             </div>
+            
+            {/* Load More Button */}
+            <Show when={props.hasMore}>
+              <div class="mt-6 flex justify-center">
+                <button
+                  onClick={() => props.onLoadMore?.()}
+                  disabled={props.loadingMore}
+                  class="px-6 py-3 bg-surface hover:bg-surface-hover 
+                         rounded-lg transition-colors duration-200
+                         text-text-primary font-medium
+                         disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {props.loadingMore 
+                    ? t('common.search.loadingMore', 'Loading more...') 
+                    : t('common.search.loadMore', 'Load more tracks')
+                  }
+                </button>
+              </div>
+            </Show>
           </Show>
         </Show>
       </div>

@@ -31,6 +31,8 @@
     "noResults": "No results found",
     "startTyping": "Start typing to search",
     "tryDifferent": "Try searching for something else",
-    "resultsCount": "{{count}} results"
+    "resultsCount": "{{count}} results",
+    "loadMore": "Load more tracks",
+    "loadingMore": "Loading more..."
   }
 }

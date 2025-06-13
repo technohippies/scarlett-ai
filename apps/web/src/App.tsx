@@ -50,6 +50,9 @@ const App = () => {
   const [searchQuery, setSearchQuery] = createSignal('');
   const [searchResults, setSearchResults] = createSignal<Song[] | null>(null);
   const [isSearching, setIsSearching] = createSignal(false);
+  const [searchOffset, setSearchOffset] = createSignal(0);
+  const [hasMoreResults, setHasMoreResults] = createSignal(false);
+  const [isLoadingMore, setIsLoadingMore] = createSignal(false);
   let searchTimeout: NodeJS.Timeout | null = null;
   
   // User stats state
@@ -124,26 +127,31 @@ const App = () => {
       console.log('[App] Empty query, clearing results');
       setSearchResults(null);
       setIsSearching(false);
+      setSearchOffset(0);
+      setHasMoreResults(false);
       return;
     }
     
     setIsSearching(true);
+    setSearchOffset(0); // Reset offset for new search
     
     // Debounce search by 300ms
     searchTimeout = setTimeout(async () => {
       console.log('[App] Executing search for:', query);
       try {
-        const response = await apiService.searchSongs(query);
+        const response = await apiService.searchSongs(query, 20, 0);
         console.log('[App] Search response:', response);
         // Only update results if the query hasn't changed
         if (searchQuery() === query) {
           setSearchResults(response.results || []);
-          console.log('[App] Updated results:', response.results?.length || 0, 'songs');
+          setHasMoreResults(response.hasMore || false);
+          console.log('[App] Updated results:', response.results?.length || 0, 'songs, hasMore:', response.hasMore);
         }
       } catch (error) {
         console.error('[App] Search error:', error);
         if (searchQuery() === query) {
           setSearchResults([]);
+          setHasMoreResults(false);
         }
       } finally {
         if (searchQuery() === query) {
@@ -151,6 +159,30 @@ const App = () => {
         }
       }
     }, 300);
+  };
+  
+  // Handle loading more search results
+  const handleLoadMore = async () => {
+    if (isLoadingMore() || !searchQuery()) return;
+    
+    setIsLoadingMore(true);
+    const newOffset = searchOffset() + 20;
+    
+    try {
+      console.log('[App] Loading more results, offset:', newOffset);
+      const response = await apiService.searchSongs(searchQuery(), 20, newOffset);
+      console.log('[App] Load more response:', response);
+      
+      // Append results
+      const currentResults = searchResults() || [];
+      setSearchResults([...currentResults, ...(response.results || [])]);
+      setSearchOffset(newOffset);
+      setHasMoreResults(response.hasMore || false);
+    } catch (error) {
+      console.error('[App] Load more error:', error);
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   // Convert karaoke data to LyricLine format
@@ -453,7 +485,10 @@ const App = () => {
                     onSongSelect={handleSongSelect}
                     searchQuery={searchQuery()}
                     onSearch={handleSearch}
+                    onLoadMore={handleLoadMore}
                     loading={isSearching()}
+                    hasMore={hasMoreResults()}
+                    loadingMore={isLoadingMore()}
                   />
                 }
               >

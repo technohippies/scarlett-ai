@@ -24,7 +24,8 @@ searchRoutes.use('*', async (c, next) => {
 // Search schema
 const searchQuerySchema = z.object({
   q: z.string().min(1).max(100),
-  limit: z.string().optional().transform(val => val ? parseInt(val) : 20)
+  limit: z.string().optional().transform(val => val ? parseInt(val) : 20),
+  offset: z.string().optional().transform(val => val ? parseInt(val) : 0)
 });
 
 // Search songs
@@ -42,43 +43,57 @@ searchRoutes.get('/', async (c) => {
       }, 400);
     }
 
-    const { q, limit } = result.data;
-    console.log('[Search] Query:', q, 'Limit:', limit);
+    const { q, limit, offset } = result.data;
+    console.log('[Search] Query:', q, 'Limit:', limit, 'Offset:', offset);
     const songService = c.get('songService');
     
-    // First, search our local database
-    console.log('[Search] Searching local database...');
-    const localResults = await songService.searchSongs(q, limit);
-    console.log('[Search] Local results found:', localResults.length);
+    let localResults: any[] = [];
     
-    // If we have enough results locally, return them
-    if (localResults.length >= limit / 2) {
-      console.log('[Search] Returning local results only');
-      const formattedResults = localResults.map(song => ({
-        id: song.id,
-        trackId: song.trackId,
-        title: song.title,
-        artist: song.artist,
-        hasLyrics: song.lyricsType !== 'none',
-        artworkUrl: song.artworkUrl,
-        difficulty: song.difficulty,
-        totalAttempts: song.totalAttempts,
-        source: 'local'
-      }));
+    // Only search local database for first page (offset 0)
+    if (offset === 0) {
+      console.log('[Search] Searching local database...');
+      localResults = await songService.searchSongs(q, limit);
+      console.log('[Search] Local results found:', localResults.length);
+      
+      // If we have enough results locally, return them
+      if (localResults.length >= limit) {
+        console.log('[Search] Returning local results only');
+        const formattedResults = localResults.map(song => ({
+          id: song.id,
+          trackId: song.trackId,
+          title: song.title,
+          artist: song.artist,
+          hasLyrics: song.lyricsType !== 'none',
+          artworkUrl: song.artworkUrl,
+          difficulty: song.difficulty,
+          totalAttempts: song.totalAttempts,
+          source: 'local'
+        }));
 
-      return c.json({
-        success: true,
-        query: q,
-        results: formattedResults,
-        total: formattedResults.length
-      });
+        return c.json({
+          success: true,
+          query: q,
+          results: formattedResults,
+          total: formattedResults.length,
+          offset: offset,
+          hasMore: false
+        });
+      }
     }
     
-    // If not enough local results, search soundcloak
-    console.log('[Search] Not enough local results, searching soundcloak for:', q);
+    // Search soundcloak
+    console.log('[Search] Searching soundcloak for:', q, 'at offset:', offset);
     
-    // Search soundcloak - need to add type=tracks parameter
-    const searchUrl = `https://sc.maid.zone/search?q=${encodeURIComponent(q)}&type=tracks`;
+    // Construct search URL
+    let searchUrl = `https://sc.maid.zone/search?q=${encodeURIComponent(q)}&type=tracks`;
+    
+    // Add pagination for subsequent pages
+    if (offset > 0) {
+      // Soundcloak's pagination format is complex, let's try a simpler approach
+      // We'll add limit and offset as query params
+      searchUrl = `https://sc.maid.zone/search?type=tracks&q=${encodeURIComponent(q)}&limit=${limit}&offset=${offset}`;
+    }
+    
     console.log('[Search] Fetching:', searchUrl);
     
     const response = await fetch(searchUrl, {
@@ -109,13 +124,14 @@ searchRoutes.get('/', async (c) => {
         success: true,
         query: q,
         results: formattedResults,
-        total: formattedResults.length
+        total: formattedResults.length,
+        offset: offset,
+        hasMore: false
       });
     }
 
     const html = await response.text();
     console.log('[Search] HTML length:', html.length);
-    console.log('[Search] HTML preview:', html.substring(0, 500));
     
     // Extract search results from the HTML
     // Pattern: <a class="listing" href="/artist/track-name"><img...><div class="meta"><h3>Title</h3><span>Artist</span></div></a>
@@ -132,8 +148,8 @@ searchRoutes.get('/', async (c) => {
       
       console.log('[Search] Found match:', { trackId, title, artist });
       
-      // Check if we already have this track in local results
-      const existsLocally = localResults.some(song => song.trackId === trackId);
+      // Check if we already have this track in local results (only for first page)
+      const existsLocally = offset === 0 && localResults.some(song => song.trackId === trackId);
       
       if (!existsLocally) {
         // Add the track from search results
@@ -177,26 +193,34 @@ searchRoutes.get('/', async (c) => {
       }
     }
     
-    // Combine and format all results
-    const allResults = [
-      ...localResults.map(song => ({
-        id: song.id,
-        trackId: song.trackId,
-        title: song.title,
-        artist: song.artist,
-        hasLyrics: song.lyricsType !== 'none',
-        artworkUrl: song.artworkUrl,
-        difficulty: song.difficulty,
-        totalAttempts: song.totalAttempts,
-        source: 'local'
-      })),
-      ...scResults
-    ].slice(0, limit);
-
+    // Check if there's a "more tracks" button for pagination
+    const hasMoreMatch = html.match(/<a class="btn" href="\?type=tracks[^"]*">more tracks<\/a>/);
+    const hasMore = !!hasMoreMatch;
+    
+    // Combine and format all results (only for first page)
+    const allResults = offset === 0 
+      ? [
+          ...localResults.map(song => ({
+            id: song.id,
+            trackId: song.trackId,
+            title: song.title,
+            artist: song.artist,
+            hasLyrics: song.lyricsType !== 'none',
+            artworkUrl: song.artworkUrl,
+            difficulty: song.difficulty,
+            totalAttempts: song.totalAttempts,
+            source: 'local'
+          })),
+          ...scResults
+        ].slice(0, limit)
+      : scResults;
+    
     console.log('[Search] Final results:', {
       total: allResults.length,
-      local: localResults.length,
-      soundcloak: scResults.length
+      local: offset === 0 ? localResults.length : 0,
+      soundcloak: scResults.length,
+      hasMore,
+      offset
     });
     
     return c.json({
@@ -204,8 +228,10 @@ searchRoutes.get('/', async (c) => {
       query: q,
       results: allResults,
       total: allResults.length,
+      offset: offset,
+      hasMore: hasMore,
       sources: {
-        local: localResults.length,
+        local: offset === 0 ? localResults.length : 0,
         soundcloak: scResults.length
       }
     });
