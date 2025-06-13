@@ -29,8 +29,7 @@ export const LeaderboardPanel: Component<LeaderboardPanelProps> = (props) => {
               class="w-16 h-16 mb-4 text-yellow-500" 
               style="color: #fbbf24;"
             />
-            <p class="text-lg text-secondary mb-2">{t('karaoke.leaderboard.empty')}</p>
-            <p class="text-sm text-tertiary">{t('karaoke.leaderboard.beFirst')}</p>
+            <p class="text-lg text-secondary">{t('karaoke.leaderboard.empty')}</p>
           </div>
         }
       >

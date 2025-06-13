@@ -46,8 +46,7 @@
     "topPerformers": "Top Performers",
     "yourRank": "Your Rank: #{{rank}}",
     "anonymous": "Anonymous",
-    "empty": "Nobody holds the crown for this song yet!",
-    "beFirst": "Be the first to claim it"
+    "empty": "Nobody holds the crown for this song yet!"
   },
   "tabs": {
     "lyrics": "Lyrics",

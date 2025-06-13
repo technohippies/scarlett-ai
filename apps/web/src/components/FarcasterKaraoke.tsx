@@ -234,21 +234,47 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     }
     
     setIsLoadingLyricDetail(true);
+    setLyricTranslation(''); // Clear previous translation
+    
     try {
-      // TODO: Call translation API when available
-      // For now, simulate with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const stream = await apiService.translateLyric(lyricText, targetLang);
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
       
-      // Mock translation
-      const translation = targetLang === 'es' 
-        ? 'Esta es una traducción de ejemplo'
-        : 'This is an example translation';
+      let translatedText = '';
+      let buffer = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+            
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.text) {
+                translatedText += parsed.text;
+                setLyricTranslation(translatedText);
+              }
+            } catch (e) {
+              console.error('Failed to parse SSE:', e);
+            }
+          }
+        }
+      }
       
       // Save to cache
-      translationCache.set(cacheKey, translation);
-      setLyricTranslation(translation);
+      translationCache.set(cacheKey, translatedText);
     } catch (error) {
       console.error('Translation failed:', error);
+      setLyricTranslation('Translation failed');
     } finally {
       setIsLoadingLyricDetail(false);
     }
@@ -269,24 +295,14 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     
     setIsLoadingLyricDetail(true);
     try {
-      // TODO: Call annotation API when available
-      // For now, simulate with timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock annotations
-      const annotations = [
-        {
-          word: 'example',
-          meaning: 'a thing characteristic of its kind or illustrating a general rule',
-          pronunciation: 'ɪɡˈzɑːmpl'
-        }
-      ];
+      const annotations = await apiService.annotateLyric(lyricText);
       
       // Save to cache
       annotationsCache.set(lyricText, annotations);
       setLyricAnnotations(annotations);
     } catch (error) {
       console.error('Annotation failed:', error);
+      setLyricAnnotations([]);
     } finally {
       setIsLoadingLyricDetail(false);
     }

@@ -22,6 +22,7 @@ import { searchRoutes } from './routes/search.routes';
 import { userRoutes } from './routes/user.routes';
 import { performanceRoutes } from './routes/performance.routes';
 import imageRoutes from './routes/images.routes';
+import { lyricsRoutes } from './routes/lyrics.routes';
 import docsApp from './docs/openapi';
 
 // Create app
@@ -65,6 +66,7 @@ app.route('/api/search', searchRoutes);
 app.route('/api/users', userRoutes);
 app.route('/api/performances', performanceRoutes);
 app.route('/api/images', imageRoutes);
+app.route('/api/lyrics', lyricsRoutes);
 
 // Documentation (only in development)
 app.use('/docs/*', async (c, next) => {

@@ -69,7 +69,6 @@ export interface Translations {
       yourRank: string;
       anonymous: string;
       empty: string;
-      beFirst: string;
     };
     tabs: {
       lyrics: string;

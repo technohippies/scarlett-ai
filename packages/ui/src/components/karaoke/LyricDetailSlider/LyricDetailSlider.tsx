@@ -184,20 +184,20 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                   </Show>
                   
                   {/* Translation - with TextEffect when loading */}
-                  <div class="text-2xl leading-relaxed text-primary break-words">
-                    <Show 
-                      when={props.lyric.translatedText}
-                      fallback={
-                        <Show when={showTranslation()}>
+                  <Show when={showTranslation()}>
+                    <div class="text-2xl leading-relaxed text-primary break-words">
+                      <Show 
+                        when={props.lyric.translatedText && props.lyric.translatedText.length > 0}
+                        fallback={
                           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                        </Show>
-                      }
-                    >
-                      <TextEffect preset="fade" per="word">
-                        {props.lyric.translatedText!}
-                      </TextEffect>
-                    </Show>
-                  </div>
+                        }
+                      >
+                        <TextEffect preset="fade" per="word">
+                          {props.lyric.translatedText!}
+                        </TextEffect>
+                      </Show>
+                    </div>
+                  </Show>
                 </div>
                 
                 {/* Single Explain button */}

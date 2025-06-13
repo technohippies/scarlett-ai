@@ -247,6 +247,43 @@ class ApiService {
     const data = await response.json();
     return data.data;
   }
+
+  async translateLyric(text: string, targetLang: 'en' | 'es'): Promise<ReadableStream<Uint8Array>> {
+    const response = await fetch(`${API_BASE_URL}/api/lyrics/translate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text, targetLang }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Translation failed');
+    }
+
+    if (!response.body) {
+      throw new Error('No response body');
+    }
+
+    return response.body;
+  }
+
+  async annotateLyric(text: string): Promise<any[]> {
+    const response = await fetch(`${API_BASE_URL}/api/lyrics/annotate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Annotation failed');
+    }
+
+    const data = await response.json();
+    return data.annotations || [];
+  }
 }
 
 export const apiService = new ApiService();

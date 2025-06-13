@@ -46,8 +46,7 @@
     "topPerformers": "最佳表演者",
     "yourRank": "您的排名：第{{rank}}名",
     "anonymous": "匿名用户",
-    "empty": "这首歌还没有人占据王座！",
-    "beFirst": "成为第一个夺冠的人"
+    "empty": "这首歌还没有人占据王座！"
   },
   "tabs": {
     "lyrics": "歌词",
