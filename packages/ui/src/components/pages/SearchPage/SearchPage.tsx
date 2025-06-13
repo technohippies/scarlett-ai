@@ -96,11 +96,6 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
               </div>
             }
           >
-            <div class="mb-4">
-              <p class="text-text-secondary">
-                {filteredSongs().length} results
-              </p>
-            </div>
             
             <div class="space-y-2">
               <For each={filteredSongs()}>
@@ -150,9 +145,11 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
             
             {/* Load More Button */}
             <Show when={props.hasMore}>
-              <div class="mt-6 flex justify-center">
+              <div class="mt-6">
                 <Button
                   variant="secondary"
+                  size="lg"
+                  fullWidth
                   onClick={() => props.onLoadMore?.()}
                   loading={props.loadingMore}
                 >
