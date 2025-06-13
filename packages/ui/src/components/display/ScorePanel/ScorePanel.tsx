@@ -15,8 +15,8 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
   
   return (
     <div class={cn('relative overflow-hidden', props.class)}>
-      {/* Background image with gradient overlay */}
-      <Show when={props.backgroundImage || (props.score !== null && props.rank !== null)}>
+      {/* Background image with gradient overlay - always show if backgroundImage is provided */}
+      <Show when={props.backgroundImage}>
         <div class="absolute inset-0 -z-10">
           <div 
             class="absolute inset-0 bg-cover bg-center bg-no-repeat"

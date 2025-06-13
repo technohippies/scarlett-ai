@@ -189,10 +189,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       when={props.lyric.translatedText}
                       fallback={
                         <Show when={showTranslation()}>
-                          <div class="flex items-center gap-2">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                            <span class="text-sm text-secondary">Translating...</span>
-                          </div>
+                          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
                         </Show>
                       }
                     >
@@ -216,27 +213,27 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                     {t('lyricDetail.explain', 'Explain')}
                   </Button>
                 </Show>
-                  
-                  <Show when={props.onPractice}>
-                    <Button
-                      variant="primary"
-                      size="lg"
-                      fullWidth
-                      onClick={() => props.onPractice?.(props.lyric.text)}
-                      class="mt-4"
-                    >
-                      <svg viewBox="0 0 24 24" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                        <line x1="12" y1="19" x2="12" y2="23" />
-                        <line x1="8" y1="23" x2="16" y2="23" />
-                      </svg>
-                      {t('lyricDetail.practiceThisLine')}
-                    </Button>
-                  </Show>
-                  
-                  {/* Annotations - improved design */}
-                  <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.length > 0}>
+                
+                <Show when={props.onPractice}>
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    onClick={() => props.onPractice?.(props.lyric.text)}
+                    class="mt-4"
+                  >
+                    <svg viewBox="0 0 24 24" class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                      <line x1="12" y1="19" x2="12" y2="23" />
+                      <line x1="8" y1="23" x2="16" y2="23" />
+                    </svg>
+                    {t('lyricDetail.practiceThisLine')}
+                  </Button>
+                </Show>
+                
+                {/* Annotations - improved design */}
+                <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.length > 0}>
                     <div class="space-y-3 pt-4">
                       <h3 class="text-xs font-semibold text-tertiary uppercase tracking-wider">
                         {t('lyricDetail.annotations')}
@@ -264,7 +261,6 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       </div>
                     </div>
                   </Show>
-                </div>
               </div>
             </div>
           </div>

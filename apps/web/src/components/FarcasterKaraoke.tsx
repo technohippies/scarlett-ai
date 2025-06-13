@@ -39,6 +39,11 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const [lyricAnnotations, setLyricAnnotations] = createSignal<any[] | undefined>();
   const [isLoadingLyricDetail, setIsLoadingLyricDetail] = createSignal(false);
   
+  // Translation cache - key is "lyricText:targetLang"
+  const translationCache = new Map<string, string>();
+  // Annotations cache - key is lyric text
+  const annotationsCache = new Map<string, any[]>();
+  
   // Construct audio URL based on trackId
   const getAudioUrl = () => {
     // Check if it's a SoundCloud trackId (contains forward slash)
@@ -192,15 +197,41 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     if (!isPlaying()) {
       setSelectedLyric({ lyric, index });
       setShowLyricDetail(true);
-      // Reset previous data
-      setLyricTranslation(undefined);
-      setLyricAnnotations(undefined);
+      
+      // Check cache for translation
+      const targetLang = getUserLanguage().startsWith('es') ? 'en' : 'es';
+      const cacheKey = `${lyric.text}:${targetLang}`;
+      const cachedTranslation = translationCache.get(cacheKey);
+      
+      if (cachedTranslation) {
+        setLyricTranslation(cachedTranslation);
+      } else {
+        setLyricTranslation(undefined);
+      }
+      
+      // Check cache for annotations
+      const cachedAnnotations = annotationsCache.get(lyric.text);
+      if (cachedAnnotations) {
+        setLyricAnnotations(cachedAnnotations);
+      } else {
+        setLyricAnnotations(undefined);
+      }
     }
   };
 
   // Handle translation request
   const handleTranslate = async (targetLang: 'en' | 'es') => {
     if (!selectedLyric()) return;
+    
+    const lyricText = selectedLyric()!.lyric.text;
+    const cacheKey = `${lyricText}:${targetLang}`;
+    
+    // Check cache first
+    const cached = translationCache.get(cacheKey);
+    if (cached) {
+      setLyricTranslation(cached);
+      return;
+    }
     
     setIsLoadingLyricDetail(true);
     try {
@@ -209,11 +240,13 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock translation
-      if (targetLang === 'es') {
-        setLyricTranslation('Esta es una traducción de ejemplo');
-      } else {
-        setLyricTranslation('This is an example translation');
-      }
+      const translation = targetLang === 'es' 
+        ? 'Esta es una traducción de ejemplo'
+        : 'This is an example translation';
+      
+      // Save to cache
+      translationCache.set(cacheKey, translation);
+      setLyricTranslation(translation);
     } catch (error) {
       console.error('Translation failed:', error);
     } finally {
@@ -225,6 +258,15 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const handleAnnotate = async () => {
     if (!selectedLyric()) return;
     
+    const lyricText = selectedLyric()!.lyric.text;
+    
+    // Check cache first
+    const cached = annotationsCache.get(lyricText);
+    if (cached) {
+      setLyricAnnotations(cached);
+      return;
+    }
+    
     setIsLoadingLyricDetail(true);
     try {
       // TODO: Call annotation API when available
@@ -232,13 +274,17 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock annotations
-      setLyricAnnotations([
+      const annotations = [
         {
           word: 'example',
           meaning: 'a thing characteristic of its kind or illustrating a general rule',
           pronunciation: 'ɪɡˈzɑːmpl'
         }
-      ]);
+      ];
+      
+      // Save to cache
+      annotationsCache.set(lyricText, annotations);
+      setLyricAnnotations(annotations);
     } catch (error) {
       console.error('Annotation failed:', error);
     } finally {
