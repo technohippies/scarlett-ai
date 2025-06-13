@@ -58,10 +58,6 @@ const App = () => {
   // User stats state
   const [userStreak, setUserStreak] = createSignal(0);
   const [hasTopPosition, setHasTopPosition] = createSignal(false);
-  
-  // DEBUG: Test crown display
-  // Uncomment the line below to test the crown display
-  // setHasTopPosition(true);
 
   // Fetch popular songs from the API
   const [popularSongs] = createResource(async () => {
@@ -383,10 +379,6 @@ const App = () => {
         // For non-Farcaster users, use wallet address or demo user
         const userId = address() || 'demo-user';
         await fetchUserStats(userId);
-        
-        // DEBUG: Temporarily set crown for testing
-        // Remove this after testing
-        setHasTopPosition(true);
       }
       
       setIsLoading(false);
