@@ -1,6 +1,6 @@
 import { createSignal, onMount, Show, createMemo, createResource, createEffect } from 'solid-js';
 import sdk from '@farcaster/frame-sdk';
-import { HomePage, type Song, type LyricLine, SubscriptionSlider, I18nProvider } from '@scarlett/ui';
+import { HomePage, SearchPage, type Song, type LyricLine, SubscriptionSlider, I18nProvider } from '@scarlett/ui';
 import { apiService } from './services/api';
 import { FarcasterKaraoke } from './components/FarcasterKaraoke';
 import { AuthHeader } from './components/AuthHeader';
@@ -46,6 +46,7 @@ const App = () => {
   const [isProcessingSubscription, setIsProcessingSubscription] = createSignal(false);
   const [pendingSong, setPendingSong] = createSignal<Song | null>(null);
   const [pendingAction, setPendingAction] = createSignal<(() => void) | null>(null);
+  const [searchQuery, setSearchQuery] = createSignal('');
 
   // Fetch popular songs from the API
   const [popularSongs] = createResource(async () => {
@@ -81,6 +82,7 @@ const App = () => {
   const handleSongSelect = async (song: Song) => {
     setIsLoadingSong(true);
     setSelectedSong(song);
+    setSearchQuery(''); // Clear search when selecting a song
     
     try {
       // Fetch karaoke data for the song
@@ -347,11 +349,24 @@ const App = () => {
                 </div>
               }
             >
-              <HomePage
-                songs={popularSongs() || []}
-                onSongSelect={handleSongSelect}
-                showHero={true}
-              />
+              <Show
+                when={!searchQuery()}
+                fallback={
+                  <SearchPage
+                    songs={popularSongs() || []}
+                    onSongSelect={handleSongSelect}
+                    searchQuery={searchQuery()}
+                    onSearch={setSearchQuery}
+                  />
+                }
+              >
+                <HomePage
+                  songs={popularSongs() || []}
+                  onSongSelect={handleSongSelect}
+                  showHero={true}
+                  onSearch={setSearchQuery}
+                />
+              </Show>
             </Show>
           </Show>
           

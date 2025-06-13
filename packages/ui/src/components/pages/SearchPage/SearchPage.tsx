@@ -2,7 +2,7 @@ import type { Component } from 'solid-js';
 import { Show, For, createSignal } from 'solid-js';
 import { SearchInput } from '../../common/SearchInput';
 import { useI18n } from '../../../i18n/provider';
-import IconArrowRight from 'phosphor-icons-solid/IconArrowRight';
+import IconArrowRightRegular from 'phosphor-icons-solid/IconArrowRightRegular';
 
 export interface Song {
   id: string;
@@ -106,7 +106,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                           {song.artist}
                         </p>
                       </div>
-                      <IconArrowRight 
+                      <IconArrowRightRegular 
                         class="w-5 h-5 text-text-tertiary opacity-0 
                                group-hover:opacity-100 transition-opacity" 
                       />

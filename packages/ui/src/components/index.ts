@@ -30,6 +30,7 @@ export * from './common/ProgressBar';
 export * from './common/Modal';
 export * from './common/ErrorBoundary';
 export * from './common/LoadingScreen';
+export * from './common/SearchInput';
 
 // Effects Components
 export * from './effects/FireEmojiAnimation';
@@ -63,3 +64,4 @@ export * from './web/AuthButton';
 
 // Page Components
 export * from './pages/HomePage';
+export * from './pages/SearchPage';
