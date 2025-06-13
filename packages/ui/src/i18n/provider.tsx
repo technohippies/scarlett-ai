@@ -26,14 +26,23 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
     const currentLocale = locale();
     console.log('[I18nProvider] Loading translations for locale:', currentLocale);
     try {
-      const module = await import(`./locales/${currentLocale}/index.ts`);
+      let module;
+      switch (currentLocale) {
+        case 'zh-CN':
+          module = await import('./locales/zh-CN/index.ts');
+          break;
+        case 'en':
+        default:
+          module = await import('./locales/en/index.ts');
+          break;
+      }
       setTranslations(module.default);
       console.log('[I18nProvider] Successfully loaded translations for:', currentLocale);
       console.log('[I18nProvider] Available translation keys:', Object.keys(module.default));
     } catch (e) {
       console.error(`[I18nProvider] Failed to load locale ${currentLocale}:`, e);
       console.warn(`[I18nProvider] Falling back to English`);
-      const module = await import('./locales/en/index.ts');
+      const module = await import('./locales/en/index');
       setTranslations(module.default);
       console.log('[I18nProvider] Loaded fallback English translations');
     }

@@ -8,7 +8,9 @@
     "next": "Next",
     "skip": "Skip",
     "save": "Save",
-    "share": "Share"
+    "share": "Share",
+    "signIn": "Sign In",
+    "signOut": "Sign Out"
   },
   "status": {
     "loading": "Loading...",

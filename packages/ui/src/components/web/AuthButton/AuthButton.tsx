@@ -4,6 +4,7 @@ import { Button } from '../../common/Button';
 import IconUserFill from 'phosphor-icons-solid/IconUserFill';
 import IconCaretDownFill from 'phosphor-icons-solid/IconCaretDownFill';
 import IconSignOutFill from 'phosphor-icons-solid/IconSignOutFill';
+import { useI18n } from '../../../i18n/provider';
 
 export interface AuthButtonProps {
   user?: {
@@ -22,6 +23,7 @@ export interface AuthButtonProps {
 
 export function AuthButton(props: AuthButtonProps) {
   const [showDropdown, setShowDropdown] = createSignal(false);
+  const { t } = useI18n();
 
   const formatAddress = (address: string) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -52,7 +54,7 @@ export function AuthButton(props: AuthButtonProps) {
             leftIcon={<IconUserFill />}
             class={props.class}
           >
-            Sign In
+            {t('common.buttons.signIn', 'Sign In')}
           </Button>
         }
       >
@@ -110,7 +112,7 @@ export function AuthButton(props: AuthButtonProps) {
                   class="w-full flex items-center gap-2 px-3 py-2 text-sm text-primary hover:bg-highlight rounded-md transition-colors duration-200"
                 >
                   <IconSignOutFill class="w-4 h-4" />
-                  Sign Out
+                  {t('common.buttons.signOut', 'Sign Out')}
                 </button>
               </div>
             </div>

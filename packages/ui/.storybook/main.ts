@@ -12,6 +12,20 @@ const config: StorybookConfig = {
   },
   viteFinal: async (config) => {
     config.plugins?.push(solidPlugin());
+    
+    // Ensure JSON imports are supported for i18n
+    config.json = {
+      stringify: false
+    };
+    
+    // Support dynamic imports for i18n locales
+    config.build = {
+      ...config.build,
+      dynamicImportVarsOptions: {
+        include: ['src/i18n/locales/**']
+      }
+    };
+    
     return config;
   },
 }

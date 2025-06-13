@@ -129,7 +129,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
                 setSearchQuery('');
                 props.onSearch?.('');
               }}
-              placeholder={t('common.search.placeholder', 'Search songs, artists...')}
+              placeholder={t('common.search.placeholder')}
               style={{
                 width: '100%'
               }}
@@ -141,7 +141,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
       {/* Trending Songs Section */}
       <div style={{ padding: '16px 16px 0 16px' }}>
         <h2 style={{ margin: '0', 'font-size': '20px', 'font-weight': 'bold' }}>
-          Trending Songs
+          {t('homepage.trending')}
         </h2>
       </div>
       

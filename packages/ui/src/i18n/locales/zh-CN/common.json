@@ -8,7 +8,9 @@
     "next": "下一步",
     "skip": "跳过",
     "save": "保存",
-    "share": "分享"
+    "share": "分享",
+    "signIn": "登录",
+    "signOut": "退出"
   },
   "status": {
     "loading": "加载中...",
