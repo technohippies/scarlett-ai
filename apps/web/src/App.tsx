@@ -74,7 +74,11 @@ const App = () => {
       id: song.id,
       trackId: decodeURIComponent(song.trackId), // Decode the URL-encoded trackId
       title: song.title,
-      artist: song.artist
+      artist: song.artist,
+      artworkUrl: song.artworkUrl,
+      artworkUrlSmall: song.artworkUrlSmall,
+      artworkUrlMedium: song.artworkUrlMedium,
+      artworkUrlLarge: song.artworkUrlLarge
     })) || [];
   });
 
