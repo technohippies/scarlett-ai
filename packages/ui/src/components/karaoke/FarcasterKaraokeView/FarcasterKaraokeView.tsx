@@ -12,6 +12,7 @@ export interface FarcasterKaraokeViewProps {
   // Song info
   songTitle: string;
   artist: string;
+  artworkUrl?: string;
   
   // Scores
   score: number | null;
@@ -53,6 +54,7 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
         <ScorePanel
           score={props.score}
           rank={props.rank}
+          backgroundImage={props.artworkUrl}
         />
       )}
 

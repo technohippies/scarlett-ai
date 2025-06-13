@@ -17,6 +17,10 @@ const meta: Meta<ScorePanelProps> = {
       control: 'number',
       description: 'User rank',
     },
+    backgroundImage: {
+      control: 'text',
+      description: 'URL for background image',
+    },
   },
 };
 
@@ -55,5 +59,13 @@ export const MinimalValues: Story = {
   args: {
     score: 0,
     rank: 1,
+  },
+};
+
+export const WithBackgroundImage: Story = {
+  args: {
+    score: 8765,
+    rank: 3,
+    backgroundImage: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
   },
 };

@@ -94,12 +94,15 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
     }
   };
   
-  const handleTranslate = () => {
-    setShowTranslation(true);
-    props.onTranslate(selectedTargetLang());
-  };
+  // Auto-translate on open
+  createEffect(() => {
+    if (props.isOpen && !props.lyric.translatedText) {
+      setShowTranslation(true);
+      props.onTranslate(selectedTargetLang());
+    }
+  });
   
-  const handleAnnotate = () => {
+  const handleExplain = () => {
     setShowAnnotations(true);
     props.onAnnotate();
   };
@@ -145,8 +148,8 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
         exitToClass="translate-y-full"
       >
         <Show when={props.isOpen}>
-          <div class="fixed inset-x-0 bottom-0 z-50">
-            <div class="bg-elevated rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
+          <div class="fixed inset-x-0 bottom-0 z-50 overflow-hidden">
+            <div class="bg-elevated rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
               {/* Handle bar */}
               <div class="flex justify-center pt-3 pb-2">
                 <div class="w-12 h-1 bg-surface rounded-full" />
@@ -165,87 +168,54 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                 </button>
               </div>
               
-              <div class="px-6 pb-8 overflow-y-auto max-h-[80vh]">
-                {/* Song context - smaller and more subtle */}
-                <div class="text-xs text-tertiary mb-6">
-                  {props.songContext.title} • {props.songContext.artist} • {props.songContext.lineIndex + 1}/{props.songContext.totalLines}
-                </div>
-                
-                {/* Main content area */}
-                <div class="space-y-6">
-                  {/* Lyrics stacked - left aligned */}
-                  <div class="space-y-4">
-                    {/* Original lyric - same size as lyrics display */}
-                    <div class="text-2xl leading-relaxed text-primary">
-                      {props.lyric.text}
-                    </div>
-                    
-                    {/* Romanization if available */}
-                    <Show when={props.lyric.romanization}>
-                      <div class="text-lg text-secondary italic">
-                        {props.lyric.romanization}
-                      </div>
-                    </Show>
-                    
-                    {/* Translation - with TextEffect when loading */}
-                    <Show when={showTranslation()}>
-                      <div class="text-2xl leading-relaxed text-primary">
-                        <Show 
-                          when={props.lyric.translatedText}
-                          fallback={
-                            <div class="flex items-center gap-2">
-                              <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                              <span class="text-sm text-secondary">Translating...</span>
-                            </div>
-                          }
-                        >
-                          <TextEffect preset="fade" per="word">
-                            {props.lyric.translatedText!}
-                          </TextEffect>
-                        </Show>
-                      </div>
-                    </Show>
+              <div class="px-6 pb-8 space-y-6 overflow-y-auto overflow-x-hidden flex-1">
+                {/* Lyrics stacked - left aligned */}
+                <div class="space-y-4">
+                  {/* Original lyric - same size as lyrics display */}
+                  <div class="text-2xl leading-relaxed text-primary break-words">
+                    {props.lyric.text}
                   </div>
                   
-                  {/* Language detection - subtle */}
-                  <Show when={props.userLanguage && !showTranslation()}>
-                    <div class="flex items-center gap-2 text-xs text-tertiary">
-                      <svg viewBox="0 0 24 24" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                      </svg>
-                      <span>{getLanguageName(props.userLanguage)} detected</span>
+                  {/* Romanization if available */}
+                  <Show when={props.lyric.romanization}>
+                    <div class="text-lg text-secondary italic break-words">
+                      {props.lyric.romanization}
                     </div>
                   </Show>
                   
-                  {/* Action buttons - more compact */}
-                  <div class="flex gap-3 pt-2">
-                    <Show when={!showTranslation() || !props.lyric.translatedText}>
-                      <Button
-                        variant="secondary"
-                        size="md"
-                        onClick={handleTranslate}
-                        loading={props.isLoading && !props.lyric.translatedText}
-                        disabled={props.isLoading}
-                        class="flex-1"
-                      >
-                        {t('lyricDetail.translateTo', { lang: getLanguageName(selectedTargetLang()) })}
-                      </Button>
-                    </Show>
-                    
-                    <Show when={!showAnnotations() || !props.lyric.annotations}>
-                      <Button
-                        variant="secondary"
-                        size="md"
-                        onClick={handleAnnotate}
-                        loading={props.isLoading && !props.lyric.annotations}
-                        disabled={props.isLoading}
-                        class="flex-1"
-                      >
-                        {t('lyricDetail.showAnnotations')}
-                      </Button>
+                  {/* Translation - with TextEffect when loading */}
+                  <div class="text-2xl leading-relaxed text-primary break-words">
+                    <Show 
+                      when={props.lyric.translatedText}
+                      fallback={
+                        <Show when={showTranslation()}>
+                          <div class="flex items-center gap-2">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
+                            <span class="text-sm text-secondary">Translating...</span>
+                          </div>
+                        </Show>
+                      }
+                    >
+                      <TextEffect preset="fade" per="word">
+                        {props.lyric.translatedText!}
+                      </TextEffect>
                     </Show>
                   </div>
+                </div>
+                
+                {/* Single Explain button */}
+                <Show when={!showAnnotations() || !props.lyric.annotations}>
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={handleExplain}
+                    loading={props.isLoading && !props.lyric.annotations}
+                    disabled={props.isLoading}
+                    fullWidth
+                  >
+                    {t('lyricDetail.explain', 'Explain')}
+                  </Button>
+                </Show>
                   
                   <Show when={props.onPractice}>
                     <Button
