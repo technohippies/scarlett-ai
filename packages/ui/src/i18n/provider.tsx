@@ -42,7 +42,7 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
     } catch (e) {
       console.error(`[I18nProvider] Failed to load locale ${currentLocale}:`, e);
       console.warn(`[I18nProvider] Falling back to English`);
-      const module = await import('./locales/en/index');
+      const module = await import('./locales/en/index.ts');
       setTranslations(module.default);
       console.log('[I18nProvider] Loaded fallback English translations');
     }

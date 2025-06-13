@@ -5,7 +5,7 @@ import { createSignal, onMount } from 'solid-js';
 
 const meta: Meta<CompletionViewProps> = {
   title: 'Karaoke/CompletionView',
-  render: withI18n(CompletionView),
+  render: (args, context) => withI18n(CompletionView)(args, context),
   parameters: {
     layout: 'fullscreen',
   },
@@ -144,7 +144,7 @@ export const ContinuingStreak: Story = {
 };
 
 export const AnimatedStreakDemo: Story = {
-  render: (args) => {
+  render: (args, context) => {
     const AnimatedDemo = () => {
       const [streak, setStreak] = createSignal(0);
       
@@ -168,7 +168,7 @@ export const AnimatedStreakDemo: Story = {
       );
     };
     
-    return withI18n(AnimatedDemo)();
+    return withI18n(AnimatedDemo)(args, context);
   },
   decorators: [
     (Story) => {

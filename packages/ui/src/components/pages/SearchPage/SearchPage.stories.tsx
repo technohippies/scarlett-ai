@@ -4,7 +4,7 @@ import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<SearchPageProps> = {
   title: 'Pages/SearchPage',
-  render: withI18n(SearchPage),
+  render: (args, context) => withI18n(SearchPage)(args, context),
   parameters: {
     layout: 'fullscreen',
   }

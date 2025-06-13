@@ -4,7 +4,7 @@ import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<HomePageProps> = {
   title: 'Pages/HomePage',
-  render: withI18n(HomePage),
+  render: (args, context) => withI18n(HomePage)(args, context),
   parameters: {
     layout: 'fullscreen',
   }

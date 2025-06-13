@@ -17,7 +17,7 @@ export const SearchInput: Component<SearchInputProps> = (props) => {
   ]);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div class="search-input" style={{ position: 'relative' }}>
       <svg
         style={{
           position: 'absolute',

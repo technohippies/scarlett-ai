@@ -413,6 +413,8 @@ const App = () => {
             onAuthSuccess={handleAuthSuccess}
             currentStreak={userStreak()}
             hasTopPosition={hasTopPosition()}
+            onSearch={handleSearch}
+            searchQuery={searchQuery()}
           />
         </Show>
         
@@ -469,32 +471,6 @@ const App = () => {
                 </div>
               }
             >
-              {/* Persistent Search Header */}
-              <div style={{ 
-                'background-color': 'var(--color-bg-surface)',
-                'border-bottom': '1px solid var(--color-border-default)',
-                padding: '32px 16px',
-                position: 'sticky',
-                top: 0,
-                'z-index': 10
-              }}>
-                <div style={{ 
-                  'max-width': '672px',
-                  margin: '0 auto'
-                }}>
-                  <SearchInput
-                    value={searchQuery()}
-                    onInput={(e) => handleSearch(e.currentTarget.value)}
-                    onClear={() => handleSearch('')}
-                    placeholder={browserLang.startsWith('zh') ? "搜索歌曲、艺术家..." : "Search songs, artists..."}
-                    autofocus
-                    style={{
-                      width: '100%'
-                    }}
-                  />
-                </div>
-              </div>
-
               {/* Content with smooth transition */}
               <div style={{ 
                 transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',

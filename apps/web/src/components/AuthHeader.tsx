@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js';
 import { Show, createEffect, createSignal } from 'solid-js';
-import { AuthButton } from '@scarlett/ui';
+import { AuthButton, SearchInput } from '@scarlett/ui';
 import { address, isConnected, connectWallet, disconnectWallet } from '../services/wallet';
 import IconFireFill from 'phosphor-icons-solid/IconFireFill';
 import IconCrownFill from 'phosphor-icons-solid/IconCrownFill';
@@ -15,10 +15,14 @@ interface AuthHeaderProps {
   onAuthSuccess?: (walletAddress: string) => void;
   currentStreak?: number;
   hasTopPosition?: boolean;
+  onSearch?: (query: string) => void;
+  searchQuery?: string;
 }
 
 export const AuthHeader: Component<AuthHeaderProps> = (props) => {
   const [user, setUser] = createSignal<any>(null);
+  const [isSearchExpanded, setIsSearchExpanded] = createSignal(false);
+  const [searchValue, setSearchValue] = createSignal(props.searchQuery || '');
 
   // Create user object from wallet or Farcaster data
   createEffect(() => {
@@ -46,9 +50,17 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
     }
   });
 
+  // Update search value when props change
+  createEffect(() => {
+    setSearchValue(props.searchQuery || '');
+    if (props.searchQuery) {
+      setIsSearchExpanded(true);
+    }
+  });
+
   return (
     <header class="bg-surface border-b border-subtle p-4">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-4">
         <div class="flex items-center gap-4">
           <Show when={props.currentStreak !== undefined}>
             <div class="flex items-center gap-2">
@@ -69,6 +81,44 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
               via Farcaster
             </span>
           </Show>
+        </div>
+        
+        {/* Search Bar with Animation */}
+        <div 
+          style={{
+            flex: isSearchExpanded() ? '1' : '0',
+            'max-width': isSearchExpanded() ? '500px' : '200px',
+            transition: 'all 0.3s ease-out',
+            'margin-right': '16px'
+          }}
+        >
+          <SearchInput
+            value={searchValue()}
+            onInput={(e) => {
+              const value = e.currentTarget.value;
+              setSearchValue(value);
+              props.onSearch?.(value);
+            }}
+            onClear={() => {
+              setSearchValue('');
+              props.onSearch?.('');
+              setIsSearchExpanded(false);
+            }}
+            onFocus={() => setIsSearchExpanded(true)}
+            onBlur={(e) => {
+              // Keep expanded if there's a value
+              if (!searchValue() && !e.relatedTarget?.closest('.search-input')) {
+                setIsSearchExpanded(false);
+              }
+            }}
+            placeholder="Search..."
+            style={{
+              width: '100%',
+              opacity: isSearchExpanded() ? 1 : 0.8,
+              transform: isSearchExpanded() ? 'scale(1)' : 'scale(0.95)',
+              transition: 'all 0.3s ease-out'
+            }}
+          />
         </div>
         
         <AuthButton

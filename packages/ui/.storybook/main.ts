@@ -18,12 +18,10 @@ const config: StorybookConfig = {
       stringify: false
     };
     
-    // Support dynamic imports for i18n locales
-    config.build = {
-      ...config.build,
-      dynamicImportVarsOptions: {
-        include: ['src/i18n/locales/**']
-      }
+    // Ensure proper module resolution
+    config.resolve = {
+      ...config.resolve,
+      extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
     };
     
     return config;
