@@ -84,6 +84,7 @@ export interface Song {
   geniusConfidence?: number;
   soundcloudMatch?: boolean;
   artworkUrl?: string;
+  language?: string;
   lyricsSource: 'genius' | 'lrclib' | 'manual';
   lyricsType: 'synced' | 'unsynced' | 'none';
   lyricsLinesCount: number;

@@ -77,13 +77,6 @@ export const SongPage: Component = () => {
     // Fetch karaoke data with full path
     const data = await apiService.getKaraokeData(fullPath, title, artist);
     
-    console.log('[SongPage] API Response:', {
-      hasSong: !!data.song,
-      songArtworkUrl: data.song?.artwork_url,
-      songArtworkLarge: data.song?.artwork_large,
-      songArtworkMedium: data.song?.artwork_medium,
-      songArtworkSmall: data.song?.artwork_small
-    });
     
     return {
       songData: data,
@@ -248,11 +241,6 @@ export const SongPage: Component = () => {
                                data().songData?.song?.artwork_small ||
                                data().song.artworkUrl;
               
-              console.log('[SongPage] Final artwork URL:', artworkUrl);
-              console.log('[SongPage] Full data:', {
-                songData: data().songData,
-                song: data().song
-              });
               
               return (
                 <FarcasterKaraoke

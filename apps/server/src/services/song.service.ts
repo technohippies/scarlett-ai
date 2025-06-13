@@ -157,7 +157,8 @@ export class SongService {
   async getPopularSongs(
     page: number = 1,
     limit: number = 20,
-    difficulty?: string
+    difficulty?: string,
+    userLanguage?: string
   ): Promise<PaginatedResponse<Song>> {
     const offset = (page - 1) * limit;
     
@@ -167,7 +168,7 @@ export class SongService {
         difficulty, genius_id as geniusId, genius_url as geniusUrl,
         artwork_url as artworkUrl, artwork_url_small as artworkUrlSmall,
         artwork_url_medium as artworkUrlMedium, artwork_url_large as artworkUrlLarge,
-        lyrics_type as lyricsType,
+        language, lyrics_type as lyricsType,
         total_attempts as totalAttempts, success_rate as successRate,
         unique_users_attempted as uniqueUsersAttempted,
         last_played_at as lastPlayedAt, created_at as createdAt
@@ -185,6 +186,19 @@ export class SongService {
       query += ' AND difficulty = ?';
       countQuery += ' AND difficulty = ?';
       params.push(difficulty);
+    }
+    
+    // Add language filter
+    if (userLanguage) {
+      if (userLanguage.startsWith('en')) {
+        query += ' AND (language = ? OR language IS NULL)';
+        countQuery += ' AND (language = ? OR language IS NULL)';
+        params.push('es');
+      } else {
+        query += ' AND (language = ? OR language IS NULL)';
+        countQuery += ' AND (language = ? OR language IS NULL)';
+        params.push('en');
+      }
     }
 
     query += ' ORDER BY total_attempts DESC, success_rate DESC LIMIT ? OFFSET ?';
@@ -301,16 +315,34 @@ export class SongService {
     };
   }
 
-  async searchSongs(query: string, limit: number = 20): Promise<Song[]> {
+  async searchSongs(query: string, limit: number = 20, userLanguage?: string): Promise<Song[]> {
     // Search in title and artist fields
     const searchPattern = `%${query}%`;
+    
+    // Determine language filter based on user language
+    let languageFilter = '';
+    const params: any[] = [searchPattern, searchPattern];
+    
+    if (userLanguage) {
+      // If user speaks English (en-*), show Spanish songs
+      // Otherwise, show English songs
+      if (userLanguage.startsWith('en')) {
+        languageFilter = ' AND (language = ? OR language IS NULL)';
+        params.push('es');
+      } else {
+        languageFilter = ' AND (language = ? OR language IS NULL)';
+        params.push('en');
+      }
+    }
+    
+    params.push(limit);
     
     const results = await this.env.DB.prepare(
       `SELECT 
         id, track_id as trackId, title, artist, album, duration_ms as durationMs,
         difficulty, genius_id as geniusId, genius_url as geniusUrl,
         genius_confidence as geniusConfidence, soundcloud_match as soundcloudMatch,
-        artwork_url as artworkUrl, lyrics_source as lyricsSource,
+        artwork_url as artworkUrl, language, lyrics_source as lyricsSource,
         lyrics_type as lyricsType, lyrics_lines_count as lyricsLinesCount,
         total_attempts as totalAttempts, total_completions as totalCompletions,
         success_rate as successRate, unique_users_attempted as uniqueUsersAttempted,
@@ -318,11 +350,11 @@ export class SongService {
         updated_at as updatedAt
       FROM song_catalog 
       WHERE (title LIKE ? OR artist LIKE ?)
-      AND lyrics_type != 'none'
+      AND lyrics_type != 'none'${languageFilter}
       ORDER BY total_attempts DESC
       LIMIT ?`
     )
-      .bind(searchPattern, searchPattern, limit)
+      .bind(...params)
       .all();
 
     return results.results as Song[];

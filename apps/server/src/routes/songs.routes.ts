@@ -22,11 +22,16 @@ app.get('/popular', validateQuery(paginationSchema.extend({
     difficulty?: string;
   };
 
+  // Get user language from Accept-Language header
+  const acceptLanguage = c.req.header('Accept-Language');
+  const userLanguage = acceptLanguage?.split(',')[0]?.split(';')[0] || 'en';
+  
   const songService = new SongService(c.env);
   const result = await songService.getPopularSongs(
     query.page,
     query.limit,
-    query.difficulty
+    query.difficulty,
+    userLanguage
   );
 
   return c.json(result);

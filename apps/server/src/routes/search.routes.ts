@@ -47,12 +47,17 @@ searchRoutes.get('/', async (c) => {
     console.log('[Search] Query:', q, 'Limit:', limit, 'Offset:', offset);
     const songService = c.get('songService');
     
+    // Get user language from Accept-Language header
+    const acceptLanguage = c.req.header('Accept-Language');
+    const userLanguage = acceptLanguage?.split(',')[0]?.split(';')[0] || 'en';
+    console.log('[Search] User language:', userLanguage);
+    
     let localResults: any[] = [];
     
     // Only search local database for first page (offset 0)
     if (offset === 0) {
       console.log('[Search] Searching local database...');
-      localResults = await songService.searchSongs(q, limit);
+      localResults = await songService.searchSongs(q, limit, userLanguage);
       console.log('[Search] Local results found:', localResults.length);
       
       // If we have enough results locally, return them

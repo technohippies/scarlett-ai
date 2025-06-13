@@ -511,9 +511,9 @@ app.get('/*', async (c) => {
             INSERT INTO song_catalog (
               id, track_id, title, artist, album, duration_ms, difficulty,
               genius_id, genius_url, genius_confidence, soundcloud_match, artwork_url,
-              lyrics_source, lyrics_type, lyrics_lines_count, total_attempts,
+              language, lyrics_source, lyrics_type, lyrics_lines_count, total_attempts,
               unique_users_attempted, last_played_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, CURRENT_TIMESTAMP)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, CURRENT_TIMESTAMP)
           `
           )
             .bind(
@@ -531,6 +531,7 @@ app.get('/*', async (c) => {
               song ? geniusMatch.confidence || 0.5 : 0,
               geniusMatch.confidence > 0.9 ? true : false,
               artworkData?.url || song?.song_art_image_url || null,
+              song?.language || null, // Get language from Genius
               'lrclib',
               lyricsResult.type,
               formattedLyrics.length
