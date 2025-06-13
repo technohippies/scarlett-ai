@@ -4,6 +4,7 @@ import { cn } from '../../../utils/cn';
 import type { PlaybackSpeed } from '../../common/SplitButton';
 import { Button } from '../../common/Button';
 import { useI18n } from '../../../i18n';
+import { AnimatedNumber } from '../../effects/AnimatedNumber';
 
 export interface CompletionViewProps {
   score: number;
@@ -11,6 +12,9 @@ export interface CompletionViewProps {
   speed: PlaybackSpeed;
   feedbackText?: string;
   onPractice?: () => void;
+  currentStreak?: number;
+  previousStreak?: number;
+  isNewStreak?: boolean;
   class?: string;
 }
 
@@ -47,6 +51,24 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
             <div class="text-lg text-secondary mb-2 order-1">Rank</div>
             <div class="text-3xl font-bold text-primary order-2">#{formatNumber(props.rank)}</div>
           </div>
+          
+          {/* Streak */}
+          <Show when={props.currentStreak !== undefined}>
+            <div class="text-center flex flex-col">
+              <div class="text-lg text-secondary mb-2 order-1 flex items-center justify-center gap-1">
+                <span>Streak</span>
+                <Show when={props.isNewStreak}>
+                  <span class="text-accent-primary">🔥</span>
+                </Show>
+              </div>
+              <div class="text-3xl font-bold text-primary order-2">
+                <AnimatedNumber 
+                  value={props.currentStreak || 0}
+                  duration={props.isNewStreak ? 1200 : 0}
+                />
+              </div>
+            </div>
+          </Show>
           
           {/* Speed */}
           <div class="text-center flex flex-col">

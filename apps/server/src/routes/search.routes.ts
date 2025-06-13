@@ -194,8 +194,9 @@ searchRoutes.get('/', async (c) => {
     }
     
     // Check if there's a "more tracks" button for pagination
-    const hasMoreMatch = html.match(/<a class="btn" href="\?type=tracks[^"]*">more tracks<\/a>/);
+    const hasMoreMatch = html.match(/<a class="btn" href="\?type=tracks[^"]*"[^>]*>more tracks<\/a>/);
     const hasMore = !!hasMoreMatch;
+    console.log('[Search] Has more button:', hasMore, 'Match:', hasMoreMatch?.[0]);
     
     // Combine and format all results (only for first page)
     const allResults = offset === 0 

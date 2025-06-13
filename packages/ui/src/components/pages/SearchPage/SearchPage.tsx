@@ -1,8 +1,7 @@
 import type { Component } from 'solid-js';
-import { Show, For, createSignal } from 'solid-js';
+import { Show, For, createSignal, onMount } from 'solid-js';
 import { SearchInput } from '../../common/SearchInput';
 import { useI18n } from '../../../i18n/provider';
-import IconArrowRightRegular from 'phosphor-icons-solid/IconArrowRightRegular';
 
 export interface Song {
   id: string;
@@ -29,6 +28,14 @@ export interface SearchPageProps {
 export const SearchPage: Component<SearchPageProps> = (props) => {
   const { t } = useI18n();
   const [query, setQuery] = createSignal(props.searchQuery || '');
+
+  onMount(() => {
+    console.log('[SearchPage] Props:', {
+      hasMore: props.hasMore,
+      loadingMore: props.loadingMore,
+      songsCount: props.songs?.length
+    });
+  });
 
   const handleSearch = (value: string) => {
     setQuery(value);
@@ -125,10 +132,18 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                           </p>
                         </Show>
                       </div>
-                      <IconArrowRightRegular 
+                      <svg
                         class="w-5 h-5 text-text-tertiary opacity-0 
-                               group-hover:opacity-100 transition-opacity" 
-                      />
+                               group-hover:opacity-100 transition-opacity"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
                     </div>
                   </button>
                 )}
