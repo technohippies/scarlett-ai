@@ -16,7 +16,7 @@ const app = new Hono<{
 const translateSchema = z.object({
   text: z.string().min(1).max(1000),
   sourceLang: z.string().optional(),
-  targetLang: z.enum(['en', 'es']),
+  targetLang: z.enum(['en', 'es', 'zh', 'zh-CN', 'zh-TW']),
 });
 
 const annotateSchema = z.object({
@@ -38,7 +38,14 @@ app.post('/translate', validateBody(translateSchema), async (c) => {
 
   try {
     // Prepare the translation prompt
-    const targetLangName = data.targetLang === 'es' ? 'Spanish' : 'English';
+    const targetLangName = {
+      'es': 'Spanish',
+      'en': 'English',
+      'zh': 'Simplified Chinese',
+      'zh-CN': 'Simplified Chinese',
+      'zh-TW': 'Traditional Chinese'
+    }[data.targetLang] || 'English';
+    
     const systemPrompt = `You are a professional translator specializing in song lyrics. 
 Translate the given lyrics to ${targetLangName}, preserving the meaning, tone, and poetic nature.
 Only respond with the translation, no explanations or additional text.`;

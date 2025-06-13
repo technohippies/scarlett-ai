@@ -211,7 +211,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       // Check cache for translation
       // Users should see translations in their native language
       const userLang = getUserLanguage();
-      let targetLang: 'en' | 'es' | null = null;
+      let targetLang: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null = null;
       
       console.log('[LyricClick] User language:', userLang);
       
@@ -223,12 +223,13 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
         // English users → translate to English
         targetLang = 'en';
       } else if (userLang.startsWith('zh')) {
-        // Chinese users → API doesn't support Chinese, so:
-        // - If song is likely in English, don't translate (they see original)
-        // - If song is likely in Spanish, translate to English (better than nothing)
-        // For now, we'll skip translation for Chinese users
-        targetLang = null;
-        console.log('[LyricClick] Chinese user - translation not supported');
+        // Chinese users → translate to Chinese
+        if (userLang === 'zh-tw' || userLang === 'zh-hk') {
+          targetLang = 'zh-TW'; // Traditional Chinese
+        } else {
+          targetLang = 'zh-CN'; // Simplified Chinese
+        }
+        console.log('[LyricClick] Chinese user - translating to:', targetLang);
       }
       
       console.log('[LyricClick] Target translation language:', targetLang);
@@ -254,7 +255,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   };
 
   // Handle translation request
-  const handleTranslate = async (targetLang: 'en' | 'es' | null) => {
+  const handleTranslate = async (targetLang: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null) => {
     console.log('[Translation] Starting translation to', targetLang);
     if (!selectedLyric() || isTranslating() || !targetLang) {
       console.log('[Translation] Already translating, no lyric selected, or no target language');

@@ -26,10 +26,10 @@ export interface LyricDetailSliderProps {
     totalLines: number;
   };
   userLanguage?: string;
-  targetLanguage?: 'en' | 'es';
+  targetLanguage?: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW';
   isLoading?: boolean;
   onClose: () => void;
-  onTranslate: (targetLang: 'en' | 'es' | null) => void;
+  onTranslate: (targetLang: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null) => void;
   onAnnotate: () => void;
   onPractice?: (text: string) => void;
 }
@@ -38,7 +38,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   const { t } = useI18n();
   const [showTranslation, setShowTranslation] = createSignal(true); // Always show translation area to maintain layout
   const [showAnnotations, setShowAnnotations] = createSignal(false);
-  const [selectedTargetLang, setSelectedTargetLang] = createSignal<'en' | 'es' | null>(null);
+  const [selectedTargetLang, setSelectedTargetLang] = createSignal<'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null>(null);
   const [isStreaming, setIsStreaming] = createSignal(false);
   const [isUnsupportedLanguage, setIsUnsupportedLanguage] = createSignal(false);
   
@@ -55,8 +55,18 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
       // English speakers -> translate to English (their native language)
       console.log('[LyricDetailSlider] Detected English, setting target to English');
       setSelectedTargetLang('en');
+    } else if (userLang.startsWith('zh')) {
+      // Chinese speakers -> translate to Chinese
+      if (userLang === 'zh-tw' || userLang === 'zh-hk') {
+        console.log('[LyricDetailSlider] Detected Traditional Chinese, setting target to zh-TW');
+        setSelectedTargetLang('zh-TW');
+      } else {
+        console.log('[LyricDetailSlider] Detected Simplified Chinese, setting target to zh-CN');
+        setSelectedTargetLang('zh-CN');
+      }
+      setIsUnsupportedLanguage(false);
     } else {
-      // For other languages (like Chinese), we can't translate to their language
+      // For other unsupported languages
       console.log('[LyricDetailSlider] Detected unsupported language:', userLang);
       setSelectedTargetLang(null);
       setIsUnsupportedLanguage(true);

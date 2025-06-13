@@ -255,7 +255,7 @@ class ApiService {
     return data.data;
   }
 
-  async translateLyric(text: string, targetLang: 'en' | 'es'): Promise<ReadableStream<Uint8Array>> {
+  async translateLyric(text: string, targetLang: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW'): Promise<ReadableStream<Uint8Array>> {
     const response = await fetch(`${API_BASE_URL}/api/lyrics/translate`, {
       method: 'POST',
       headers: {
