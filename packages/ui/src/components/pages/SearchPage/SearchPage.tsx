@@ -98,6 +98,42 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                            hover:translate-x-1"
                   >
                     <div class="flex items-center justify-between">
+                      <Show
+                        when={song.artworkUrl}
+                        fallback={
+                          <div style={{
+                            width: '48px',
+                            height: '48px',
+                            'background-color': 'var(--color-bg-elevated)',
+                            'border-radius': '4px',
+                            display: 'flex',
+                            'align-items': 'center',
+                            'justify-content': 'center',
+                            'flex-shrink': 0,
+                            'margin-right': '12px'
+                          }}>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.5">
+                              <path d="M9 18V5l12-2v13"></path>
+                              <circle cx="6" cy="18" r="3"></circle>
+                              <circle cx="18" cy="16" r="3"></circle>
+                            </svg>
+                          </div>
+                        }
+                      >
+                        <img
+                          src={song.artworkUrl}
+                          alt={`${song.title} artwork`}
+                          style={{
+                            width: '48px',
+                            height: '48px',
+                            'object-fit': 'cover',
+                            'border-radius': '4px',
+                            'flex-shrink': 0,
+                            'margin-right': '12px'
+                          }}
+                          loading="lazy"
+                        />
+                      </Show>
                       <div class="flex-1">
                         <h3 class="font-semibold text-text-primary">
                           {song.title}
