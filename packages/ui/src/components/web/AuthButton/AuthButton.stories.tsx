@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/html';
 import { AuthButton, type AuthButtonProps } from './AuthButton';
-import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<AuthButtonProps> = {
   title: 'Web/AuthButton',
-  render: solidStory(AuthButton),
+  render: (args, context) => withI18n(AuthButton)(args, context),
   argTypes: {
     variant: {
       control: 'select',

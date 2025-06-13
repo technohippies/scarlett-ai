@@ -3,6 +3,7 @@ import { Show, For, createSignal, onMount } from 'solid-js';
 import { SearchInput } from '../../common/SearchInput';
 import { Button } from '../../common/Button';
 import { useI18n } from '../../../i18n/provider';
+import { getImageUrl } from '../../../utils/images';
 
 export interface Song {
   id: string;
@@ -28,6 +29,7 @@ export interface SearchPageProps {
   searchQuery?: string;
   hasMore?: boolean;
   loadingMore?: boolean;
+  apiUrl?: string;
 }
 
 export const SearchPage: Component<SearchPageProps> = (props) => {
@@ -99,7 +101,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                   >
                     <div class="flex items-center justify-between">
                       <Show
-                        when={song.artworkUrl}
+                        when={getImageUrl(song.artworkUrl, props.apiUrl || '')}
                         fallback={
                           <div style={{
                             width: '48px',
@@ -121,7 +123,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                         }
                       >
                         <img
-                          src={song.artworkUrl}
+                          src={getImageUrl(song.artworkUrl, props.apiUrl || '')}
                           alt={`${song.title} artwork`}
                           style={{
                             width: '48px',
@@ -132,6 +134,10 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                             'margin-right': '12px'
                           }}
                           loading="lazy"
+                          onError={(e) => {
+                            console.error(`Failed to load artwork for ${song.title}:`, song.artworkUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
                         />
                       </Show>
                       <div class="flex-1">

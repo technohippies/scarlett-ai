@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/html';
 import { ExtensionKaraokeView, type ExtensionKaraokeViewProps } from './ExtensionKaraokeView';
 import type { LyricLine } from '../LyricsDisplay';
 import type { LeaderboardEntry } from '../LeaderboardPanel';
-import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<ExtensionKaraokeViewProps> = {
   title: 'Karaoke/ExtensionKaraokeView',
-  render: solidStory(ExtensionKaraokeView),
+  render: (args, context) => withI18n(ExtensionKaraokeView)(args, context),
   parameters: {
     layout: 'fullscreen',
   },

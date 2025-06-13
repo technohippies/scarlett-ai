@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/html';
 import { KaraokeHeader, type KaraokeHeaderProps } from './KaraokeHeader';
-import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<KaraokeHeaderProps> = {
   title: 'Karaoke/KaraokeHeader',
-  render: solidStory(KaraokeHeader),
+  render: (args, context) => withI18n(KaraokeHeader)(args, context),
   parameters: {
     layout: 'fullscreen',
   },

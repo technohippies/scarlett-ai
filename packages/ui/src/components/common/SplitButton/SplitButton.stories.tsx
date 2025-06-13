@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/html';
 import { SplitButton, type SplitButtonProps } from './SplitButton';
-import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<SplitButtonProps> = {
   title: 'Common/SplitButton',
-  render: solidStory(SplitButton),
+  render: (args, context) => withI18n(SplitButton)(args, context),
   parameters: {
     layout: 'centered',
   },

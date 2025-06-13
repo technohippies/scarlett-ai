@@ -3,6 +3,7 @@ import { For, Show, createSignal } from 'solid-js';
 import { useI18n } from '../../../i18n/provider';
 import { Button } from '../../common/Button';
 import { SearchInput } from '../../common/SearchInput';
+import { getImageUrl } from '../../../utils/images';
 
 export interface Song {
   id: string;
@@ -24,6 +25,7 @@ export interface HomePageProps {
   onGetStarted?: () => void;
   onSearch?: (query: string) => void;
   showSearch?: boolean;
+  apiUrl?: string;
 }
 
 export const HomePage: Component<HomePageProps> = (props) => {
@@ -179,7 +181,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
                   {index() + 1}
                 </span>
                 <Show 
-                  when={song.artworkUrl}
+                  when={getImageUrl(song.artworkUrl, props.apiUrl || '')}
                   fallback={
                     <div style={{
                       width: '48px',
@@ -200,7 +202,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
                   }
                 >
                   <img 
-                    src={song.artworkUrl}
+                    src={getImageUrl(song.artworkUrl, props.apiUrl || '')}
                     alt={`${song.title} artwork`}
                     style={{
                       width: '48px',
@@ -210,6 +212,11 @@ export const HomePage: Component<HomePageProps> = (props) => {
                       'flex-shrink': 0
                     }}
                     loading="lazy"
+                    onError={(e) => {
+                      console.error(`Failed to load artwork for ${song.title}:`, song.artworkUrl);
+                      // Hide the broken image and show fallback
+                      e.currentTarget.style.display = 'none';
+                    }}
                   />
                 </Show>
                 <div style={{ flex: 1 }}>

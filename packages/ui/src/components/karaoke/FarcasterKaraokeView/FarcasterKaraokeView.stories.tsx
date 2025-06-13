@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/html';
 import { FarcasterKaraokeView, type FarcasterKaraokeViewProps } from './FarcasterKaraokeView';
 import type { LyricLine } from '../LyricsDisplay';
 import type { LeaderboardEntry } from '../LeaderboardPanel';
-import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<FarcasterKaraokeViewProps> = {
   title: 'Karaoke/FarcasterKaraokeView',
-  render: solidStory(FarcasterKaraokeView),
+  render: (args, context) => withI18n(FarcasterKaraokeView)(args, context),
   parameters: {
     layout: 'fullscreen',
   },

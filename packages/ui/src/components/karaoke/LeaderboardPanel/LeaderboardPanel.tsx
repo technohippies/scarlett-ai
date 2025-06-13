@@ -26,7 +26,7 @@ export const LeaderboardPanel: Component<LeaderboardPanelProps> = (props) => {
         fallback={
           <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
             <IconCrownFill 
-              class="w-16 h-16 mb-4 text-yellow-500 opacity-30" 
+              class="w-16 h-16 mb-4 text-yellow-500" 
               style="color: #fbbf24;"
             />
             <p class="text-lg text-secondary mb-2">{t('karaoke.leaderboard.empty')}</p>

@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/html';
 import { LeaderboardPanel, type LeaderboardPanelProps, type LeaderboardEntry } from './LeaderboardPanel';
-import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<LeaderboardPanelProps> = {
   title: 'Karaoke/LeaderboardPanel',
-  render: solidStory(LeaderboardPanel),
+  render: (args, context) => withI18n(LeaderboardPanel)(args, context),
   parameters: {
     layout: 'centered',
   },
