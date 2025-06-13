@@ -58,14 +58,12 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
               </span>
             </div>
           </Show>
-          <Show when={props.hasTopPosition}>
-            <div class="flex items-center gap-2">
-              <IconCrownFill class="w-8 h-8 text-yellow-500" style="color: #fbbf24;" />
-              <span class="text-xl font-bold" style="color: #fbbf24;">
-                1
-              </span>
-            </div>
-          </Show>
+          <div class="flex items-center gap-2">
+            <IconCrownFill class="w-8 h-8 text-yellow-500" style="color: #fbbf24;" />
+            <span class="text-xl font-bold" style="color: #fbbf24;">
+              {props.hasTopPosition ? '1' : '0'}
+            </span>
+          </div>
           <Show when={props.farcasterUser}>
             <span class="text-sm text-secondary">
               via Farcaster
