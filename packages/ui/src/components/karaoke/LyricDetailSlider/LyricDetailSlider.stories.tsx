@@ -1,46 +1,58 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { LyricDetailSlider } from './LyricDetailSlider';
+import type { Meta, StoryObj } from '@storybook/html';
+import { LyricDetailSlider, type LyricDetailSliderProps } from './LyricDetailSlider';
 import { createSignal } from 'solid-js';
-import { I18nProvider } from '../../../i18n';
+import { withI18n } from '../../../utils/i18n-story';
+import { solidStory } from '../../../utils/storybook';
 
-const meta = {
+const meta: Meta<LyricDetailSliderProps> = {
   title: 'Karaoke/LyricDetailSlider',
-  component: LyricDetailSlider,
   parameters: {
     layout: 'fullscreen',
   },
-  decorators: [
-    (Story) => {
-      const [isOpen, setIsOpen] = createSignal(true);
-      
-      return (
-        <I18nProvider defaultLocale="en">
-          <div style={{ 'min-height': '100vh', background: '#0a0a0a', padding: '20px' }}>
-            <button
-              onClick={() => setIsOpen(true)}
-              style={{
-                padding: '10px 20px',
-                background: '#ff3838',
-                color: 'white',
-                border: 'none',
-                'border-radius': '8px',
-                cursor: 'pointer'
-              }}
-            >
-              Open Lyric Detail
-            </button>
-            <Story isOpen={isOpen()} onClose={() => setIsOpen(false)} />
-          </div>
-        </I18nProvider>
-      );
-    }
-  ],
-} satisfies Meta<typeof LyricDetailSlider>;
+  argTypes: {
+    isOpen: { control: 'boolean' },
+    userLanguage: { control: 'text' },
+    targetLanguage: { control: 'text' },
+    isLoading: { control: 'boolean' },
+  },
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<LyricDetailSliderProps>;
+
+// Wrapper component to handle state
+const LyricDetailSliderDemo = (props: LyricDetailSliderProps) => {
+  const [isOpen, setIsOpen] = createSignal(props.isOpen ?? true);
+  
+  return (
+    <div style={{ 'min-height': '100vh', background: '#0a0a0a', padding: '20px' }}>
+      <button
+        onClick={() => setIsOpen(true)}
+        style={{
+          padding: '10px 20px',
+          background: '#ff3838',
+          color: 'white',
+          border: 'none',
+          'border-radius': '8px',
+          cursor: 'pointer'
+        }}
+      >
+        Open Lyric Detail
+      </button>
+      <LyricDetailSlider
+        {...props}
+        isOpen={isOpen()}
+        onClose={() => {
+          setIsOpen(false);
+          props.onClose?.();
+        }}
+      />
+    </div>
+  );
+};
 
 export const Default: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     isOpen: true,
     lyric: {
@@ -60,6 +72,7 @@ export const Default: Story = {
 };
 
 export const WithTranslation: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     ...Default.args,
     lyric: {
@@ -70,6 +83,7 @@ export const WithTranslation: Story = {
 };
 
 export const WithAnnotations: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     ...Default.args,
     lyric: {
@@ -91,6 +105,7 @@ export const WithAnnotations: Story = {
 };
 
 export const ChineseWithRomanization: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     isOpen: true,
     lyric: {
@@ -112,6 +127,7 @@ export const ChineseWithRomanization: Story = {
 };
 
 export const SpanishSpeaker: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     isOpen: true,
     lyric: {
@@ -132,6 +148,7 @@ export const SpanishSpeaker: Story = {
 };
 
 export const WithPracticeButton: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     ...Default.args,
     onPractice: (text) => console.log('Practice:', text)
@@ -139,6 +156,7 @@ export const WithPracticeButton: Story = {
 };
 
 export const Loading: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     ...Default.args,
     isLoading: true
@@ -146,6 +164,7 @@ export const Loading: Story = {
 };
 
 export const CompleteExample: Story = {
+  render: (args, context) => withI18n(LyricDetailSliderDemo)(args, context),
   args: {
     isOpen: true,
     lyric: {

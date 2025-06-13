@@ -32,6 +32,7 @@ export * from './common/Modal';
 export * from './common/ErrorBoundary';
 export * from './common/LoadingScreen';
 export * from './common/SearchInput';
+export * from './common/TextEffect';
 
 // Effects Components
 export * from './effects/FireEmojiAnimation';
