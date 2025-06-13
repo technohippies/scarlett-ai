@@ -1,0 +1,24 @@
+{
+  "slider": {
+    "close": "Close",
+    "active": "Active",
+    "title": "Unlimited Karaoke",
+    "manageSubscription": "Manage subscription"
+  },
+  "plan": {
+    "price": "$10/mo",
+    "trial": "3-day free trial",
+    "features": {
+      "allSongs": "All songs on sc.maid.zone",
+      "unlimited": "Unlimited song plays",
+      "newFeatures": "New features coming soon"
+    },
+    "actions": {
+      "connectWallet": "Connect Wallet",
+      "startTrial": "Start Free Trial",
+      "subscribe": "Subscribe with Unlock",
+      "active": "Active Subscription",
+      "manage": "Manage Subscription"
+    }
+  }
+}

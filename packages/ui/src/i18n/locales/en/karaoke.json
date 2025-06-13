@@ -45,6 +45,17 @@
     "title": "Leaderboard",
     "topPerformers": "Top Performers",
     "yourRank": "Your Rank: #{{rank}}",
-    "anonymous": "Anonymous"
+    "anonymous": "Anonymous",
+    "empty": "Nobody holds the crown for this song yet!",
+    "beFirst": "Be the first to claim it"
+  },
+  "tabs": {
+    "lyrics": "Lyrics",
+    "leaderboard": "Leaderboard"
+  },
+  "controls": {
+    "start": "Start",
+    "pause": "Pause",
+    "goBack": "Go back"
   }
 }

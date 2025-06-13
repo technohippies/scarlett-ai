@@ -68,6 +68,22 @@ export interface Translations {
       topPerformers: string;
       yourRank: string;
       anonymous: string;
+      empty: string;
+      beFirst: string;
+    };
+    tabs: {
+      lyrics: string;
+      leaderboard: string;
+    };
+    controls: {
+      start: string;
+      pause: string;
+      goBack: string;
+    };
+    streak: {
+      onFire: string;
+      legendary: string;
+      unstoppable: string;
     };
   };
   display: {
@@ -87,6 +103,30 @@ export interface Translations {
     popularSongs: {
       title: string;
       subtitle: string;
+    };
+  };
+  subscription: {
+    slider: {
+      close: string;
+      active: string;
+      title: string;
+      manageSubscription: string;
+    };
+    plan: {
+      price: string;
+      trial: string;
+      features: {
+        allSongs: string;
+        unlimited: string;
+        newFeatures: string;
+      };
+      actions: {
+        connectWallet: string;
+        startTrial: string;
+        subscribe: string;
+        active: string;
+        manage: string;
+      };
     };
   };
 }

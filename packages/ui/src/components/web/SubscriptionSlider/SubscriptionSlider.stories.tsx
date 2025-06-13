@@ -4,6 +4,7 @@ import { SubscriptionSlider } from './SubscriptionSlider';
 import { solidStory } from '../../../utils/storybook';
 import { createSignal, Show } from 'solid-js';
 import { Button } from '../../common/Button';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<SubscriptionSliderProps> = {
   title: 'Web/SubscriptionSlider',
@@ -117,11 +118,7 @@ const SongPage = (props: { onSubscribe?: () => void }) => {
 };
 
 export const DefaultFlow: Story = {
-  render: () => {
-    const container = document.createElement('div');
-    container.appendChild(solidStory(SongPage, { onSubscribe: () => console.log('Song started!') }));
-    return container;
-  },
+  render: (args, context) => withI18n(SongPage)({ onSubscribe: () => console.log('Song started!') }, context),
 };
 
 // Story showing the slider already open
@@ -157,11 +154,7 @@ const OpenSliderStory = () => {
 };
 
 export const SliderOnly: Story = {
-  render: () => {
-    const container = document.createElement('div');
-    container.appendChild(solidStory(OpenSliderStory, {}));
-    return container;
-  },
+  render: (args, context) => withI18n(OpenSliderStory)({}, context),
 };
 
 // Story with active subscription
@@ -190,9 +183,5 @@ const ActiveSubscriptionStory = () => {
 };
 
 export const ActiveSubscription: Story = {
-  render: () => {
-    const container = document.createElement('div');
-    container.appendChild(solidStory(ActiveSubscriptionStory, {}));
-    return container;
-  },
+  render: (args, context) => withI18n(ActiveSubscriptionStory)({}, context),
 };

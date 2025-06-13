@@ -69,8 +69,10 @@ const App = () => {
     
     const data = await response.json();
     
+    console.log('[App] Popular songs response:', data);
+    
     // Transform the API response to match the Song interface
-    return data.data?.map((song: any) => ({
+    const songs = data.data?.map((song: any) => ({
       id: song.id,
       trackId: decodeURIComponent(song.trackId), // Decode the URL-encoded trackId
       title: song.title,
@@ -80,6 +82,9 @@ const App = () => {
       artworkUrlMedium: song.artworkUrlMedium,
       artworkUrlLarge: song.artworkUrlLarge
     })) || [];
+    
+    console.log('[App] Transformed songs:', songs);
+    return songs;
   });
 
   // Handle wallet authentication success

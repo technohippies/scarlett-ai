@@ -1,6 +1,7 @@
 import { createSignal } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { useI18n } from '../../../i18n';
 
 export type PlaybackSpeed = '1x' | '.75x' | '.5x';
 
@@ -13,6 +14,8 @@ export interface SplitButtonProps {
 const speeds: PlaybackSpeed[] = ['1x', '.75x', '.5x'];
 
 export const SplitButton: Component<SplitButtonProps> = (props) => {
+  const { t } = useI18n();
+  
   const handleStart = (e: MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -34,7 +37,7 @@ export const SplitButton: Component<SplitButtonProps> = (props) => {
         props.class
       )}
     >
-      <span class="relative z-10">Start</span>
+      <span class="relative z-10">{t('karaoke.controls.start')}</span>
     </button>
   );
 };

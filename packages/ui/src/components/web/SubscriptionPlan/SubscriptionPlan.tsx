@@ -3,6 +3,7 @@ import { Show } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import { Button } from '../../common/Button';
 import IconCheckCircleFill from 'phosphor-icons-solid/IconCheckCircleFill';
+import { useI18n } from '../../../i18n';
 
 export interface SubscriptionPlanProps {
   isActive?: boolean;
@@ -17,6 +18,8 @@ export interface SubscriptionPlanProps {
 }
 
 export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
+  const { t } = useI18n();
+  
   return (
     <div
       class={cn(
@@ -29,12 +32,12 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
       <div class="text-center space-y-4">
         <div class="space-y-2">
           <div class="text-4xl font-bold">
-            $10<span class="text-lg text-secondary">/mo</span>
+            <span innerHTML={t('subscription.plan.price')} />
           </div>
           
           <Show when={props.hasTrialAvailable && !props.isActive}>
             <p class="text-sm text-accent-primary font-medium">
-              3-day free trial
+              {t('subscription.plan.trial')}
             </p>
           </Show>
         </div>
@@ -42,15 +45,15 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
         <ul class="space-y-3 text-left py-4">
           <li class="flex items-center gap-3">
             <IconCheckCircleFill class="w-5 h-5 text-accent-primary flex-shrink-0" />
-            <span class="text-sm text-primary">All songs on sc.maid.zone</span>
+            <span class="text-sm text-primary">{t('subscription.plan.features.allSongs')}</span>
           </li>
           <li class="flex items-center gap-3">
             <IconCheckCircleFill class="w-5 h-5 text-accent-primary flex-shrink-0" />
-            <span class="text-sm text-primary">Unlimited song plays</span>
+            <span class="text-sm text-primary">{t('subscription.plan.features.unlimited')}</span>
           </li>
           <li class="flex items-center gap-3">
             <IconCheckCircleFill class="w-5 h-5 text-accent-primary flex-shrink-0" />
-            <span class="text-sm text-primary">New features coming soon</span>
+            <span class="text-sm text-primary">{t('subscription.plan.features.newFeatures')}</span>
           </li>
         </ul>
         
@@ -66,7 +69,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
                   onClick={props.onConnectWallet}
                   disabled={props.disabled}
                 >
-                  Connect Wallet
+                  {t('subscription.plan.actions.connectWallet')}
                 </Button>
               }
             >
@@ -82,7 +85,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
                   onClick={props.onSubscribe}
                   disabled={props.disabled}
                 >
-                  {props.hasTrialAvailable ? 'Start Free Trial' : 'Subscribe with Unlock'}
+                  {props.hasTrialAvailable ? t('subscription.plan.actions.startTrial') : t('subscription.plan.actions.subscribe')}
                 </Button>
               </div>
             </Show>
@@ -91,7 +94,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
           <div class="space-y-3">
             <div class="flex items-center justify-center gap-2 text-sm text-accent-primary">
               <IconCheckCircleFill class="w-4 h-4" />
-              <span class="font-medium">Active Subscription</span>
+              <span class="font-medium">{t('subscription.plan.actions.active')}</span>
             </div>
             <Button
               variant="secondary"
@@ -99,7 +102,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
               onClick={props.onManage}
               disabled={props.disabled}
             >
-              Manage Subscription
+              {t('subscription.plan.actions.manage')}
             </Button>
           </div>
         </Show>

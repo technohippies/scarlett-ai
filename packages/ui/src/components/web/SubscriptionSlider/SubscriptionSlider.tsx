@@ -5,6 +5,7 @@ import { Transition } from 'solid-transition-group';
 import { SubscriptionPlan } from '../SubscriptionPlan';
 import { Button } from '../../common/Button';
 import IconXFill from 'phosphor-icons-solid/IconXFill';
+import { useI18n } from '../../../i18n';
 
 export interface SubscriptionSliderProps {
   isOpen: boolean;
@@ -20,6 +21,8 @@ export interface SubscriptionSliderProps {
 }
 
 export const SubscriptionSlider: Component<SubscriptionSliderProps> = (props) => {
+  const { t } = useI18n();
+  
   // Lock body scroll when slider is open
   createEffect(() => {
     if (props.isOpen) {
@@ -89,7 +92,7 @@ export const SubscriptionSlider: Component<SubscriptionSliderProps> = (props) =>
                 <button
                   onClick={props.onClose}
                   class="p-2 rounded-lg bg-surface/50 hover:bg-surface transition-all hover:scale-110"
-                  aria-label="Close"
+                  aria-label={t('subscription.slider.close')}
                 >
                   <IconXFill class="w-5 h-5 text-secondary hover:text-primary" />
                 </button>
@@ -98,11 +101,11 @@ export const SubscriptionSlider: Component<SubscriptionSliderProps> = (props) =>
               <div class="px-6 pb-8 space-y-6 overflow-y-auto max-h-[80vh]">
                 <div class="text-center">
                   <h2 class="text-2xl font-bold text-primary mb-2">
-                    {props.isActive ? 'Active' : 'Unlimited Karaoke'}
+                    {props.isActive ? t('subscription.slider.active') : t('subscription.slider.title')}
                   </h2>
                   <Show when={props.isActive}>
                     <p class="text-secondary text-sm">
-                      Manage subscription
+                      {t('subscription.slider.manageSubscription')}
                     </p>
                   </Show>
                 </div>

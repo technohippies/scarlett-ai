@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { useI18n } from '../../../i18n';
 
 export interface KaraokeHeaderProps {
   songTitle: string;
@@ -22,13 +23,15 @@ const PauseIcon = () => (
 );
 
 export const KaraokeHeader: Component<KaraokeHeaderProps> = (props) => {
+  const { t } = useI18n();
+  
   return (
     <div class={cn('relative flex items-center justify-center p-4', props.class)}>
       {/* Back/Pause button - absolute positioned */}
       <button
         onClick={props.onBack}
         class="absolute left-4 p-2 -m-2 text-secondary hover:text-primary transition-colors"
-        aria-label={props.isPlaying ? "Pause" : "Go back"}
+        aria-label={props.isPlaying ? t('karaoke.controls.pause') : t('karaoke.controls.goBack')}
       >
         {props.isPlaying ? <PauseIcon /> : <ChevronLeft />}
       </button>

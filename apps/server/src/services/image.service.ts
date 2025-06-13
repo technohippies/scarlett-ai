@@ -17,30 +17,119 @@ export class ImageService {
    */
   extractSoundcloudImages(html: string): ImageMetadata | null {
     try {
-      // Extract main artwork image
-      const artworkMatch = html.match(/<img[^>]+src="([^"]+)"[^>]*width="300px"/);
-      if (!artworkMatch) return null;
-
-      const artworkUrl = artworkMatch[1];
+      // Try multiple patterns to extract artwork image
+      let artworkUrl: string | null = null;
       
-      // Extract different sizes from the URL if it's a soundcloud image
+      // Pattern 1: Image with width="300px" (main artwork image)
+      let artworkMatch = html.match(/<img[^>]+src="([^"]+)"[^>]*width="300px"/);
+      if (artworkMatch) {
+        artworkUrl = artworkMatch[1];
+      }
+      
+      // Pattern 2: Any image with sndcdn.com in the URL
+      if (!artworkUrl) {
+        artworkMatch = html.match(/<img[^>]+src="([^"]*sndcdn\.com\/artworks[^"]+)"[^>]*>/);
+        if (artworkMatch) {
+          artworkUrl = artworkMatch[1];
+        }
+      }
+      
+      // Pattern 3: Image inside track page main content
+      if (!artworkUrl) {
+        artworkMatch = html.match(/<div[^>]*class="[^"]*track[^"]*"[^>]*>[\s\S]*?<img[^>]+src="([^"]+)"[^>]*>/);
+        if (artworkMatch) {
+          artworkUrl = artworkMatch[1];
+        }
+      }
+      
+      // Pattern 4: Any image that looks like album art (excluding avatars)
+      if (!artworkUrl) {
+        const allImages = html.matchAll(/<img[^>]+src="([^"]+)"[^>]*>/g);
+        for (const match of allImages) {
+          const url = match[1];
+          // Check if it's likely album art (not avatar or other icons)
+          if (url.includes('artworks') || url.includes('t500x500') || url.includes('t300x300')) {
+            artworkUrl = url;
+            break;
+          }
+        }
+      }
+      
+      if (!artworkUrl) {
+        console.log('[ImageService] No artwork found in HTML');
+        return null;
+      }
+      
+      console.log('[ImageService] Found artwork URL:', artworkUrl);
+      
+      // For proxy URLs, extract the original URL first
+      if (artworkUrl.includes('/_/proxy/images?url=')) {
+        try {
+          const urlParam = artworkUrl.split('url=')[1];
+          const originalUrl = decodeURIComponent(urlParam);
+          console.log('[ImageService] Extracted original URL from proxy:', originalUrl);
+          
+          // Process as soundcloud URL if it contains sndcdn.com
+          if (originalUrl.includes('sndcdn.com')) {
+            // Extract base URL without size suffix
+            // Pattern: https://i1.sndcdn.com/artworks-xxx-xxx-t500x500.jpg
+            const baseMatch = originalUrl.match(/^(.*artworks-[^-]+-[^-]+)(-t\d+x\d+)?(\.\w+)$/);
+            if (baseMatch) {
+              const baseUrl = baseMatch[1];
+              const extension = baseMatch[3] || '.jpg';
+              
+              return {
+                url: originalUrl,
+                small: baseUrl + '-t200x200' + extension,
+                medium: baseUrl + '-t500x500' + extension,
+                large: baseUrl + '-original' + extension,
+                source: 'soundcloud'
+              };
+            }
+            
+            // Fallback if pattern doesn't match
+            return {
+              url: originalUrl,
+              source: 'soundcloud'
+            };
+          }
+          
+          return {
+            url: originalUrl,
+            source: 'soundcloud'
+          };
+        } catch (error) {
+          console.error('[ImageService] Failed to extract URL from proxy:', error);
+          // Fall back to using the proxy URL as-is
+          return {
+            url: artworkUrl,
+            source: 'soundcloak-proxy'
+          };
+        }
+      }
+      
+      // Handle direct soundcloud URLs
       if (artworkUrl.includes('sndcdn.com')) {
-        // Soundcloud images follow pattern: https://i1.sndcdn.com/artworks-xxx-xxx-t500x500.jpg
-        const baseUrl = artworkUrl.replace(/-t\d+x\d+\./, '-');
+        // Extract base URL without size suffix
+        const baseMatch = artworkUrl.match(/^(.*artworks-[^-]+-[^-]+)(-t\d+x\d+)?(\.\w+)$/);
+        if (baseMatch) {
+          const baseUrl = baseMatch[1];
+          const extension = baseMatch[3] || '.jpg';
+          
+          return {
+            url: artworkUrl,
+            small: baseUrl + '-t200x200' + extension,
+            medium: baseUrl + '-t500x500' + extension,
+            large: baseUrl + '-original' + extension,
+            source: 'soundcloud'
+          };
+        }
         
+        // Fallback
         return {
           url: artworkUrl,
-          small: baseUrl + 't200x200.jpg',
-          medium: baseUrl + 't500x500.jpg', 
-          large: baseUrl + 'original.jpg',
           source: 'soundcloud'
         };
-      }
-
-      // For proxy URLs, extract the original URL
-      if (artworkUrl.includes('_/proxy/images?url=')) {
-        const originalUrl = decodeURIComponent(artworkUrl.split('url=')[1]);
-        return this.processSoundcloudUrl(originalUrl);
       }
 
       return {

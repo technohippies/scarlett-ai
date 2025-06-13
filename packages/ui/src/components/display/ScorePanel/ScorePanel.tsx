@@ -1,5 +1,6 @@
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { useI18n } from '../../../i18n';
 
 export interface ScorePanelProps {
   score: number | null;
@@ -8,6 +9,8 @@ export interface ScorePanelProps {
 }
 
 export const ScorePanel: Component<ScorePanelProps> = (props) => {
+  const { t } = useI18n();
+  
   return (
     <div class={cn('grid grid-cols-[1fr_1fr] gap-2 p-4', props.class)}>
       {/* Score Box */}
@@ -16,7 +19,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
           {props.score !== null ? props.score : '—'}
         </div>
         <div class="text-sm text-secondary mt-1">
-          Score
+          {t('karaoke.scoring.score')}
         </div>
       </div>
       
@@ -26,7 +29,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
           {props.rank !== null ? props.rank : '—'}
         </div>
         <div class="text-sm text-secondary mt-1">
-          Rank
+          {t('karaoke.completion.rank')}
         </div>
       </div>
     </div>

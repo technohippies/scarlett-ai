@@ -1,0 +1,24 @@
+{
+  "slider": {
+    "close": "关闭",
+    "active": "已激活",
+    "title": "无限卡拉OK",
+    "manageSubscription": "管理订阅"
+  },
+  "plan": {
+    "price": "¥70/月",
+    "trial": "3天免费试用",
+    "features": {
+      "allSongs": "sc.maid.zone 上的所有歌曲",
+      "unlimited": "无限畅唱",
+      "newFeatures": "新功能即将推出"
+    },
+    "actions": {
+      "connectWallet": "连接钱包",
+      "startTrial": "开始免费试用",
+      "subscribe": "使用 Unlock 订阅",
+      "active": "订阅已激活",
+      "manage": "管理订阅"
+    }
+  }
+}

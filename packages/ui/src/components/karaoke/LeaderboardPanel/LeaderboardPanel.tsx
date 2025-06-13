@@ -1,6 +1,8 @@
 import { For, Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { useI18n } from '../../../i18n';
+import IconCrownFill from 'phosphor-icons-solid/IconCrownFill';
 
 export interface LeaderboardEntry {
   rank: number;
@@ -15,15 +17,20 @@ export interface LeaderboardPanelProps {
 }
 
 export const LeaderboardPanel: Component<LeaderboardPanelProps> = (props) => {
+  const { t } = useI18n();
+  
   return (
     <div class={cn('flex flex-col gap-2 p-4', props.class)}>
       <Show 
         when={props.entries.length > 0}
         fallback={
           <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
-            <div class="text-6xl mb-4 opacity-30">🎤</div>
-            <p class="text-lg text-secondary mb-2">Nobody has completed this song yet!</p>
-            <p class="text-sm text-tertiary">Be the first to set a high score</p>
+            <IconCrownFill 
+              class="w-16 h-16 mb-4 text-yellow-500 opacity-30" 
+              style="color: #fbbf24;"
+            />
+            <p class="text-lg text-secondary mb-2">{t('karaoke.leaderboard.empty')}</p>
+            <p class="text-sm text-tertiary">{t('karaoke.leaderboard.beFirst')}</p>
           </div>
         }
       >

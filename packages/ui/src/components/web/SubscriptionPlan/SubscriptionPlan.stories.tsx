@@ -2,10 +2,11 @@ import type { Meta, StoryObj } from '@storybook/html';
 import type { SubscriptionPlanProps } from './SubscriptionPlan';
 import { SubscriptionPlan } from './SubscriptionPlan';
 import { solidStory } from '../../../utils/storybook';
+import { withI18n } from '../../../utils/i18n-story';
 
 const meta: Meta<SubscriptionPlanProps> = {
   title: 'Web/SubscriptionPlan',
-  render: solidStory(SubscriptionPlan),
+  render: (args, context) => withI18n(SubscriptionPlan)(args, context),
   parameters: {
     layout: 'centered',
   },
@@ -76,17 +77,19 @@ export const ConnectedWithTrial: Story = {
 };
 
 export const InModal: Story = {
-  render: (args) => {
+  render: (args, context) => {
     const wrapper = document.createElement('div');
     wrapper.className = 'w-full max-w-md bg-base p-6 rounded-lg';
     
-    const component = solidStory(SubscriptionPlan, {
+    const component = withI18n(SubscriptionPlan)({
       hasTrialAvailable: true,
       onSubscribe: () => console.log('Subscribe clicked'),
       ...args
-    });
+    }, context);
     
-    wrapper.appendChild(component);
+    if (component instanceof Node) {
+      wrapper.appendChild(component);
+    }
     return wrapper;
   },
 };

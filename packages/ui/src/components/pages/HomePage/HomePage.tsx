@@ -30,6 +30,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = createSignal('');
   
+  
   const songItemStyle = {
     padding: '16px',
     'margin-bottom': '8px',

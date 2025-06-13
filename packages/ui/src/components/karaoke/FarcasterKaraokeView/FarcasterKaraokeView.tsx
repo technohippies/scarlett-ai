@@ -6,6 +6,7 @@ import { LyricsDisplay, type LyricLine } from '../LyricsDisplay';
 import { LeaderboardPanel, type LeaderboardEntry } from '../LeaderboardPanel';
 import { SplitButton } from '../../common/SplitButton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../common/Tabs';
+import { useI18n } from '../../../i18n';
 
 export interface FarcasterKaraokeViewProps {
   // Song info
@@ -33,6 +34,8 @@ export interface FarcasterKaraokeViewProps {
 }
 
 export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props) => {
+  const { t } = useI18n();
+  
   return (
     <div class={cn('flex flex-col h-screen overflow-hidden bg-base', props.class)}>
       {/* Header with back button and song info */}
@@ -64,8 +67,8 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
         {!props.isPlaying && (
           <div class="px-4">
             <TabsList>
-              <TabsTrigger value="lyrics">Lyrics</TabsTrigger>
-              <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+              <TabsTrigger value="lyrics">{t('karaoke.tabs.lyrics')}</TabsTrigger>
+              <TabsTrigger value="leaderboard">{t('karaoke.tabs.leaderboard')}</TabsTrigger>
             </TabsList>
           </div>
         )}
