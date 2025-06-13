@@ -213,12 +213,19 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       const userLang = getUserLanguage();
       let targetLang: 'en' | 'es' = 'es';
       
+      console.log('[LyricClick] User language:', userLang);
+      
       if (userLang.startsWith('es')) {
         targetLang = 'en';
       } else if (userLang.startsWith('zh')) {
         // For now, translate to English for Chinese users since API doesn't support Chinese yet
         targetLang = 'en';
+      } else if (userLang.startsWith('en')) {
+        // English speakers -> translate to Spanish
+        targetLang = 'es';
       }
+      
+      console.log('[LyricClick] Target translation language:', targetLang);
       
       const cacheKey = `${lyric.text}:${targetLang}`;
       const cachedTranslation = translationCache.get(cacheKey);
@@ -360,6 +367,9 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   // Detect user language
   const getUserLanguage = () => {
     const browserLang = navigator.language.toLowerCase();
+    console.log('[FarcasterKaraoke] Browser language detected:', browserLang);
+    console.log('[FarcasterKaraoke] navigator.language:', navigator.language);
+    console.log('[FarcasterKaraoke] navigator.languages:', navigator.languages);
     return browserLang;
   };
 

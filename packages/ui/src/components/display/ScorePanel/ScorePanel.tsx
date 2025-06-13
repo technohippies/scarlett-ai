@@ -43,7 +43,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
       <div class="flex-1" />
       
       {/* Content container */}
-      <div class="relative z-10 p-8">
+      <div class="relative z-10 px-4 pb-8">
         {/* Title and Artist */}
         <Show when={props.title || props.artist}>
           <div class="mb-6">

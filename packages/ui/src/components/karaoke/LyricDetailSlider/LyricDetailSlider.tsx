@@ -44,15 +44,19 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   // Auto-detect if we should translate to English or Spanish
   createEffect(() => {
     const userLang = props.userLanguage || '';
+    console.log('[LyricDetailSlider] Language detection - userLang:', userLang);
     
     if (userLang.startsWith('es')) {
       // Spanish speakers -> translate to English
+      console.log('[LyricDetailSlider] Detected Spanish, setting target to English');
       setSelectedTargetLang('en');
     } else if (userLang.startsWith('zh')) {
       // Chinese speakers -> translate to English (API doesn't support Chinese yet)
+      console.log('[LyricDetailSlider] Detected Chinese, setting target to English');
       setSelectedTargetLang('en');
     } else {
       // English and other speakers -> translate to Spanish
+      console.log('[LyricDetailSlider] Detected other language, setting target to Spanish');
       setSelectedTargetLang('es');
     }
   });
@@ -105,6 +109,9 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   // Auto-translate on open
   createEffect(() => {
     if (props.isOpen && !props.lyric.translatedText && !props.isLoading) {
+      console.log('[LyricDetailSlider] Auto-translate triggered');
+      console.log('[LyricDetailSlider] User language:', props.userLanguage);
+      console.log('[LyricDetailSlider] Selected target lang:', selectedTargetLang());
       setShowTranslation(true);
       props.onTranslate(selectedTargetLang());
     }
