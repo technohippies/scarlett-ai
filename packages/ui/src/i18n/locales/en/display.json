@@ -3,6 +3,8 @@
     "currentScore": "Current Score",
     "bestScore": "Best Score",
     "streak": "Streak",
-    "multiplier": "{{value}}x Multiplier"
+    "multiplier": "{{value}}x Multiplier",
+    "score": "Score",
+    "rank": "Rank"
   }
 }

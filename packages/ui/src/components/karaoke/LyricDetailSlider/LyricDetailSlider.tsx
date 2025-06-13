@@ -43,9 +43,16 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   
   // Auto-detect if we should translate to English or Spanish
   createEffect(() => {
-    if (props.userLanguage?.startsWith('es')) {
+    const userLang = props.userLanguage || '';
+    
+    if (userLang.startsWith('es')) {
+      // Spanish speakers -> translate to English
+      setSelectedTargetLang('en');
+    } else if (userLang.startsWith('zh')) {
+      // Chinese speakers -> translate to English (API doesn't support Chinese yet)
       setSelectedTargetLang('en');
     } else {
+      // English and other speakers -> translate to Spanish
       setSelectedTargetLang('es');
     }
   });

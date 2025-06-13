@@ -67,7 +67,12 @@ const App = () => {
   // Fetch popular songs from the API
   const [popularSongs] = createResource(async () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-    const response = await fetch(`${apiUrl}/api/songs/popular`);
+    console.log('[App] Fetching popular songs with language:', navigator.language);
+    const response = await fetch(`${apiUrl}/api/songs/popular`, {
+      headers: {
+        'Accept-Language': navigator.language
+      }
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch popular songs');
     }

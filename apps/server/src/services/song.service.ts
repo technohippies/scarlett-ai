@@ -323,22 +323,30 @@ export class SongService {
     let languageFilter = '';
     const params: any[] = [searchPattern, searchPattern];
     
+    console.log('[SongService] searchSongs called with:', {
+      query,
+      limit,
+      userLanguage,
+      searchPattern
+    });
+    
     if (userLanguage) {
       // If user speaks English (en-*), show Spanish songs
       // Otherwise, show English songs
       if (userLanguage.startsWith('en')) {
         languageFilter = ' AND (language = ? OR language IS NULL)';
         params.push('es');
+        console.log('[SongService] English speaker detected, filtering for Spanish songs');
       } else {
         languageFilter = ' AND (language = ? OR language IS NULL)';
         params.push('en');
+        console.log('[SongService] Non-English speaker detected, filtering for English songs');
       }
     }
     
     params.push(limit);
     
-    const results = await this.env.DB.prepare(
-      `SELECT 
+    const sqlQuery = `SELECT 
         id, track_id as trackId, title, artist, album, duration_ms as durationMs,
         difficulty, genius_id as geniusId, genius_url as geniusUrl,
         genius_confidence as geniusConfidence, soundcloud_match as soundcloudMatch,
@@ -352,10 +360,23 @@ export class SongService {
       WHERE (title LIKE ? OR artist LIKE ?)
       AND lyrics_type != 'none'${languageFilter}
       ORDER BY total_attempts DESC
-      LIMIT ?`
-    )
+      LIMIT ?`;
+    
+    console.log('[SongService] SQL Query:', sqlQuery);
+    console.log('[SongService] Query params:', params);
+    
+    const results = await this.env.DB.prepare(sqlQuery)
       .bind(...params)
       .all();
+    
+    console.log('[SongService] Query returned', results.results.length, 'songs');
+    if (results.results.length > 0) {
+      console.log('[SongService] First few results:', results.results.slice(0, 3).map((r: any) => ({
+        title: r.title,
+        artist: r.artist,
+        language: r.language
+      })));
+    }
 
     return results.results as Song[];
   }

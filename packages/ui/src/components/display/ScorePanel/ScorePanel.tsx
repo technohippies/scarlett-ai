@@ -57,21 +57,21 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
         </Show>
         
         {/* Score and Rank boxes */}
-        <div class="grid grid-cols-2 gap-4 w-full">
+        <div class="flex gap-4 w-full">
           {/* Score Box */}
-          <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
-          <div class="text-3xl font-mono font-bold text-purple-400">
-            <Show when={props.score !== null} fallback="—">
-              {formatNumber(props.score!)}
-            </Show>
+          <div class="flex-1 bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
+            <div class="text-3xl font-mono font-bold text-purple-400">
+              <Show when={props.score !== null} fallback="—">
+                {formatNumber(props.score!)}
+              </Show>
+            </div>
+            <div class="text-sm text-secondary mt-1">
+              {t('display.scorePanel.score')}
+            </div>
           </div>
-          <div class="text-sm text-secondary mt-1">
-            {t('display.scorePanel.score')}
-          </div>
-        </div>
         
           {/* Rank Box */}
-          <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
+          <div class="flex-1 bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
             <div class="text-3xl font-mono font-bold text-pink-400">
               <Show when={props.rank !== null} fallback="—">
                 #{formatNumber(props.rank!)}

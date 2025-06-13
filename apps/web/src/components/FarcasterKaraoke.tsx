@@ -209,7 +209,17 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       setShowLyricDetail(true);
       
       // Check cache for translation
-      const targetLang = getUserLanguage().startsWith('es') ? 'en' : 'es';
+      // For Chinese users, translate to Chinese; for Spanish users to English; otherwise to Spanish
+      const userLang = getUserLanguage();
+      let targetLang: 'en' | 'es' = 'es';
+      
+      if (userLang.startsWith('es')) {
+        targetLang = 'en';
+      } else if (userLang.startsWith('zh')) {
+        // For now, translate to English for Chinese users since API doesn't support Chinese yet
+        targetLang = 'en';
+      }
+      
       const cacheKey = `${lyric.text}:${targetLang}`;
       const cachedTranslation = translationCache.get(cacheKey);
       

@@ -148,8 +148,13 @@ class ApiService {
     url.searchParams.set('offset', offset.toString());
     
     console.log('[ApiService] Searching:', url.toString());
+    console.log('[ApiService] Browser language:', navigator.language);
     
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Accept-Language': navigator.language
+      }
+    });
     console.log('[ApiService] Search response status:', response.status);
 
     if (!response.ok) {

@@ -57,8 +57,14 @@ searchRoutes.get('/', async (c) => {
     // Only search local database for first page (offset 0)
     if (offset === 0) {
       console.log('[Search] Searching local database...');
+      console.log('[Search] Language filtering enabled for:', userLanguage);
       localResults = await songService.searchSongs(q, limit, userLanguage);
       console.log('[Search] Local results found:', localResults.length);
+      console.log('[Search] Local results:', localResults.map(s => ({ 
+        title: s.title, 
+        artist: s.artist, 
+        language: s.language 
+      })));
       
       // If we have enough results locally, return them
       if (localResults.length >= limit) {
@@ -72,6 +78,7 @@ searchRoutes.get('/', async (c) => {
           artworkUrl: song.artworkUrl,
           difficulty: song.difficulty,
           totalAttempts: song.totalAttempts,
+          language: song.language,
           source: 'local'
         }));
 
@@ -228,6 +235,16 @@ searchRoutes.get('/', async (c) => {
       hasMore,
       offset
     });
+    
+    // Log language distribution in final results
+    if (allResults.length > 0) {
+      const languageStats = allResults.reduce((acc, song) => {
+        const lang = song.language || 'unknown';
+        acc[lang] = (acc[lang] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      console.log('[Search] Language distribution in results:', languageStats);
+    }
     
     return c.json({
       success: true,
