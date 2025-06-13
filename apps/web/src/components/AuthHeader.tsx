@@ -76,19 +76,19 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
             'max-width': isSearchActive() ? 0 : '200px',
             overflow: 'hidden',
             'white-space': 'nowrap',
-            'margin-right': isSearchActive() ? 0 : '8px'
+            'margin-right': isSearchActive() ? 0 : '16px'
           }}
         >
             <Show when={props.currentStreak !== undefined}>
               <div class="flex items-center gap-2">
-                <IconFireFill class="w-6 h-6 text-orange-500" style="color: #ff6b35;" />
-                <span class="text-xl font-bold">
+                <IconFireFill class="w-5 h-5 text-orange-500" style="color: #ff6b35;" />
+                <span class="text-lg font-bold">
                   {props.currentStreak}
                 </span>
               </div>
             </Show>
             <div class="flex items-center gap-2">
-              <IconCrownFill class="w-6 h-6 text-yellow-500" style="color: #fbbf24;" />
+              <IconCrownFill class="w-5 h-5 text-yellow-500" style="color: #fbbf24;" />
               <span class="text-lg font-bold">
                 {props.hasTopPosition ? '1' : '0'}
               </span>
