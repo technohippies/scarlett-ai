@@ -59,32 +59,37 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
     }
   });
 
+  // Check if search is active
+  const isSearchActive = () => isSearchExpanded() || searchValue() || props.searchQuery;
+
   return (
     <header class="bg-surface border-b border-subtle p-4">
       <div class="flex items-center justify-between gap-4">
-        {/* Left side: Streak and Crown */}
-        <div class="flex items-center gap-3">
-          <Show when={props.currentStreak !== undefined}>
+        <Show when={!isSearchActive()}>
+          {/* Left side: Streak and Crown */}
+          <div class="flex items-center gap-3">
+            <Show when={props.currentStreak !== undefined}>
+              <div class="flex items-center gap-2">
+                <IconFireFill class="w-6 h-6 text-orange-500" style="color: #ff6b35;" />
+                <span class="text-xl font-bold">
+                  {props.currentStreak}
+                </span>
+              </div>
+            </Show>
             <div class="flex items-center gap-2">
-              <IconFireFill class="w-6 h-6 text-orange-500" style="color: #ff6b35;" />
-              <span class="text-xl font-bold">
-                {props.currentStreak}
+              <IconCrownFill class="w-6 h-6 text-yellow-500" style="color: #fbbf24;" />
+              <span class="text-lg font-bold">
+                {props.hasTopPosition ? '1' : '0'}
               </span>
             </div>
-          </Show>
-          <div class="flex items-center gap-2">
-            <IconCrownFill class="w-6 h-6 text-yellow-500" style="color: #fbbf24;" />
-            <span class="text-lg font-bold">
-              {props.hasTopPosition ? '1' : '0'}
-            </span>
           </div>
-        </div>
+        </Show>
         
-        {/* Center: Search Bar */}
+        {/* Search Bar - Full width when expanded */}
         <div 
           style={{
             flex: '1',
-            'margin': '0 8px'
+            'margin': isSearchActive() ? '0' : '0 8px'
           }}
         >
           <div
@@ -172,37 +177,39 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
           </div>
         </div>
         
-        {/* Right side: Wallet Button */}
-        <div style={{ 'min-width': '40px' }}>
-          <Show 
-            when={user()}
-            fallback={
-              <Button
+        <Show when={!isSearchActive()}>
+          {/* Right side: Wallet Button */}
+          <div style={{ 'min-width': '40px' }}>
+            <Show 
+              when={user()}
+              fallback={
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={connectWallet}
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    padding: '0',
+                    display: 'flex',
+                    'align-items': 'center',
+                    'justify-content': 'center'
+                  }}
+                >
+                  <IconWalletFill class="w-5 h-5" />
+                </Button>
+              }
+            >
+              <AuthButton
+                user={user()}
+                onSignInClick={connectWallet}
+                onSignOutClick={disconnectWallet}
                 variant="secondary"
                 size="md"
-                onClick={connectWallet}
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  padding: '0',
-                  display: 'flex',
-                  'align-items': 'center',
-                  'justify-content': 'center'
-                }}
-              >
-                <IconWalletFill class="w-5 h-5" />
-              </Button>
-            }
-          >
-            <AuthButton
-              user={user()}
-              onSignInClick={connectWallet}
-              onSignOutClick={disconnectWallet}
-              variant="secondary"
-              size="md"
-            />
-          </Show>
-        </div>
+              />
+            </Show>
+          </div>
+        </Show>
       </div>
     </header>
   );
