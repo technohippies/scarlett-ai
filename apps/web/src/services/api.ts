@@ -122,9 +122,11 @@ class ApiService {
   async getKaraokeData(trackId: string, title?: string, artist?: string) {
     const token = this.authToken || (await this.getDemoToken());
     
-    const url = new URL(`${API_BASE_URL}/api/karaoke/${encodeURIComponent(trackId)}`);
+    // Don't encode the trackId since it contains path separators
+    const url = new URL(`${API_BASE_URL}/api/karaoke/${trackId}`);
     if (title) url.searchParams.set('title', title);
     if (artist) url.searchParams.set('artist', artist);
+    
     
     const response = await fetch(url.toString(), {
       headers: {

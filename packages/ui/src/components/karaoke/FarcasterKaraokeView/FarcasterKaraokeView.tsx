@@ -39,15 +39,17 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
   const { t } = useI18n();
   
   return (
-    <div class={cn('flex flex-col h-screen overflow-hidden bg-base', props.class)}>
-      {/* Header with back button and song info */}
-      <KaraokeHeader
-        songTitle={props.songTitle}
-        artist={props.artist}
-        onBack={props.onBack}
-        isPlaying={props.isPlaying}
-        class="border-b border-subtle"
-      />
+    <div class={cn('flex flex-col h-screen overflow-hidden bg-base relative', props.class)}>
+      {/* Back button - positioned absolutely */}
+      <button
+        onClick={props.onBack}
+        class="absolute top-4 left-4 z-50 p-2 text-white drop-shadow-lg hover:text-white/90 transition-colors"
+        aria-label={t('karaoke.controls.goBack')}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
       
       {/* Score Panel - only show when not playing */}
       {!props.isPlaying && (
@@ -55,6 +57,8 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
           score={props.score}
           rank={props.rank}
           backgroundImage={props.artworkUrl}
+          title={props.songTitle}
+          artist={props.artist}
         />
       )}
 

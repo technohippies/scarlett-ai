@@ -36,9 +36,10 @@ export interface LyricDetailSliderProps {
 
 export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   const { t } = useI18n();
-  const [showTranslation, setShowTranslation] = createSignal(false);
+  const [showTranslation, setShowTranslation] = createSignal(true); // Always show translation area to maintain layout
   const [showAnnotations, setShowAnnotations] = createSignal(false);
   const [selectedTargetLang, setSelectedTargetLang] = createSignal<'en' | 'es'>('es');
+  const [isStreaming, setIsStreaming] = createSignal(false);
   
   // Auto-detect if we should translate to English or Spanish
   createEffect(() => {
@@ -52,7 +53,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   // Reset states when slider opens/closes
   createEffect(() => {
     if (!props.isOpen) {
-      setShowTranslation(false);
+      // Don't reset showTranslation to maintain layout
       setShowAnnotations(false);
     }
   });
@@ -96,7 +97,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   
   // Auto-translate on open
   createEffect(() => {
-    if (props.isOpen && !props.lyric.translatedText) {
+    if (props.isOpen && !props.lyric.translatedText && !props.isLoading) {
       setShowTranslation(true);
       props.onTranslate(selectedTargetLang());
     }
@@ -149,7 +150,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
       >
         <Show when={props.isOpen}>
           <div class="fixed inset-x-0 bottom-0 z-50 overflow-hidden">
-            <div class="bg-elevated rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="bg-elevated rounded-t-3xl shadow-2xl h-[85vh] overflow-hidden flex flex-col">
               {/* Handle bar */}
               <div class="flex justify-center pt-3 pb-2">
                 <div class="w-12 h-1 bg-surface rounded-full" />
@@ -168,10 +169,10 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                 </button>
               </div>
               
-              <div class="px-6 pb-8 space-y-6 overflow-y-auto overflow-x-hidden flex-1">
-                {/* Lyrics stacked - left aligned */}
-                <div class="space-y-4">
-                  {/* Original lyric - same size as lyrics display */}
+              <div class="px-6 pb-8 overflow-y-auto overflow-x-hidden flex-1">
+                {/* Fixed height lyrics container */}
+                <div class="h-[20rem] space-y-4">
+                  {/* Original lyric */}
                   <div class="text-2xl leading-relaxed text-primary break-words">
                     {props.lyric.text}
                   </div>
@@ -183,21 +184,14 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                     </div>
                   </Show>
                   
-                  {/* Translation - with TextEffect when loading */}
-                  <Show when={showTranslation()}>
-                    <div class="text-2xl leading-relaxed text-primary break-words">
-                      <Show 
-                        when={props.lyric.translatedText && props.lyric.translatedText.length > 0}
-                        fallback={
-                          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                        }
-                      >
-                        <TextEffect preset="fade" per="word" delay={0.2}>
-                          {props.lyric.translatedText!}
-                        </TextEffect>
-                      </Show>
-                    </div>
-                  </Show>
+                  {/* Translation - always takes up space */}
+                  <div class="text-2xl leading-relaxed text-primary break-words min-h-[7.5rem]">
+                    <Show when={showTranslation()}>
+                      {props.lyric.translatedText || (
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
+                      )}
+                    </Show>
+                  </div>
                 </div>
                 
                 {/* Single Explain button */}

@@ -7,6 +7,8 @@ export interface ScorePanelProps {
   score: number | null;
   rank: number | null;
   backgroundImage?: string;
+  title?: string;
+  artist?: string;
   class?: string;
 }
 
@@ -14,10 +16,10 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
   const { t, formatNumber } = useI18n();
   
   return (
-    <div class={cn('relative overflow-hidden', props.class)}>
+    <div class={cn('relative flex flex-col', props.class)} style={{ height: '30vh', 'min-height': '300px' }}>
       {/* Background image with gradient overlay - always show if backgroundImage is provided */}
       <Show when={props.backgroundImage}>
-        <div class="absolute inset-0 -z-10">
+        <div class="absolute inset-0 z-0">
           <div 
             class="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
@@ -37,10 +39,27 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
         </div>
       </Show>
       
-      {/* Score content - positioned toward the bottom */}
-      <div class="relative grid grid-cols-[1fr_1fr] gap-3 p-6 pt-12">
-        {/* Score Box */}
-        <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
+      {/* Spacer to push content to bottom */}
+      <div class="flex-1" />
+      
+      {/* Content container */}
+      <div class="relative z-10 p-8">
+        {/* Title and Artist */}
+        <Show when={props.title || props.artist}>
+          <div class="mb-6">
+            <Show when={props.title}>
+              <h2 class="text-3xl font-bold text-white mb-1">{props.title}</h2>
+            </Show>
+            <Show when={props.artist}>
+              <p class="text-xl text-white/80">{props.artist}</p>
+            </Show>
+          </div>
+        </Show>
+        
+        {/* Score and Rank boxes */}
+        <div class="grid grid-cols-[1fr_1fr] gap-4">
+          {/* Score Box */}
+          <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
           <div class="text-3xl font-mono font-bold text-purple-400">
             <Show when={props.score !== null} fallback="—">
               {formatNumber(props.score!)}
@@ -51,15 +70,16 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
           </div>
         </div>
         
-        {/* Rank Box */}
-        <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
-          <div class="text-3xl font-mono font-bold text-pink-400">
-            <Show when={props.rank !== null} fallback="—">
-              #{formatNumber(props.rank!)}
-            </Show>
-          </div>
-          <div class="text-sm text-secondary mt-1">
-            {t('display.scorePanel.rank')}
+          {/* Rank Box */}
+          <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
+            <div class="text-3xl font-mono font-bold text-pink-400">
+              <Show when={props.rank !== null} fallback="—">
+                #{formatNumber(props.rank!)}
+              </Show>
+            </div>
+            <div class="text-sm text-secondary mt-1">
+              {t('display.scorePanel.rank')}
+            </div>
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ interface GeniusSong {
     name: string;
   };
   song_art_image_url?: string;
+  language?: string;
   media?: Array<{
     provider: string;
     type: string;

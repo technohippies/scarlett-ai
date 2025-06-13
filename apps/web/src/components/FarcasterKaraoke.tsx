@@ -40,6 +40,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const [lyricTranslation, setLyricTranslation] = createSignal<string | undefined>();
   const [lyricAnnotations, setLyricAnnotations] = createSignal<any[] | undefined>();
   const [isLoadingLyricDetail, setIsLoadingLyricDetail] = createSignal(false);
+  const [isTranslating, setIsTranslating] = createSignal(false);
   
   // Translation cache - key is "lyricText:targetLang"
   const translationCache = new Map<string, string>();
@@ -197,6 +198,13 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   // Handle lyric click
   const handleLyricClick = (lyric: LyricLine, index: number) => {
     if (!isPlaying()) {
+      console.log('[LyricClick] Opening detail for:', lyric.text);
+      
+      // Clear previous translation to show spinner
+      setLyricTranslation(undefined);
+      setLyricAnnotations(undefined);
+      setIsTranslating(false);
+      
       setSelectedLyric({ lyric, index });
       setShowLyricDetail(true);
       
@@ -206,24 +214,26 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       const cachedTranslation = translationCache.get(cacheKey);
       
       if (cachedTranslation) {
+        console.log('[LyricClick] Found cached translation');
         setLyricTranslation(cachedTranslation);
-      } else {
-        setLyricTranslation(undefined);
       }
       
       // Check cache for annotations
       const cachedAnnotations = annotationsCache.get(lyric.text);
       if (cachedAnnotations) {
+        console.log('[LyricClick] Found cached annotations');
         setLyricAnnotations(cachedAnnotations);
-      } else {
-        setLyricAnnotations(undefined);
       }
     }
   };
 
   // Handle translation request
   const handleTranslate = async (targetLang: 'en' | 'es') => {
-    if (!selectedLyric()) return;
+    console.log('[Translation] Starting translation to', targetLang);
+    if (!selectedLyric() || isTranslating()) {
+      console.log('[Translation] Already translating or no lyric selected');
+      return;
+    }
     
     const lyricText = selectedLyric()!.lyric.text;
     const cacheKey = `${lyricText}:${targetLang}`;
@@ -231,12 +241,15 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     // Check cache first
     const cached = translationCache.get(cacheKey);
     if (cached) {
+      console.log('[Translation] Found in cache:', cached);
       setLyricTranslation(cached);
       return;
     }
     
+    setIsTranslating(true);
     setIsLoadingLyricDetail(true);
-    setLyricTranslation(''); // Clear previous translation
+    setLyricTranslation(''); // Start with empty string for streaming
+    console.log('[Translation] Starting stream...');
     
     try {
       const stream = await apiService.translateLyric(lyricText, targetLang);
@@ -245,10 +258,28 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       
       let translatedText = '';
       let buffer = '';
+      let chunkCount = 0;
+      let lastUpdateLength = 0;
+      
+      // Batch updates function
+      const updateTranslation = () => {
+        if (translatedText.length > lastUpdateLength) {
+          console.log('[Translation] Updating UI with', translatedText.length, 'chars');
+          setLyricTranslation(translatedText);
+          lastUpdateLength = translatedText.length;
+        }
+      };
+      
+      // Update every 200ms while streaming
+      const updateInterval = setInterval(updateTranslation, 200);
       
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log('[Translation] Stream complete, total chunks:', chunkCount);
+          clearInterval(updateInterval);
+          break;
+        }
         
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -262,23 +293,29 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
             try {
               const parsed = JSON.parse(data);
               if (parsed.text) {
+                chunkCount++;
                 translatedText += parsed.text;
-                setLyricTranslation(translatedText);
+                console.log(`[Translation] Chunk ${chunkCount}:`, parsed.text, '| Total:', translatedText.length, 'chars');
               }
             } catch (e) {
-              console.error('Failed to parse SSE:', e);
+              console.error('[Translation] Failed to parse SSE:', e, 'Line:', line);
             }
           }
         }
       }
       
+      // Final update
+      console.log('[Translation] Final text:', translatedText);
+      setLyricTranslation(translatedText);
+      
       // Save to cache
       translationCache.set(cacheKey, translatedText);
     } catch (error) {
-      console.error('Translation failed:', error);
+      console.error('[Translation] Translation failed:', error);
       setLyricTranslation('Translation failed');
     } finally {
       setIsLoadingLyricDetail(false);
+      setIsTranslating(false);
     }
   };
 

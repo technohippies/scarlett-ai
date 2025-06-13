@@ -1,4 +1,5 @@
 import { createSignal, onMount, Show, createMemo, createResource, createEffect } from 'solid-js';
+import { useNavigate, useLocation, useParams } from '@solidjs/router';
 import sdk from '@farcaster/frame-sdk';
 import { HomePage, SearchPage, type LyricLine, SubscriptionSlider, I18nProvider, SearchInput } from '@scarlett/ui';
 import type { Song } from '@scarlett/ui/components/pages/HomePage';
@@ -30,6 +31,10 @@ const unlockConfig = {
 };
 
 const App = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+  
   const [isLoading, setIsLoading] = createSignal(true);
   const [context, setContext] = createSignal<any>(null);
   const [credits] = createSignal(100);
@@ -87,6 +92,55 @@ const App = () => {
     return songs;
   });
 
+  // Handle URL-based song loading
+  createEffect(async () => {
+    const path = location.pathname;
+    if (path && path !== '/') {
+      // Extract trackId from URL
+      const trackId = path.substring(1); // Remove leading slash
+      
+      // Check if we need to load this song
+      if (!selectedSong() || selectedSong()?.trackId !== trackId) {
+        setIsLoadingSong(true);
+        
+        try {
+          // Parse trackId to get artist and title
+          const parts = trackId.split('/');
+          let artist = '';
+          let title = '';
+          
+          if (parts.length === 2) {
+            artist = parts[0].replace(/-/g, ' ');
+            title = parts[1].replace(/-/g, ' ');
+          }
+          
+          // Fetch karaoke data
+          const data = await apiService.getKaraokeData(trackId, title, artist);
+          setSongData(data);
+          
+          // Create a minimal song object for selectedSong
+          setSelectedSong({
+            id: trackId,
+            trackId: trackId,
+            title: data.song?.title || title,
+            artist: data.song?.artist || artist,
+            artworkUrl: data.song?.artwork_url
+          } as Song);
+        } catch (error) {
+          console.error('Failed to load song from URL:', error);
+          setError('Failed to load song data');
+          navigate('/'); // Go back to home on error
+        } finally {
+          setIsLoadingSong(false);
+        }
+      }
+    } else if (selectedSong()) {
+      // We're on home page but have a selected song, clear it
+      setSelectedSong(null);
+      setSongData(null);
+    }
+  });
+
   // Handle wallet authentication success
   const handleAuthSuccess = async (walletAddress: string) => {
     try {
@@ -100,22 +154,8 @@ const App = () => {
 
   // Handle song selection
   const handleSongSelect = async (song: Song) => {
-    setIsLoadingSong(true);
-    setSelectedSong(song);
-    setSearchQuery(''); // Clear search when selecting a song
-    setSearchResults(null); // Clear search results
-    
-    try {
-      // Fetch karaoke data for the song
-      const data = await apiService.getKaraokeData(song.trackId, song.title, song.artist);
-      setSongData(data);
-    } catch (error) {
-      console.error('Failed to load song:', error);
-      setError('Failed to load song data');
-      setSelectedSong(null);
-    } finally {
-      setIsLoadingSong(false);
-    }
+    // Navigate to the song URL
+    navigate(`/${song.trackId}`);
   };
 
   // Handle search with debounce
@@ -220,8 +260,7 @@ const App = () => {
   });
 
   const handleBack = () => {
-    setSelectedSong(null);
-    setSongData(null);
+    navigate('/');
   };
   
   // Handle karaoke start with subscription check
@@ -460,7 +499,7 @@ const App = () => {
                     trackId={selectedSong()!.trackId}
                     title={selectedSong()!.title}
                     artist={selectedSong()!.artist}
-                    artworkUrl={selectedSong()!.artworkUrl}
+                    artworkUrl={songData()?.song?.artwork_url || selectedSong()!.artworkUrl}
                     songCatalogId={songData()?.song_catalog_id}
                     apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
                     onStartCheck={handleKaraokeStart}

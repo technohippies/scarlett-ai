@@ -60,6 +60,7 @@ export class SongService {
       geniusConfidence?: number;
       soundcloudMatch?: boolean;
       artworkUrl?: string;
+      language?: string;
       lyricsSource: 'genius' | 'lrclib';
       lyricsType: 'synced' | 'unsynced';
       lyricsLinesCount: number;
@@ -90,9 +91,9 @@ export class SongService {
       `INSERT INTO song_catalog (
         id, track_id, title, artist, album, duration_ms, difficulty,
         genius_id, genius_url, genius_confidence, soundcloud_match, artwork_url,
-        lyrics_source, lyrics_type, lyrics_lines_count, total_attempts,
+        language, lyrics_source, lyrics_type, lyrics_lines_count, total_attempts,
         unique_users_attempted, last_played_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?)`
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?)`
     )
       .bind(
         songId,
@@ -107,6 +108,7 @@ export class SongService {
         songData.geniusConfidence || 0,
         songData.soundcloudMatch || false,
         songData.artworkUrl || null,
+        songData.language || null,
         songData.lyricsSource,
         songData.lyricsType,
         songData.lyricsLinesCount,
@@ -163,7 +165,9 @@ export class SongService {
       SELECT 
         id, track_id as trackId, title, artist, album, duration_ms as durationMs,
         difficulty, genius_id as geniusId, genius_url as geniusUrl,
-        artwork_url as artworkUrl, lyrics_type as lyricsType,
+        artwork_url as artworkUrl, artwork_url_small as artworkUrlSmall,
+        artwork_url_medium as artworkUrlMedium, artwork_url_large as artworkUrlLarge,
+        lyrics_type as lyricsType,
         total_attempts as totalAttempts, success_rate as successRate,
         unique_users_attempted as uniqueUsersAttempted,
         last_played_at as lastPlayedAt, created_at as createdAt
@@ -228,7 +232,9 @@ export class SongService {
     const query = `
       SELECT 
         id, track_id as trackId, title, artist, album, duration_ms as durationMs,
-        difficulty, artwork_url as artworkUrl, lyrics_type as lyricsType,
+        difficulty, artwork_url as artworkUrl, artwork_url_small as artworkUrlSmall,
+        artwork_url_medium as artworkUrlMedium, artwork_url_large as artworkUrlLarge,
+        lyrics_type as lyricsType,
         total_attempts as totalAttempts, unique_users_attempted as uniqueUsersAttempted,
         last_played_at as lastPlayedAt, created_at as createdAt
       FROM song_catalog 

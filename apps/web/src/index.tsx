@@ -1,6 +1,7 @@
 /* @refresh reload */
 import { render } from 'solid-js/web';
-import App from './App';
+import { Router } from '@solidjs/router';
+import Routes from './routes';
 import '@scarlett/ui/dist/ui.css';
 import './styles.css';
 
@@ -17,4 +18,8 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 console.log('Rendering app to root element:', root);
 
-render(() => <App />, root!);
+render(() => (
+  <Router>
+    <Routes />
+  </Router>
+), root!);
