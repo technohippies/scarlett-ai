@@ -84,8 +84,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
         <div 
           style={{
             flex: '1',
-            'max-width': '600px',
-            'margin': '0 auto'
+            'margin': '0 16px'
           }}
         >
           <div
@@ -174,7 +173,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
         </div>
         
         {/* Right side: Wallet Button */}
-        <div style={{ 'min-width': '120px', display: 'flex', 'justify-content': 'flex-end' }}>
+        <div style={{ 'min-width': '40px' }}>
           <Show 
             when={user()}
             fallback={
