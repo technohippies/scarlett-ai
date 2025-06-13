@@ -65,9 +65,18 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
   return (
     <header class="bg-surface border-b border-subtle p-4">
       <div class="flex items-center justify-between gap-4">
-        <Show when={!isSearchActive()}>
-          {/* Left side: Streak and Crown */}
-          <div class="flex items-center gap-3">
+        {/* Left side: Streak and Crown */}
+        <div 
+          class="flex items-center gap-3"
+          style={{
+            opacity: isSearchActive() ? 0 : 1,
+            transform: isSearchActive() ? 'translateX(-20px)' : 'translateX(0)',
+            transition: 'all 0.3s ease-out',
+            width: isSearchActive() ? 0 : 'auto',
+            overflow: 'hidden',
+            'white-space': 'nowrap'
+          }}
+        >
             <Show when={props.currentStreak !== undefined}>
               <div class="flex items-center gap-2">
                 <IconFireFill class="w-6 h-6 text-orange-500" style="color: #ff6b35;" />
@@ -83,7 +92,6 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
               </span>
             </div>
           </div>
-        </Show>
         
         {/* Search Bar - Full width when expanded */}
         <div 
@@ -108,9 +116,12 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
               }}
               onFocus={() => setIsSearchExpanded(true)}
               onBlur={(e) => {
-                if (!searchValue()) {
-                  setIsSearchExpanded(false);
-                }
+                // Delay to allow click on clear button
+                setTimeout(() => {
+                  if (!searchValue()) {
+                    setIsSearchExpanded(false);
+                  }
+                }, 200);
               }}
               placeholder="Search"
               style={{
@@ -154,6 +165,10 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
                 onClick={() => {
                   setSearchValue('');
                   props.onSearch?.('');
+                  setIsSearchExpanded(false);
+                  // Focus back on input after clearing
+                  const input = document.querySelector('input[type="text"]') as HTMLInputElement;
+                  input?.blur();
                 }}
                 style={{
                   position: 'absolute',
@@ -177,9 +192,17 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
           </div>
         </div>
         
-        <Show when={!isSearchActive()}>
-          {/* Right side: Wallet Button */}
-          <div style={{ 'min-width': '40px' }}>
+        {/* Right side: Wallet Button */}
+        <div 
+          style={{ 
+            'min-width': '40px',
+            opacity: isSearchActive() ? 0 : 1,
+            transform: isSearchActive() ? 'translateX(20px)' : 'translateX(0)',
+            transition: 'all 0.3s ease-out',
+            width: isSearchActive() ? 0 : 'auto',
+            overflow: 'hidden'
+          }}
+        >
             <Show 
               when={user()}
               fallback={
@@ -209,7 +232,6 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
               />
             </Show>
           </div>
-        </Show>
       </div>
     </header>
   );

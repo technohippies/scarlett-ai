@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import type { Env } from '../types';
 import { GeniusService } from '../services/genius.service';
 import { LyricsService } from '../services/lyrics.service';
+import { ImageService } from '../services/image.service';
 
 const app = new Hono<{ 
   Bindings: Env;
