@@ -36,6 +36,11 @@
     "rank": "Rank",
     "practiceErrors": "Practice Errors"
   },
+  "streak": {
+    "onFire": "ON FIRE!",
+    "legendary": "LEGENDARY!",
+    "unstoppable": "UNSTOPPABLE!"
+  },
   "leaderboard": {
     "title": "Leaderboard",
     "topPerformers": "Top Performers",

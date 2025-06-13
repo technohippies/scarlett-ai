@@ -36,6 +36,11 @@
     "rank": "排名",
     "practiceErrors": "练习错误"
   },
+  "streak": {
+    "onFire": "火力全开！",
+    "legendary": "传奇表现！",
+    "unstoppable": "势不可挡！"
+  },
   "leaderboard": {
     "title": "排行榜",
     "topPerformers": "最佳表演者",

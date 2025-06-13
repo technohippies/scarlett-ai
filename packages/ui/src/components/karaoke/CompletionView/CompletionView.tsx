@@ -94,7 +94,7 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
             fullWidth
             onClick={props.onPractice}
           >
-            {t('karaoke.completion.practiceErrors')
+            {t('karaoke.completion.practiceErrors')}
           </Button>
         </div>
       </Show>

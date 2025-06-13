@@ -1,6 +1,7 @@
 import { createSignal, createEffect, Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { useI18n } from '../../../i18n';
 import styles from './StreakIndicator.module.css';
 
 export interface StreakIndicatorProps {
@@ -9,6 +10,7 @@ export interface StreakIndicatorProps {
 }
 
 export const StreakIndicator: Component<StreakIndicatorProps> = (props) => {
+  const { t } = useI18n();
   const [showFlame, setShowFlame] = createSignal(false);
   
   createEffect(() => {
@@ -33,9 +35,9 @@ export const StreakIndicator: Component<StreakIndicatorProps> = (props) => {
         >
           <div class={styles.flameEmoji}>🔥</div>
           <div class={styles.streakText}>
-            {props.combo >= 15 ? 'UNSTOPPABLE!' : 
-             props.combo >= 10 ? 'LEGENDARY!' : 
-             'ON FIRE!'}
+            {props.combo >= 15 ? t('karaoke.streak.unstoppable') : 
+             props.combo >= 10 ? t('karaoke.streak.legendary') : 
+             t('karaoke.streak.onFire')}
           </div>
         </div>
       </div>
