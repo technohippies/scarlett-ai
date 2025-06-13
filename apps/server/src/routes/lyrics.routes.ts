@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env } from '../types';
 import { createVeniceService } from '../services/venice.service';
+import { createOpenRouterService } from '../services/openrouter.service';
 import { validateBody } from '../middleware/validation.middleware';
 import { streamSSE } from 'hono/streaming';
 
@@ -27,13 +28,22 @@ const annotateSchema = z.object({
 // POST /lyrics/translate
 app.post('/translate', validateBody(translateSchema), async (c) => {
   const data = c.get('validatedBody') as z.infer<typeof translateSchema>;
-  const veniceService = createVeniceService(c.env);
   
-  if (!veniceService) {
-    return c.json({ 
-      success: false, 
-      error: 'Translation service not available' 
-    }, 503);
+  // Use OpenRouter for translations (better quality and supports more languages)
+  const openRouterService = createOpenRouterService(c.env);
+  
+  if (!openRouterService) {
+    // Fallback to Venice if OpenRouter is not configured
+    const veniceService = createVeniceService(c.env);
+    if (!veniceService) {
+      return c.json({ 
+        success: false, 
+        error: 'Translation service not available' 
+      }, 503);
+    }
+    
+    // Use Venice service (original implementation)
+    return handleVeniceTranslation(c, data, veniceService);
   }
 
   try {
@@ -56,7 +66,7 @@ Important:
 
     const userPrompt = `Translate this song lyric to ${targetLangName}: "${data.text}"`;
 
-    // Stream the response
+    // Stream the response using OpenRouter
     return streamSSE(c, async (stream) => {
       await stream.writeSSE({
         event: 'start',
@@ -65,19 +75,16 @@ Important:
 
       let fullTranslation = '';
       
-      await veniceService.streamChat(
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
+      await openRouterService.streamTranslate(
+        data.text,
+        targetLangName,
         (chunk) => {
           fullTranslation += chunk;
           stream.writeSSE({
             event: 'translation',
             data: JSON.stringify({ text: chunk }),
           });
-        },
-        0.3 // Lower temperature for more accurate translations
+        }
       );
 
       await stream.writeSSE({
@@ -164,5 +171,70 @@ Only include 3-5 most important words/phrases. Focus on:
     }, 500);
   }
 });
+
+// Helper function for Venice fallback
+async function handleVeniceTranslation(
+  c: any,
+  data: z.infer<typeof translateSchema>,
+  veniceService: any
+) {
+  try {
+    const targetLangName = {
+      'es': 'Spanish',
+      'en': 'English',
+      'zh': 'Simplified Chinese',
+      'zh-CN': 'Simplified Chinese',
+      'zh-TW': 'Traditional Chinese'
+    }[data.targetLang] || 'English';
+    
+    const systemPrompt = `You are a professional translator specializing in song lyrics. 
+Translate the given lyrics to ${targetLangName}, preserving the meaning, tone, and poetic nature.
+Important: 
+- If the lyrics are already in ${targetLangName}, just return the original text without any explanation
+- Preserve the emotional context and artistic expression
+- Keep translations natural and singable
+- Only respond with the translation, no explanations or additional text`;
+
+    const userPrompt = `Translate this song lyric to ${targetLangName}: "${data.text}"`;
+
+    return streamSSE(c, async (stream) => {
+      await stream.writeSSE({
+        event: 'start',
+        data: JSON.stringify({ translating: true }),
+      });
+
+      let fullTranslation = '';
+      
+      await veniceService.streamChat(
+        [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        (chunk: string) => {
+          fullTranslation += chunk;
+          stream.writeSSE({
+            event: 'translation',
+            data: JSON.stringify({ text: chunk }),
+          });
+        },
+        0.3
+      );
+
+      await stream.writeSSE({
+        event: 'complete',
+        data: JSON.stringify({ 
+          translation: fullTranslation,
+          targetLang: data.targetLang 
+        }),
+      });
+    });
+  } catch (error) {
+    console.error('[Lyrics] Venice translation error:', error);
+    return c.json({
+      success: false,
+      error: 'Translation failed',
+    }, 500);
+  }
+}
 
 export { app as lyricsRoutes };

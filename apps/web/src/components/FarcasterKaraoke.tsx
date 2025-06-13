@@ -304,25 +304,11 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       let translatedText = '';
       let buffer = '';
       let chunkCount = 0;
-      let lastUpdateLength = 0;
-      
-      // Batch updates function
-      const updateTranslation = () => {
-        if (translatedText.length > lastUpdateLength) {
-          console.log('[Translation] Updating UI with', translatedText.length, 'chars');
-          setLyricTranslation(translatedText);
-          lastUpdateLength = translatedText.length;
-        }
-      };
-      
-      // Update every 200ms while streaming
-      const updateInterval = setInterval(updateTranslation, 200);
       
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
           console.log('[Translation] Stream complete, total chunks:', chunkCount);
-          clearInterval(updateInterval);
           break;
         }
         
@@ -341,6 +327,8 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
                 chunkCount++;
                 translatedText += parsed.text;
                 console.log(`[Translation] Chunk ${chunkCount}:`, parsed.text, '| Total:', translatedText.length, 'chars');
+                // Update UI immediately with streaming text
+                setLyricTranslation(translatedText);
               }
             } catch (e) {
               console.error('[Translation] Failed to parse SSE:', e, 'Line:', line);

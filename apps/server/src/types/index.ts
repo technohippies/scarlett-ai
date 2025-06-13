@@ -14,6 +14,7 @@ export interface Env {
   ELEVENLABS_API_KEY?: string;
   DEEPGRAM_API_KEY?: string;
   VENICE_API_KEY?: string;
+  OPENROUTER_API_KEY?: string;
 }
 
 // User types

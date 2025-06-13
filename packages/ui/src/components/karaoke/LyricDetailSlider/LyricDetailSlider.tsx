@@ -196,38 +196,26 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
               </div>
               
               <div class="px-6 pb-8 overflow-y-auto overflow-x-hidden flex-1">
-                {/* Fixed height lyrics container */}
-                <div class="h-[20rem] space-y-4">
-                  {/* Original lyric */}
+                {/* Use CSS Grid for fixed layout */}
+                <div style="display: grid; grid-template-rows: auto auto 150px; gap: 1rem;">
+                  {/* Original lyric - auto height */}
                   <div class="text-2xl leading-relaxed text-primary break-words">
                     {props.lyric.text}
                   </div>
                   
-                  {/* Romanization if available */}
-                  <Show when={props.lyric.romanization}>
-                    <div class="text-lg text-secondary italic break-words">
-                      {props.lyric.romanization}
-                    </div>
-                  </Show>
+                  {/* Romanization - auto height */}
+                  <div class="text-lg text-secondary italic break-words" style="min-height: 0;">
+                    {props.lyric.romanization || ''}
+                  </div>
                   
-                  {/* Translation - always takes up space */}
-                  <div class="text-2xl leading-relaxed text-primary break-words min-h-[7.5rem]">
+                  {/* Translation - FIXED 150px height */}
+                  <div class="text-2xl leading-relaxed text-primary break-words overflow-y-auto">
                     <Show when={showTranslation()}>
-                      <Show when={!isUnsupportedLanguage()} fallback={
-                        <div class="text-base text-secondary italic">
-                          {t('lyricDetail.translationNotSupported', 'Translation to your language is not yet supported')}
+                      {props.lyric.translatedText || (
+                        <div class="pt-4">
+                          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
                         </div>
-                      }>
-                        <Show when={selectedTargetLang() !== null} fallback={
-                          <div class="text-base text-secondary italic">
-                            {t('lyricDetail.noTranslationNeeded', 'Already in your language')}
-                          </div>
-                        }>
-                          {props.lyric.translatedText || (
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                          )}
-                        </Show>
-                      </Show>
+                      )}
                     </Show>
                   </div>
                 </div>
