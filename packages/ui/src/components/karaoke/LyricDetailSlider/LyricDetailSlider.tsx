@@ -218,9 +218,15 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                           {t('lyricDetail.translationNotSupported', 'Translation to your language is not yet supported')}
                         </div>
                       }>
-                        {props.lyric.translatedText || (
-                          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                        )}
+                        <Show when={selectedTargetLang() !== null} fallback={
+                          <div class="text-base text-secondary italic">
+                            {t('lyricDetail.noTranslationNeeded', 'Already in your language')}
+                          </div>
+                        }>
+                          {props.lyric.translatedText || (
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
+                          )}
+                        </Show>
                       </Show>
                     </Show>
                   </div>

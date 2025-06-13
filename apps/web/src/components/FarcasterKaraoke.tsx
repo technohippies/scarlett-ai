@@ -216,18 +216,36 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       console.log('[LyricClick] User language:', userLang);
       
       // Determine target language based on user's native language
+      // But first, try to detect the source language of the lyrics
+      const looksLikeEnglish = /^[A-Za-z\s\.,!?'"]+$/.test(lyric.text);
+      const looksLikeSpanish = /[áéíóúñ¿¡]/i.test(lyric.text);
+      const looksLikeChinese = /[一-龥]/.test(lyric.text);
+      
+      console.log('[LyricClick] Lyric language detection:', {
+        text: lyric.text,
+        looksLikeEnglish,
+        looksLikeSpanish,
+        looksLikeChinese
+      });
+      
       if (userLang.startsWith('es')) {
-        // Spanish users → translate to Spanish
-        targetLang = 'es';
+        // Spanish users → translate to Spanish (unless already Spanish)
+        if (!looksLikeSpanish) {
+          targetLang = 'es';
+        }
       } else if (userLang.startsWith('en')) {
-        // English users → translate to English
-        targetLang = 'en';
+        // English users → translate to English (unless already English)
+        if (!looksLikeEnglish || looksLikeSpanish || looksLikeChinese) {
+          targetLang = 'en';
+        }
       } else if (userLang.startsWith('zh')) {
-        // Chinese users → translate to Chinese
-        if (userLang === 'zh-tw' || userLang === 'zh-hk') {
-          targetLang = 'zh-TW'; // Traditional Chinese
-        } else {
-          targetLang = 'zh-CN'; // Simplified Chinese
+        // Chinese users → translate to Chinese (unless already Chinese)
+        if (!looksLikeChinese) {
+          if (userLang === 'zh-tw' || userLang === 'zh-hk') {
+            targetLang = 'zh-TW'; // Traditional Chinese
+          } else {
+            targetLang = 'zh-CN'; // Simplified Chinese
+          }
         }
         console.log('[LyricClick] Chinese user - translating to:', targetLang);
       }

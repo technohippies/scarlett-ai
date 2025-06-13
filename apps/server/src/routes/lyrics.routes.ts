@@ -48,7 +48,11 @@ app.post('/translate', validateBody(translateSchema), async (c) => {
     
     const systemPrompt = `You are a professional translator specializing in song lyrics. 
 Translate the given lyrics to ${targetLangName}, preserving the meaning, tone, and poetic nature.
-Only respond with the translation, no explanations or additional text.`;
+Important: 
+- If the lyrics are already in ${targetLangName}, just return the original text without any explanation
+- Preserve the emotional context and artistic expression
+- Keep translations natural and singable
+- Only respond with the translation, no explanations or additional text`;
 
     const userPrompt = `Translate this song lyric to ${targetLangName}: "${data.text}"`;
 
