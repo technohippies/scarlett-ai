@@ -109,7 +109,7 @@ export const InteractiveFlow: Story = {
     
     const render = () => {
       wrapper.innerHTML = '';
-      const element = solidStory(OnboardingFlow)({
+      const element = solidStory(OnboardingFlow, {
         ...args,
         step: currentStep,
         error,

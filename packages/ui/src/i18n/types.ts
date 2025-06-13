@@ -78,6 +78,17 @@ export interface Translations {
       multiplier: string;
     };
   };
+  homepage: {
+    hero: {
+      title: string;
+      subtitle: string;
+      getStarted: string;
+    };
+    popularSongs: {
+      title: string;
+      subtitle: string;
+    };
+  };
 }
 
 export interface LocaleConfig {

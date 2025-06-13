@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from '@storybook/html';
 import { ExtensionKaraokeView, type ExtensionKaraokeViewProps } from './ExtensionKaraokeView';
 import type { LyricLine } from '../LyricsDisplay';
 import type { LeaderboardEntry } from '../LeaderboardPanel';
-import type { PlaybackSpeed } from '../../common/SplitButton';
 import { solidStory } from '../../../utils/storybook';
 
 const meta: Meta<ExtensionKaraokeViewProps> = {
@@ -62,7 +61,6 @@ export const Default: Story = {
     currentTime: 12,
     isPlaying: true,
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
     (Story) => {
@@ -90,7 +88,6 @@ export const NotPlaying: Story = {
     currentTime: 5,
     isPlaying: false,
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
     (Story) => {
@@ -124,7 +121,6 @@ export const HighScore: Story = {
     currentTime: 18,
     isPlaying: true,
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
     (Story) => {

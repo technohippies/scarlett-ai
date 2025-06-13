@@ -38,6 +38,7 @@ export function getConfig(env: Env): Config {
             'http://localhost:3003',
             'http://127.0.0.1:3000',
             'https://sc.maid.zone',
+            'https://scarlett-karaoke.orbiter.website',
             'chrome-extension://*',
           ]
         : [

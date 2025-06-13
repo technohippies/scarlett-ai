@@ -7,8 +7,7 @@ import {
   useKaraokeSession, 
   I18nProvider,
   type LyricLine,
-  type KaraokeResults,
-  type PlaybackSpeed
+  type KaraokeResults
 } from '@scarlett/ui';
 import { PracticeExercises } from './PracticeExercises';
 
@@ -20,6 +19,8 @@ interface FarcasterKaraokeProps {
   artist: string;
   songCatalogId?: string;
   apiUrl?: string;
+  onStartCheck?: (startSession: () => void) => void;
+  onBack?: () => void;
 }
 
 type ViewState = 'karaoke' | 'completion' | 'practice';
@@ -29,14 +30,14 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const [rank, setRank] = createSignal<number | null>(null);
   const [viewState, setViewState] = createSignal<ViewState>('karaoke');
   const [completionData, setCompletionData] = createSignal<KaraokeResults | null>(null);
-  const [playbackSpeed, setPlaybackSpeed] = createSignal<PlaybackSpeed>('1x');
   
   // Construct audio URL based on trackId
   const getAudioUrl = () => {
     // Check if it's a SoundCloud trackId (contains forward slash)
     if (props.trackId.includes('/')) {
       // Use the server's proxy endpoint that handles CORS
-      return `http://localhost:8787/api/audio/proxy/${props.trackId}`;
+      const apiUrl = props.apiUrl || import.meta.env.VITE_API_URL || 'http://localhost:8787';
+      return `${apiUrl}/api/audio/proxy/${props.trackId}`;
     }
     
     // For other tracks, use the provided songUrl or empty
@@ -99,7 +100,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     stopSession,
     score: sessionScore,
     lineScores,
-    handleSpeedChange,
     setAudioElement
   } = useKaraokeSession({
     lyrics: props.lyrics,
@@ -110,16 +110,22 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       artist: props.artist
     },
     songCatalogId: props.songCatalogId,
-    apiUrl: 'http://localhost:8787',
+    apiUrl: props.apiUrl || import.meta.env.VITE_API_URL || 'http://localhost:8787',
     onComplete: (results) => {
       setCompletionData(results);
       setViewState('completion');
     }
   });
 
-  // Add a function to stop/pause
+  // Add a function to stop/pause or go back
   const handleStop = () => {
-    stopSession();
+    if (isPlaying()) {
+      // If playing, just stop the session
+      stopSession();
+    } else {
+      // If not playing, go back to song list
+      props.onBack?.();
+    }
   };
 
   // Handle practice errors navigation
@@ -143,28 +149,21 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const handleBackFromPractice = () => {
     setViewState('completion');
   };
-  
-  // Handle speed change from UI
-  const onSpeedChange = (speed: PlaybackSpeed) => {
-    setPlaybackSpeed(speed);
-    handleSpeedChange(speed); // Use the handler from useKaraokeSession
-  };
 
   return (
-    <div class="relative h-full">
+    <div class="relative h-screen overflow-hidden">
       <Switch>
         <Match when={viewState() === 'karaoke'}>
           <FarcasterKaraokeView
             songTitle={props.title}
             artist={props.artist}
-            score={sessionScore() ?? score()}
+            score={(sessionScore() || 0) > 0 ? sessionScore() : null}
             rank={rank()}
             lyrics={props.lyrics}
             currentTime={currentTime()}
             isPlaying={isPlaying() || countdown() !== null}
-            onStart={startSession}
+            onStart={props.onStartCheck ? () => props.onStartCheck!(startSession) : startSession}
             onBack={handleStop}
-            onSpeedChange={onSpeedChange}
             leaderboard={[]}
             lineScores={lineScores()}
           />

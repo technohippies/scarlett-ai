@@ -476,6 +476,7 @@ Required JSON format:
       query = `
         SELECT DISTINCT 
           pc.*,
+          pc.normalized_text,
           cc.full_line,
           cc.song_id,
           cc.line_index,
@@ -497,6 +498,7 @@ Required JSON format:
       query = `
         SELECT DISTINCT 
           pc.*,
+          pc.normalized_text,
           cc.full_line,
           cc.song_id,
           cc.line_index,
@@ -541,7 +543,7 @@ Required JSON format:
       exercises.push({
         id: nanoid(),
         type: 'read_aloud',
-        full_line: firstCard.full_line,
+        full_line: firstCard.normalized_text || firstCard.full_line, // Use normalized text for practice
         focus_words: cards.map((c: any) => c.target_text),
         card_ids: cards.map((c: any) => c.id),
         song_context: {

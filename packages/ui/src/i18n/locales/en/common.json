@@ -24,5 +24,13 @@
     "slow": "Slow",
     "normal": "Normal",
     "fast": "Fast"
+  },
+  "search": {
+    "placeholder": "Search songs, artists...",
+    "loading": "Searching...",
+    "noResults": "No results found",
+    "startTyping": "Start typing to search",
+    "tryDifferent": "Try searching for something else",
+    "resultsCount": "{{count}} results"
   }
 }

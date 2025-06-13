@@ -60,7 +60,7 @@ export const WithHeader: Story = {
       </Card>
     )
     
-    return solidStory(CardWithHeader)({})
+    return solidStory(CardWithHeader, {})
   },
 }
 
@@ -88,7 +88,7 @@ export const KaraokeScoreCard: Story = {
       </Card>
     )
     
-    return solidStory(ScoreCard)({})
+    return solidStory(ScoreCard, {})
   },
 }
 
@@ -131,7 +131,7 @@ export const PricingCard: Story = {
       </Card>
     )
     
-    return solidStory(PricingCard)({})
+    return solidStory(PricingCard, {})
   },
 }
 
@@ -143,7 +143,7 @@ export const AllPaddings: Story = {
     const paddings: Array<'none' | 'sm' | 'md' | 'lg'> = ['none', 'sm', 'md', 'lg']
     
     paddings.forEach(padding => {
-      const card = solidStory(Card)({ 
+      const card = solidStory(Card, { 
         padding, 
         children: `Padding: ${padding}`,
         variant: 'outlined'

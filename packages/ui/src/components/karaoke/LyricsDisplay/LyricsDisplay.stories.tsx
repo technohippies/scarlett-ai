@@ -26,7 +26,7 @@ const meta: Meta<LyricsDisplayProps> = {
           </div>
         </div>
       );
-      return solidStory(StoryComponent)({});
+      return solidStory(StoryComponent, {});
     },
   ],
   argTypes: {

@@ -89,7 +89,7 @@ export const PackOptions: Story = {
     container.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 p-4';
     
     // Entry pack
-    container.appendChild(solidStory(CreditPack)({
+    container.appendChild(solidStory(CreditPack, {
       credits: 250,
       price: '2.50',
       currency: 'USDC',
@@ -97,7 +97,7 @@ export const PackOptions: Story = {
     }));
     
     // Recommended pack
-    container.appendChild(solidStory(CreditPack)({
+    container.appendChild(solidStory(CreditPack, {
       credits: 500,
       price: '4.75',
       currency: 'USDC',
@@ -107,7 +107,7 @@ export const PackOptions: Story = {
     }));
     
     // Bulk pack
-    container.appendChild(solidStory(CreditPack)({
+    container.appendChild(solidStory(CreditPack, {
       credits: 1200,
       price: '10.00',
       currency: 'USDC',

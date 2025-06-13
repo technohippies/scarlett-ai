@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/html';
-import { SplitButton, type SplitButtonProps, type PlaybackSpeed } from './SplitButton';
+import { SplitButton, type SplitButtonProps } from './SplitButton';
 import { solidStory } from '../../../utils/storybook';
 
 const meta: Meta<SplitButtonProps> = {
@@ -22,7 +22,6 @@ type Story = StoryObj<SplitButtonProps>;
 export const Default: Story = {
   args: {
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
 };
 
@@ -30,14 +29,12 @@ export const Disabled: Story = {
   args: {
     disabled: true,
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
 };
 
 export const InContext: Story = {
   args: {
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
   },
   decorators: [
     (Story) => {
@@ -63,7 +60,6 @@ export const InContext: Story = {
 export const FullWidth: Story = {
   args: {
     onStart: () => console.log('Start karaoke!'),
-    onSpeedChange: (speed: PlaybackSpeed) => console.log('Speed changed to:', speed),
     class: 'w-full',
   },
   decorators: [

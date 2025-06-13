@@ -20,7 +20,7 @@ export const Default: Story = {
   render: (args) => {
     const container = document.createElement('div');
     container.style.cssText = 'height: 100vh; position: relative; background: #f0f0f0;';
-    container.appendChild(solidStory(MinimizedKaraoke)(args));
+    container.appendChild(solidStory(MinimizedKaraoke, args));
     return container;
   },
 };
@@ -39,7 +39,7 @@ export const WithHoverEffect: Story = {
   render: (args) => {
     const container = document.createElement('div');
     container.style.cssText = 'height: 100vh; position: relative; background: #f0f0f0;';
-    container.appendChild(solidStory(MinimizedKaraoke)(args));
+    container.appendChild(solidStory(MinimizedKaraoke, args));
     return container;
   },
 };

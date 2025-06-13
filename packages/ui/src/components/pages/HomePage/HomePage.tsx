@@ -1,5 +1,7 @@
 import type { Component } from 'solid-js';
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
+import { useI18n } from '../../../i18n/provider';
+import { Button } from '../../common/Button';
 
 export interface Song {
   id: string;
@@ -11,22 +13,102 @@ export interface Song {
 export interface HomePageProps {
   songs: Song[];
   onSongSelect?: (song: Song) => void;
+  showHero?: boolean;
+  onGetStarted?: () => void;
 }
 
 export const HomePage: Component<HomePageProps> = (props) => {
+  const { t } = useI18n();
+  
   const songItemStyle = {
     padding: '16px',
     'margin-bottom': '8px',
-    'background-color': '#1a1a1a',
+    'background-color': 'transparent',
     'border-radius': '8px',
-    cursor: 'pointer'
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
   };
 
   return (
     <div>
-      <div style={{ padding: '16px', 'background-color': '#1a1a1a' }}>
-        <h1 style={{ margin: '0 0 8px 0', 'font-size': '24px' }}>Popular Songs</h1>
-        <p style={{ margin: '0', color: '#888' }}>Choose a song to start singing</p>
+      <Show when={props.showHero !== false}>
+        {/* Hero Section */}
+        <div style={{ 
+          padding: '64px 16px',
+          'text-align': 'center',
+          background: 'linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-secondary) 100%)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Background decoration */}
+          <div style={{
+            position: 'absolute',
+            top: '-50%',
+            right: '-10%',
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)',
+            'border-radius': '50%'
+          }} />
+          <div style={{
+            position: 'absolute',
+            bottom: '-30%',
+            left: '-10%',
+            width: '250px',
+            height: '250px',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)',
+            'border-radius': '50%'
+          }} />
+          
+          {/* Content */}
+          <div style={{ position: 'relative', 'z-index': 1 }}>
+            <h1 style={{ 
+              margin: '0 0 16px 0', 
+              'font-size': '40px',
+              'font-weight': 'bold',
+              color: 'white',
+              'text-shadow': '0 2px 4px rgba(0,0,0,0.2)'
+            }}>
+              {t('homepage.hero.title')}
+            </h1>
+            <p style={{ 
+              margin: '0', 
+              'font-size': '20px',
+              color: 'rgba(255,255,255,0.9)',
+              'max-width': '600px',
+              'margin-left': 'auto',
+              'margin-right': 'auto',
+              'padding-bottom': props.onGetStarted ? '32px' : '0'
+            }}>
+              {t('homepage.hero.subtitle')}
+            </p>
+            <Show when={props.onGetStarted}>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={props.onGetStarted}
+                style={{
+                  background: 'white',
+                  color: 'var(--color-accent-primary)',
+                  'box-shadow': '0 4px 12px rgba(0,0,0,0.2)',
+                  'font-weight': 'bold'
+                }}
+              >
+                {t('homepage.hero.getStarted')}
+              </Button>
+            </Show>
+          </div>
+        </div>
+      </Show>
+      
+      {/* Popular Songs Section */}
+      <div style={{ padding: '24px 16px 8px 16px' }}>
+        <h2 style={{ margin: '0 0 8px 0', 'font-size': '28px', 'font-weight': 'bold' }}>
+          {t('homepage.popularSongs.title')}
+        </h2>
+        <p style={{ margin: '0 0 16px 0', color: 'var(--color-text-secondary)', 'font-size': '16px' }}>
+          {t('homepage.popularSongs.subtitle')}
+        </p>
       </div>
       
       <div style={{ padding: '16px' }}>
@@ -35,14 +117,51 @@ export const HomePage: Component<HomePageProps> = (props) => {
             <div 
               style={songItemStyle}
               onClick={() => props.onSongSelect?.(song)}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2a2a2a'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1a1a1a'}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--color-bg-surface)';
+                e.currentTarget.style.transform = 'translateX(8px)';
+                const arrow = e.currentTarget.querySelector('.arrow-icon') as HTMLElement;
+                if (arrow) arrow.style.opacity = '1';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.transform = 'translateX(0)';
+                const arrow = e.currentTarget.querySelector('.arrow-icon') as HTMLElement;
+                if (arrow) arrow.style.opacity = '0';
+              }}
             >
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <span style={{ color: '#666' }}>{index() + 1}</span>
-                <div>
-                  <div style={{ 'font-weight': 'bold' }}>{song.title}</div>
-                  <div style={{ color: '#888' }}>{song.artist}</div>
+              <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
+                <span style={{ 
+                  color: 'var(--color-accent-primary)',
+                  'font-size': '24px',
+                  'font-weight': 'bold',
+                  'min-width': '40px'
+                }}>
+                  {index() + 1}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ 
+                    'font-weight': 'bold',
+                    'font-size': '18px',
+                    'margin-bottom': '4px'
+                  }}>
+                    {song.title}
+                  </div>
+                  <div style={{ 
+                    color: 'var(--color-text-secondary)',
+                    'font-size': '16px' 
+                  }}>
+                    {song.artist}
+                  </div>
+                </div>
+                <div style={{
+                  color: 'var(--color-accent-primary)',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease'
+                }}
+                class="arrow-icon"
+                >
+                  →
                 </div>
               </div>
             </div>

@@ -28,7 +28,7 @@ export const PracticeExerciseView: Component<PracticeExerciseViewProps> = (props
   const [showFeedback, setShowFeedback] = createSignal(false);
   const [isCorrect, setIsCorrect] = createSignal(false);
   
-  const apiBaseUrl = () => props.apiBaseUrl || 'http://localhost:8787';
+  const apiBaseUrl = () => props.apiBaseUrl || 'https://scarlett-api-dev.deletion-backup782.workers.dev';
   
   // Fetch exercises from the API
   const [exercises] = createResource(async () => {

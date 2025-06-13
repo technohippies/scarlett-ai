@@ -5,7 +5,6 @@ import { ScorePanel } from '../../display/ScorePanel';
 import { LyricsDisplay, type LyricLine } from '../LyricsDisplay';
 import { LeaderboardPanel, type LeaderboardEntry } from '../LeaderboardPanel';
 import { SplitButton } from '../../common/SplitButton';
-import type { PlaybackSpeed } from '../../common/SplitButton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../common/Tabs';
 
 export interface FarcasterKaraokeViewProps {
@@ -28,7 +27,6 @@ export interface FarcasterKaraokeViewProps {
   // State
   isPlaying?: boolean;
   onStart?: () => void;
-  onSpeedChange?: (speed: PlaybackSpeed) => void;
   onBack?: () => void;
   
   class?: string;
@@ -36,7 +34,7 @@ export interface FarcasterKaraokeViewProps {
 
 export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props) => {
   return (
-    <div class={cn('flex flex-col h-full bg-base', props.class)}>
+    <div class={cn('flex flex-col h-screen overflow-hidden bg-base', props.class)}>
       {/* Header with back button and song info */}
       <KaraokeHeader
         songTitle={props.songTitle}
@@ -61,7 +59,7 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
           { id: 'leaderboard', label: 'Leaderboard' }
         ]}
         defaultTab="lyrics"
-        class="flex-1 flex flex-col overflow-hidden"
+        class="flex-1 flex flex-col min-h-0"
       >
         {!props.isPlaying && (
           <div class="px-4">
@@ -72,8 +70,8 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
           </div>
         )}
         
-        <TabsContent value="lyrics" class="flex-1 flex flex-col overflow-hidden">
-          <div class="flex-1 overflow-hidden">
+        <TabsContent value="lyrics" class="flex-1 flex flex-col min-h-0">
+          <div class="flex-1 overflow-y-auto">
             <LyricsDisplay
               lyrics={props.lyrics}
               currentTime={props.currentTime}
@@ -87,13 +85,12 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
             <div class="p-4 bg-surface border-t border-subtle">
               <SplitButton
                 onStart={props.onStart}
-                onSpeedChange={props.onSpeedChange}
               />
             </div>
           )}
         </TabsContent>
         
-        <TabsContent value="leaderboard" class="flex-1 overflow-hidden">
+        <TabsContent value="leaderboard" class="flex-1 min-h-0">
           <div class="overflow-y-auto h-full">
             <LeaderboardPanel entries={props.leaderboard} />
           </div>

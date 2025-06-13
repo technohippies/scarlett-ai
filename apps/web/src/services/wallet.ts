@@ -29,8 +29,6 @@ export const appKit = createAppKit({
   adapters: [ethersAdapter],
   metadata,
   features: {
-    email: false, // Disable email login since we use Farcaster
-    socials: false, // Disable social logins
     analytics: true,
     allWallets: true
   },

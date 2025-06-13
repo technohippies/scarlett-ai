@@ -87,7 +87,7 @@ export const UserList: Story = {
     ];
     
     users.forEach((user, i) => {
-      container.appendChild(solidStory(UserProfile)({
+      container.appendChild(solidStory(UserProfile, {
         ...user,
         pfpUrl: `https://i.pravatar.cc/150?u=${user.username}`,
         compact: true,

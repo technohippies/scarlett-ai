@@ -1,16 +1,17 @@
-import type { Meta, StoryObj } from 'storybook-solidjs';
-import { HomePage } from './HomePage';
+import type { Meta, StoryObj } from '@storybook/html';
+import { HomePage, type HomePageProps } from './HomePage';
+import { withI18n } from '../../../utils/i18n-story';
 
-const meta = {
+const meta: Meta<HomePageProps> = {
   title: 'Pages/HomePage',
-  component: HomePage,
+  render: withI18n(HomePage),
   parameters: {
     layout: 'fullscreen',
   }
-} satisfies Meta<typeof HomePage>;
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<HomePageProps>;
 
 const mockSongs = [
   { id: '1', trackId: 'track-001', title: 'Bohemian Rhapsody', artist: 'Queen' },
@@ -23,6 +24,37 @@ const mockSongs = [
 export const Default: Story = {
   args: {
     songs: mockSongs,
-    onSongSelect: (song) => console.log('Selected:', song)
+    onSongSelect: (song) => console.log('Selected:', song),
+    showHero: true,
+    onGetStarted: () => console.log('Get started clicked')
+  },
+};
+
+export const WithStreak: Story = {
+  args: {
+    songs: mockSongs,
+    onSongSelect: (song) => console.log('Selected:', song),
+    showHero: true,
+    showStreak: true,
+    currentStreak: 7,
+    onGetStarted: () => console.log('Get started clicked')
+  },
+};
+
+export const NoHero: Story = {
+  args: {
+    songs: mockSongs,
+    onSongSelect: (song) => console.log('Selected:', song),
+    showHero: false
+  },
+};
+
+export const EmptyStreak: Story = {
+  args: {
+    songs: mockSongs,
+    onSongSelect: (song) => console.log('Selected:', song),
+    showHero: true,
+    showStreak: true,
+    currentStreak: 0
   },
 };

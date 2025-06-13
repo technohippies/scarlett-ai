@@ -64,8 +64,8 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   // Helper to convert speed to playback rate
   const getPlaybackRate = (speed: PlaybackSpeed): number => {
     switch (speed) {
-      case '0.5x': return 0.5;
-      case '0.75x': return 0.75;
+      case '.5x': return 0.5;
+      case '.75x': return 0.75;
       case '1x': return 1.0;
       default: return 1.0;
     }
@@ -74,8 +74,8 @@ export function useKaraokeSession(options: UseKaraokeSessionOptions) {
   // Helper to get speed multiplier for scoring
   const getSpeedMultiplier = (speed: PlaybackSpeed): number => {
     switch (speed) {
-      case '0.5x': return 1.2;  // 20% score boost for slowest speed
-      case '0.75x': return 1.1; // 10% score boost for medium speed
+      case '.5x': return 1.2;  // 20% score boost for slowest speed
+      case '.75x': return 1.1; // 10% score boost for medium speed
       case '1x': return 1.0;    // No adjustment for normal speed
       default: return 1.0;
     }

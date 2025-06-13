@@ -31,6 +31,8 @@ export default {
     'overscroll-contain',
     'scroll-smooth',
     'select-none',
-    'ring-offset-base'
+    'ring-offset-base',
+    'bg-highlight/50',
+    'hover:bg-highlight/50'
   ]
 } satisfies Config

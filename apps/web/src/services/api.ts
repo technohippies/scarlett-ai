@@ -1,6 +1,6 @@
 import { sdk } from '@farcaster/frame-sdk';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8787';
 
 export interface DemoTokenResponse {
   token: string;
@@ -28,7 +28,7 @@ class ApiService {
 
   async getDemoToken(): Promise<string> {
     try {
-      const response = await fetch(`${API_BASE_URL.replace('/api', '')}/auth/demo`, {
+      const response = await fetch(`${API_BASE_URL}/auth/demo`, {
         method: 'POST',
       });
 
@@ -50,7 +50,7 @@ class ApiService {
       const token = await sdk.quickAuth.getToken().catch(() => null);
       
       if (token) {
-        const response = await sdk.quickAuth.fetch(`${API_BASE_URL}/user/credits`);
+        const response = await sdk.quickAuth.fetch(`${API_BASE_URL}/api/user/credits`);
         if (response.ok) {
           return await response.json();
         }
@@ -84,7 +84,7 @@ class ApiService {
   async startKaraokeSession(trackId: string, songData: any) {
     const token = this.authToken || (await this.getDemoToken());
     
-    const response = await fetch(`${API_BASE_URL}/karaoke/start`, {
+    const response = await fetch(`${API_BASE_URL}/api/karaoke/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ class ApiService {
   async gradeKaraokeLine(sessionId: string, lineData: any) {
     const token = this.authToken || (await this.getDemoToken());
     
-    const response = await fetch(`${API_BASE_URL}/karaoke/grade`, {
+    const response = await fetch(`${API_BASE_URL}/api/karaoke/grade`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ class ApiService {
   async getKaraokeData(trackId: string, title?: string, artist?: string) {
     const token = this.authToken || (await this.getDemoToken());
     
-    const url = new URL(`${API_BASE_URL}/karaoke/${encodeURIComponent(trackId)}`);
+    const url = new URL(`${API_BASE_URL}/api/karaoke/${encodeURIComponent(trackId)}`);
     if (title) url.searchParams.set('title', title);
     if (artist) url.searchParams.set('artist', artist);
     

@@ -15,7 +15,7 @@ export interface ResponseFooterProps {
 
 export const ResponseFooter: Component<ResponseFooterProps> = (props) => {
   return (
-    <div class="border-t border-gray-700 bg-surface p-6">
+    <div class="border-t border-subtle bg-surface p-6">
       <div class="max-w-2xl mx-auto">
         <Show
           when={props.mode === 'check'}

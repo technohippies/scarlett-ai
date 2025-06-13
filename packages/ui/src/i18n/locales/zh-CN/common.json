@@ -24,5 +24,13 @@
     "slow": "慢速",
     "normal": "正常",
     "fast": "快速"
+  },
+  "search": {
+    "placeholder": "搜索歌曲、艺术家...",
+    "loading": "搜索中...",
+    "noResults": "未找到结果",
+    "startTyping": "开始输入以搜索",
+    "tryDifferent": "试试搜索其他内容",
+    "resultsCount": "{{count}} 个结果"
   }
 }

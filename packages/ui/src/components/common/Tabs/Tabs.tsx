@@ -56,7 +56,7 @@ export const Tabs: ParentComponent<TabsProps> = (props) => {
 
   return (
     <TabsContext.Provider value={contextValue}>
-      <div class={cn('w-full', props.class)}>
+      <div class={cn('flex flex-col', props.class)}>
         {props.children}
       </div>
     </TabsContext.Provider>
@@ -67,8 +67,8 @@ export const TabsList: Component<TabsListProps> = (props) => {
   return (
     <div 
       class={cn(
-        'inline-flex h-10 items-center justify-center rounded-md bg-surface p-1 text-secondary',
-        'w-full',
+        'flex h-10 items-center justify-center rounded-md bg-elevated p-1 text-secondary',
+        'border border-subtle w-full',
         props.class
       )}
     >
@@ -91,13 +91,13 @@ export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
       onClick={() => context.setActiveTab(props.value)}
       class={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5',
-        'text-sm font-medium ring-offset-base transition-all',
+        'text-sm font-medium ring-offset-base transition-all duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
-        'flex-1',
+        'flex-1 relative',
         isActive()
-          ? 'bg-base text-primary shadow-sm'
-          : 'text-secondary hover:text-primary',
+          ? 'bg-surface text-primary shadow-sm border border-default'
+          : 'text-secondary hover:text-primary hover:bg-highlight/50',
         props.class
       )}
     >
@@ -119,7 +119,7 @@ export const TabsContent: Component<TabsContentProps> = (props) => {
     <Show when={isActive()}>
       <div
         class={cn(
-          'mt-2 ring-offset-base',
+          'mt-2 ring-offset-base flex-1',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2',
           props.class
         )}

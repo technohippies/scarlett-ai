@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:check": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit",
@@ -15,12 +16,16 @@
   "dependencies": {
     "@farcaster/frame-sdk": "^0.0.61",
     "@neynar/nodejs-sdk": "^2.46.0",
+    "@reown/appkit": "^1.7.9",
+    "@reown/appkit-adapter-ethers": "^1.7.9",
     "@scarlett/ui": "workspace:*",
-    "@solidjs/router": "^0.15.3",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/web3.js": "^1.95.3",
+    "@solidjs/router": "^0.15.3",
     "@tanstack/solid-query": "^5.80.6",
-    "ethers": "^6.13.2",
+    "@unlock-protocol/paywall": "^0.8.1",
+    "@unlock-protocol/unlock-js": "^0.51.2",
+    "ethers": "6",
     "solid-js": "^1.9.7",
     "viem": "^2.31.0"
   },

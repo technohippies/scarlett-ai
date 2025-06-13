@@ -4,6 +4,9 @@ import App from './App';
 import '@scarlett/ui/dist/ui.css';
 import './styles.css';
 
+// Initialize wallet service
+import './services/wallet';
+
 const root = document.getElementById('root');
 
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {

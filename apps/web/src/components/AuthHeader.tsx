@@ -2,6 +2,7 @@ import type { Component } from 'solid-js';
 import { Show, createEffect, createSignal } from 'solid-js';
 import { AuthButton } from '@scarlett/ui';
 import { address, isConnected, connectWallet, disconnectWallet } from '../services/wallet';
+import IconFireFill from 'phosphor-icons-solid/IconFireFill';
 
 interface AuthHeaderProps {
   farcasterUser?: {
@@ -46,7 +47,6 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
     <header class="bg-surface border-b border-subtle p-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <h1 class="text-xl font-bold text-primary">Scarlett</h1>
           <Show when={props.farcasterUser}>
             <span class="text-sm text-secondary">
               via Farcaster

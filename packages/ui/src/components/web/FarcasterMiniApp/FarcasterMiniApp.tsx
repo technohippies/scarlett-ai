@@ -134,8 +134,8 @@ export const FarcasterMiniApp: Component<FarcasterMiniAppProps> = (props) => {
           <FarcasterKaraokeView
             songTitle="Bohemian Rhapsody"
             artist="Queen"
-            score={0}
-            rank={1}
+            score={null}
+            rank={null}
             lyrics={mockLyrics}
             currentTime={0}
             leaderboard={mockLeaderboard}

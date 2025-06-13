@@ -94,9 +94,9 @@ export const AllSizes: Story = {
     const container = document.createElement('div')
     container.className = 'flex items-center gap-4'
     
-    container.appendChild(solidStory(Button)({ children: 'Small', size: 'sm' }))
-    container.appendChild(solidStory(Button)({ children: 'Medium', size: 'md' }))
-    container.appendChild(solidStory(Button)({ children: 'Large', size: 'lg' }))
+    container.appendChild(solidStory(Button, { children: 'Small', size: 'sm' }))
+    container.appendChild(solidStory(Button, { children: 'Medium', size: 'md' }))
+    container.appendChild(solidStory(Button, { children: 'Large', size: 'lg' }))
     
     return container
   },
@@ -107,10 +107,10 @@ export const AllVariants: Story = {
     const container = document.createElement('div')
     container.className = 'flex flex-wrap gap-4'
     
-    container.appendChild(solidStory(Button)({ children: 'Primary', variant: 'primary' }))
-    container.appendChild(solidStory(Button)({ children: 'Secondary', variant: 'secondary' }))
-    container.appendChild(solidStory(Button)({ children: 'Ghost', variant: 'ghost' }))
-    container.appendChild(solidStory(Button)({ children: 'Danger', variant: 'danger' }))
+    container.appendChild(solidStory(Button, { children: 'Primary', variant: 'primary' }))
+    container.appendChild(solidStory(Button, { children: 'Secondary', variant: 'secondary' }))
+    container.appendChild(solidStory(Button, { children: 'Ghost', variant: 'ghost' }))
+    container.appendChild(solidStory(Button, { children: 'Danger', variant: 'danger' }))
     
     return container
   },

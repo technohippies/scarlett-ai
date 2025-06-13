@@ -1,0 +1,11 @@
+{
+  "hero": {
+    "title": "Karaoke to learn Spanish",
+    "subtitle": "Compete and bet on the best performances across your favorite songs!",
+    "getStarted": "Get Started"
+  },
+  "popularSongs": {
+    "title": "Popular Songs",
+    "subtitle": "Choose a song to start singing"
+  }
+}

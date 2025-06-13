@@ -1,6 +1,6 @@
 import { createSignal, onMount, Show, createMemo, createResource, createEffect } from 'solid-js';
 import sdk from '@farcaster/frame-sdk';
-import { HomePage, type Song, type LyricLine, SubscriptionSlider } from '@scarlett/ui';
+import { HomePage, type Song, type LyricLine, SubscriptionSlider, I18nProvider } from '@scarlett/ui';
 import { apiService } from './services/api';
 import { FarcasterKaraoke } from './components/FarcasterKaraoke';
 import { AuthHeader } from './components/AuthHeader';
@@ -267,8 +267,16 @@ const App = () => {
     }
   });
 
+  // Detect browser language
+  const browserLang = navigator.language.toLowerCase();
+  const locale = browserLang.startsWith('zh') ? 'zh-CN' : 'en';
+  
+  console.log('[App] Browser language detected:', navigator.language);
+  console.log('[App] Setting locale to:', locale);
+
   return (
-    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
+    <I18nProvider defaultLocale={locale}>
+      <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
       <Show
         when={!isLoading()}
         fallback={
@@ -320,6 +328,7 @@ const App = () => {
                     songCatalogId={songData()?.song_catalog_id}
                     apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
                     onStartCheck={handleKaraokeStart}
+                    onBack={handleBack}
                   />
               </Show>
             }
@@ -339,6 +348,9 @@ const App = () => {
               <HomePage
                 songs={popularSongs() || []}
                 onSongSelect={handleSongSelect}
+                showHero={true}
+                showStreak={true}
+                currentStreak={7}
               />
             </Show>
           </Show>
@@ -358,6 +370,7 @@ const App = () => {
         onConnectWallet={handleConnectWallet}
       />
     </div>
+    </I18nProvider>
   );
 };
 

@@ -1,0 +1,11 @@
+{
+  "hero": {
+    "title": "用卡拉OK学英语",
+    "subtitle": "在您最喜欢的歌曲中竞争并押注最佳表演！",
+    "getStarted": "开始"
+  },
+  "popularSongs": {
+    "title": "热门歌曲",
+    "subtitle": "选择一首歌开始唱歌"
+  }
+}

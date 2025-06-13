@@ -1048,6 +1048,10 @@
   .bg-elevated { background-color: var(--color-bg-elevated); }
   .bg-highlight { background-color: var(--color-bg-highlight); }
   
+  /* Background with opacity utilities */
+  .bg-highlight\/50 { background-color: rgba(38, 38, 38, 0.5); }
+  .hover\:bg-highlight\/50:hover { background-color: rgba(38, 38, 38, 0.5); }
+  
   /* Text utilities */
   .text-primary { color: var(--color-text-primary); }
   .text-secondary { color: var(--color-text-secondary); }

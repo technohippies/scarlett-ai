@@ -4,7 +4,6 @@ import { ScorePanel } from '../../display/ScorePanel';
 import { LyricsDisplay, type LyricLine } from '../LyricsDisplay';
 import { LeaderboardPanel, type LeaderboardEntry } from '../LeaderboardPanel';
 import { SplitButton } from '../../common/SplitButton';
-import type { PlaybackSpeed } from '../../common/SplitButton';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../common/Tabs';
 import { FireEmojiAnimation } from '../../effects/FireEmojiAnimation';
 
@@ -24,7 +23,6 @@ export interface ExtensionKaraokeViewProps {
   isPlaying?: boolean;
   isRecording?: boolean;
   onStart?: () => void;
-  onSpeedChange?: (speed: PlaybackSpeed) => void;
   
   // Line scores for visual feedback
   lineScores?: Array<{ lineIndex: number; score: number; transcription: string; feedback?: string }>;
@@ -105,7 +103,6 @@ export const ExtensionKaraokeView: Component<ExtensionKaraokeViewProps> = (props
                 >
                   <SplitButton
                     onStart={props.onStart}
-                    onSpeedChange={props.onSpeedChange}
                   />
                 </div>
               </Show>

@@ -22,7 +22,7 @@ export const PracticeExercises: Component<PracticeExercisesProps> = (props) => {
       onBack={props.onBack || (() => {})}
       authToken={authToken()}
       headerTitle="Practice"
-      // apiBaseUrl is default localhost:8787
+      apiBaseUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
     />
   );
 };
