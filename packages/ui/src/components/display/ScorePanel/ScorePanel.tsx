@@ -57,7 +57,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
         </Show>
         
         {/* Score and Rank boxes */}
-        <div class="grid grid-cols-[1fr_1fr] gap-4">
+        <div class="grid grid-cols-2 gap-4 w-full">
           {/* Score Box */}
           <div class="bg-surface/80 backdrop-blur-md rounded-lg p-4 flex flex-col items-center justify-center min-h-[100px] shadow-lg">
           <div class="text-3xl font-mono font-bold text-purple-400">

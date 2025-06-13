@@ -98,7 +98,14 @@ export const HomePage: Component = () => {
   });
 
   const handleSongSelect = (song: Song) => {
-    navigate(`/${song.trackId}`);
+    // Pass the song data as state to avoid URL parsing issues
+    navigate(`/${song.trackId}`, {
+      state: {
+        title: song.title,
+        artist: song.artist,
+        artworkUrl: song.artworkUrl
+      }
+    });
   };
 
   const handleSearch = (query: string) => {

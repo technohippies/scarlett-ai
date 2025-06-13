@@ -40,38 +40,48 @@ export const SongPage: Component = () => {
     const fullPath = location.pathname.slice(1);
     if (!fullPath) throw new Error('No track ID');
     
-    // Parse fullPath to get artist and title
-    const parts = fullPath.split('/');
+    // Check if we have song data in navigation state
+    const state = location.state as { title?: string; artist?: string; artworkUrl?: string } | undefined;
+    
     let artist = '';
     let title = '';
     
-    if (parts.length >= 2) {
-      // Convert URL format to proper names
-      // Special cases
-      const artistSpecialCases: Record<string, string> = {
-        'kanyewest': 'Kanye West',
-        '2pac': '2Pac',
-        'beyonce': 'Beyoncé',
-        'dualipa': 'Dua Lipa'
-      };
+    if (state?.artist && state?.title) {
+      // Use the passed state data (from search results)
+      artist = state.artist;
+      title = state.title;
+    } else {
+      // Fall back to URL parsing for direct links
+      const parts = fullPath.split('/');
       
-      if (artistSpecialCases[parts[0].toLowerCase()]) {
-        artist = artistSpecialCases[parts[0].toLowerCase()];
-      } else {
-        // Generic conversion: URL format to proper names
-        artist = parts[0]
-          .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between camelCase
+      if (parts.length >= 2) {
+        // Convert URL format to proper names
+        // Special cases
+        const artistSpecialCases: Record<string, string> = {
+          'kanyewest': 'Kanye West',
+          '2pac': '2Pac',
+          'beyonce': 'Beyoncé',
+          'dualipa': 'Dua Lipa'
+        };
+        
+        if (artistSpecialCases[parts[0].toLowerCase()]) {
+          artist = artistSpecialCases[parts[0].toLowerCase()];
+        } else {
+          // Generic conversion: URL format to proper names
+          artist = parts[0]
+            .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between camelCase
+            .replace(/-/g, ' ')
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+        }
+        
+        title = parts[1]
           .replace(/-/g, ' ')
           .split(' ')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
           .join(' ');
       }
-      
-      title = parts[1]
-        .replace(/-/g, ' ')
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
     }
     
     // Fetch karaoke data with full path
@@ -85,7 +95,7 @@ export const SongPage: Component = () => {
         trackId: fullPath,
         title: data.song?.title || title,
         artist: data.song?.artist || artist,
-        artworkUrl: data.song?.artwork_url || data.song?.artwork_large || data.song?.artwork_medium || data.song?.artwork_small
+        artworkUrl: state?.artworkUrl || data.song?.artwork_url || data.song?.artwork_large || data.song?.artwork_medium || data.song?.artwork_small
       } as Song
     };
   });
