@@ -7,5 +7,6 @@
   "popularSongs": {
     "title": "Popular Songs",
     "subtitle": "Choose a song to start singing"
-  }
+  },
+  "trending": "Trending"
 }

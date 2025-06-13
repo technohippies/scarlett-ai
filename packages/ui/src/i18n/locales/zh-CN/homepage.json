@@ -7,5 +7,6 @@
   "popularSongs": {
     "title": "热门歌曲",
     "subtitle": "选择一首歌开始唱歌"
-  }
+  },
+  "trending": "热门"
 }

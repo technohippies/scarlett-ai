@@ -1,6 +1,6 @@
 import { createSignal, onMount, Show, createMemo, createResource, createEffect } from 'solid-js';
 import sdk from '@farcaster/frame-sdk';
-import { HomePage, SearchPage, type LyricLine, SubscriptionSlider, I18nProvider } from '@scarlett/ui';
+import { HomePage, SearchPage, type LyricLine, SubscriptionSlider, I18nProvider, SearchInput } from '@scarlett/ui';
 import type { Song } from '@scarlett/ui/components/pages/HomePage';
 import { apiService } from './services/api';
 import { FarcasterKaraoke } from './components/FarcasterKaraoke';
@@ -469,28 +469,61 @@ const App = () => {
                 </div>
               }
             >
-              <Show
-                when={!searchQuery()}
-                fallback={
-                  <SearchPage
-                    songs={searchResults() || []}
-                    onSongSelect={handleSongSelect}
-                    searchQuery={searchQuery()}
-                    onSearch={handleSearch}
-                    onLoadMore={handleLoadMore}
-                    loading={isSearching()}
-                    hasMore={hasMoreResults()}
-                    loadingMore={isLoadingMore()}
+              {/* Persistent Search Header */}
+              <div style={{ 
+                'background-color': 'var(--color-bg-surface)',
+                'border-bottom': '1px solid var(--color-border-default)',
+                padding: '32px 16px',
+                position: 'sticky',
+                top: 0,
+                'z-index': 10
+              }}>
+                <div style={{ 
+                  'max-width': '672px',
+                  margin: '0 auto'
+                }}>
+                  <SearchInput
+                    value={searchQuery()}
+                    onInput={(e) => handleSearch(e.currentTarget.value)}
+                    onClear={() => handleSearch('')}
+                    placeholder={browserLang.startsWith('zh') ? "搜索歌曲、艺术家..." : "Search songs, artists..."}
+                    autofocus
+                    style={{
+                      width: '100%'
+                    }}
                   />
-                }
-              >
-                <HomePage
-                  songs={popularSongs() || []}
-                  onSongSelect={handleSongSelect}
-                  showHero={true}
-                  onSearch={handleSearch}
-                />
-              </Show>
+                </div>
+              </div>
+
+              {/* Content with smooth transition */}
+              <div style={{ 
+                transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
+                opacity: isSearching() && !searchResults() ? 0.5 : 1,
+                transform: isSearching() && !searchResults() ? 'translateY(10px)' : 'translateY(0)'
+              }}>
+                <Show
+                  when={!searchQuery()}
+                  fallback={
+                    <SearchPage
+                      songs={searchResults() || []}
+                      onSongSelect={handleSongSelect}
+                      searchQuery={searchQuery()}
+                      onSearch={handleSearch}
+                      onLoadMore={handleLoadMore}
+                      loading={isSearching()}
+                      hasMore={hasMoreResults()}
+                      loadingMore={isLoadingMore()}
+                    />
+                  }
+                >
+                  <HomePage
+                    songs={popularSongs() || []}
+                    onSongSelect={handleSongSelect}
+                    showHero={true}
+                    showSearch={false}
+                  />
+                </Show>
+              </div>
             </Show>
           </Show>
           

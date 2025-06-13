@@ -55,21 +55,8 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
 
   return (
     <div class="min-h-screen bg-bg-primary">
-      {/* Search Header */}
-      <div class="sticky top-0 bg-bg-primary/95 backdrop-blur-sm border-b border-default z-10">
-        <div class="p-4">
-          <SearchInput
-            value={query()}
-            onInput={(e) => handleSearch(e.currentTarget.value)}
-            onClear={() => handleSearch('')}
-            placeholder={t('common.search.placeholder', 'Search songs, artists...')}
-            autofocus
-          />
-        </div>
-      </div>
-
       {/* Search Results */}
-      <div class="p-4">
+      <div class="p-4 pt-8">
         <Show 
           when={!props.loading}
           fallback={

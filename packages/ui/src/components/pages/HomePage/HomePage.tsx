@@ -19,6 +19,7 @@ export interface HomePageProps {
   showHero?: boolean;
   onGetStarted?: () => void;
   onSearch?: (query: string) => void;
+  showSearch?: boolean;
 }
 
 export const HomePage: Component<HomePageProps> = (props) => {
@@ -107,33 +108,35 @@ export const HomePage: Component<HomePageProps> = (props) => {
       </Show>
       
       {/* Search Section */}
-      <div style={{ 
-        'background-color': 'var(--color-bg-surface)',
-        'border-bottom': '1px solid var(--color-border-default)',
-        padding: '32px 16px'
-      }}>
+      <Show when={props.showSearch !== false}>
         <div style={{ 
-          'max-width': '672px',
-          margin: '0 auto'
+          'background-color': 'var(--color-bg-surface)',
+          'border-bottom': '1px solid var(--color-border-default)',
+          padding: '32px 16px'
         }}>
-          <SearchInput
-            value={searchQuery()}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-              setSearchQuery(value);
-              props.onSearch?.(value);
-            }}
-            onClear={() => {
-              setSearchQuery('');
-              props.onSearch?.('');
-            }}
-            placeholder={t('common.search.placeholder', 'Search songs, artists...')}
-            style={{
-              width: '100%'
-            }}
-          />
+          <div style={{ 
+            'max-width': '672px',
+            margin: '0 auto'
+          }}>
+            <SearchInput
+              value={searchQuery()}
+              onInput={(e) => {
+                const value = e.currentTarget.value;
+                setSearchQuery(value);
+                props.onSearch?.(value);
+              }}
+              onClear={() => {
+                setSearchQuery('');
+                props.onSearch?.('');
+              }}
+              placeholder={t('common.search.placeholder', 'Search songs, artists...')}
+              style={{
+                width: '100%'
+              }}
+            />
+          </div>
         </div>
-      </div>
+      </Show>
       
       {/* Trending Songs Section */}
       <div style={{ padding: '16px 16px 0 16px' }}>
