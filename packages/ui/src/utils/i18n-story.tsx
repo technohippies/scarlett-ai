@@ -9,8 +9,6 @@ import { render } from 'solid-js/web';
 export const withI18n = <T extends Record<string, any>>(Component: any) => {
   return (args: T, context?: any) => {
     const locale = (context?.globals?.locale as LocaleCode) || 'en';
-    console.log('[withI18n] Rendering with locale:', locale);
-    console.log('[withI18n] Context:', context);
     
     const container = document.createElement('div');
     render(() => (

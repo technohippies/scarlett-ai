@@ -17,14 +17,9 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
   const [locale, setLocale] = createSignal<LocaleCode>(props.defaultLocale || 'en');
   const [translations, setTranslations] = createSignal<Translations>();
   
-  console.log('[I18nProvider] Initializing with locale:', props.defaultLocale || 'en');
-  console.log('[I18nProvider] Browser language:', navigator.language);
-  console.log('[I18nProvider] Browser languages:', navigator.languages);
-  
   // Load translations dynamically
   createEffect(async () => {
     const currentLocale = locale();
-    console.log('[I18nProvider] Loading translations for locale:', currentLocale);
     try {
       let module;
       switch (currentLocale) {
@@ -37,14 +32,10 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
           break;
       }
       setTranslations(module.default);
-      console.log('[I18nProvider] Successfully loaded translations for:', currentLocale);
-      console.log('[I18nProvider] Available translation keys:', Object.keys(module.default));
     } catch (e) {
       console.error(`[I18nProvider] Failed to load locale ${currentLocale}:`, e);
-      console.warn(`[I18nProvider] Falling back to English`);
       const module = await import('./locales/en/index.ts');
       setTranslations(module.default);
-      console.log('[I18nProvider] Loaded fallback English translations');
     }
   });
 
@@ -57,10 +48,6 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
       value = value?.[k];
     }
     
-    // Log translation lookups for debugging
-    if (!value) {
-      console.warn(`[I18nProvider] Missing translation for key: ${key} in locale: ${locale()}`);
-    }
     
     // Handle parameter replacement
     if (typeof value === 'string' && params) {
