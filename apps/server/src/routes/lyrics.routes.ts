@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Env } from '../types';
 import { createVeniceService } from '../services/venice.service';
 import { validateBody } from '../middleware/validation.middleware';
-import { stream } from 'hono/streaming';
+import { streamSSE } from 'hono/streaming';
 
 const app = new Hono<{ 
   Bindings: Env;
@@ -46,7 +46,7 @@ Only respond with the translation, no explanations or additional text.`;
     const userPrompt = `Translate this song lyric to ${targetLangName}: "${data.text}"`;
 
     // Stream the response
-    return stream(c, async (stream) => {
+    return streamSSE(c, async (stream) => {
       await stream.writeSSE({
         event: 'start',
         data: JSON.stringify({ translating: true }),

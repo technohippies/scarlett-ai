@@ -20,6 +20,7 @@ interface FarcasterKaraokeProps {
   trackId: string;
   title: string;
   artist: string;
+  artworkUrl?: string;
   songCatalogId?: string;
   apiUrl?: string;
   onStartCheck?: (startSession: () => void) => void;
@@ -321,6 +322,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
           <FarcasterKaraokeView
             songTitle={props.title}
             artist={props.artist}
+            artworkUrl={props.artworkUrl}
             score={(sessionScore() || 0) > 0 ? sessionScore() : null}
             rank={rank()}
             lyrics={props.lyrics}
