@@ -460,6 +460,7 @@ const App = () => {
                     trackId={selectedSong()!.trackId}
                     title={selectedSong()!.title}
                     artist={selectedSong()!.artist}
+                    artworkUrl={selectedSong()!.artworkUrl}
                     songCatalogId={songData()?.song_catalog_id}
                     apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
                     onStartCheck={handleKaraokeStart}

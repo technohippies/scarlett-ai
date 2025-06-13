@@ -44,24 +44,24 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
           </div>
         </div>
         
-        {/* Stats row */}
-        <div class="flex gap-12 mb-12">
+        {/* Stats row - with min-height to prevent shifts */}
+        <div class="flex gap-12 mb-12 min-h-[88px]">
           {/* Rank */}
           <div class="text-center flex flex-col">
-            <div class="text-lg text-secondary mb-2 order-1">{t('karaoke.completion.rank')}</div>
-            <div class="text-3xl font-bold text-primary order-2">#{formatNumber(props.rank)}</div>
+            <div class="text-lg text-secondary mb-2 order-1 h-7 flex items-center justify-center">{t('karaoke.completion.rank')}</div>
+            <div class="text-3xl font-bold text-primary order-2 h-10 flex items-center justify-center">#{formatNumber(props.rank)}</div>
           </div>
           
           {/* Streak */}
           <Show when={props.currentStreak !== undefined}>
             <div class="text-center flex flex-col">
-              <div class="text-lg text-secondary mb-2 order-1 flex items-center justify-center gap-1">
+              <div class="text-lg text-secondary mb-2 order-1 flex items-center justify-center gap-1 h-7">
                 <span>{t('display.scorePanel.streak')}</span>
                 <Show when={props.isNewStreak}>
                   <span class="text-accent-primary">🔥</span>
                 </Show>
               </div>
-              <div class="text-3xl font-bold text-primary order-2">
+              <div class="text-3xl font-bold text-primary order-2 h-10 flex items-center justify-center">
                 <AnimatedNumber 
                   value={props.currentStreak || 0}
                   duration={props.isNewStreak ? 1200 : 0}
@@ -72,8 +72,8 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
           
           {/* Speed */}
           <div class="text-center flex flex-col">
-            <div class="text-lg text-secondary mb-2 order-1">{t('common.speed.label')}</div>
-            <div class="text-3xl font-bold text-primary order-2">{props.speed}</div>
+            <div class="text-lg text-secondary mb-2 order-1 h-7 flex items-center justify-center">{t('common.speed.label')}</div>
+            <div class="text-3xl font-bold text-primary order-2 h-10 flex items-center justify-center">{props.speed}</div>
           </div>
         </div>
         

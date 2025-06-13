@@ -2,7 +2,7 @@ import { For, Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
 import { useI18n } from '../../../i18n';
-import IconCrownFill from 'phosphor-icons-solid/IconCrownFill';
+import IconCrownCrossFill from 'phosphor-icons-solid/IconCrownCrossFill';
 
 export interface LeaderboardEntry {
   rank: number;
@@ -25,7 +25,7 @@ export const LeaderboardPanel: Component<LeaderboardPanelProps> = (props) => {
         when={props.entries.length > 0}
         fallback={
           <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
-            <IconCrownFill 
+            <IconCrownCrossFill 
               class="w-16 h-16 mb-4 text-yellow-500" 
               style="color: #fbbf24;"
             />

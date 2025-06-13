@@ -7,6 +7,7 @@ import {
   useKaraokeSession, 
   I18nProvider,
   LyricDetailSlider,
+  getImageUrl,
   type LyricLine,
   type KaraokeResults
 } from '@scarlett/ui';
@@ -322,7 +323,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
           <FarcasterKaraokeView
             songTitle={props.title}
             artist={props.artist}
-            artworkUrl={props.artworkUrl}
+            artworkUrl={getImageUrl(props.artworkUrl, props.apiUrl || import.meta.env.VITE_API_URL || 'http://localhost:8787', props.trackId)}
             score={(sessionScore() || 0) > 0 ? sessionScore() : null}
             rank={rank()}
             lyrics={props.lyrics}

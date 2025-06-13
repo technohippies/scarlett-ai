@@ -3,7 +3,7 @@ import { Show, createEffect, createSignal } from 'solid-js';
 import { AuthButton, SearchInput, Button } from '@scarlett/ui';
 import { address, isConnected, connectWallet, disconnectWallet } from '../services/wallet';
 import IconFireFill from 'phosphor-icons-solid/IconFireFill';
-import IconCrownFill from 'phosphor-icons-solid/IconCrownFill';
+import IconCrownCrossFill from 'phosphor-icons-solid/IconCrownCrossFill';
 import IconWalletFill from 'phosphor-icons-solid/IconWalletFill';
 
 interface AuthHeaderProps {
@@ -88,7 +88,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
               </div>
             </Show>
             <div class="flex items-center gap-2">
-              <IconCrownFill class="w-5 h-5 text-yellow-500" style="color: #fbbf24;" />
+              <IconCrownCrossFill class="w-5 h-5 text-yellow-500" style="color: #fbbf24;" />
               <span class="text-lg font-bold">
                 {props.hasTopPosition ? '1' : '0'}
               </span>

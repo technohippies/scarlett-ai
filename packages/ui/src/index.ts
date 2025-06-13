@@ -3,6 +3,7 @@ import './styles/globals.css'
 
 // Utils
 export * from './utils/cn'
+export * from './utils/images'
 
 // Components - re-export everything from the components index
 export * from './components'

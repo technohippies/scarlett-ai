@@ -55,11 +55,14 @@ export const TextEffect: Component<TextEffectProps> = (props) => {
       console.log(`Set opacity=0 for item ${index}`);
       
       if (preset === 'slide') {
-        element.style.transform = 'translateY(20px)';
+        element.style.transform = 'translateY(10px)';
       } else if (preset === 'blur') {
         element.style.filter = 'blur(4px)';
       } else if (preset === 'scale') {
         element.style.transform = 'scale(0.8)';
+      } else if (preset === 'fade') {
+        // For fade preset, add subtle scale effect too
+        element.style.transform = 'scale(0.95)';
       }
     });
 
@@ -68,7 +71,8 @@ export const TextEffect: Component<TextEffectProps> = (props) => {
       console.log('Starting animation');
       items.forEach((item, index) => {
         const element = item as HTMLElement;
-        element.style.transition = 'all 0.4s ease-out';
+        // Slower, more graceful transition
+        element.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
         
         setTimeout(() => {
           console.log(`Animating item ${index}`);
@@ -80,8 +84,10 @@ export const TextEffect: Component<TextEffectProps> = (props) => {
             element.style.filter = 'blur(0px)';
           } else if (preset === 'scale') {
             element.style.transform = 'scale(1)';
+          } else if (preset === 'fade') {
+            element.style.transform = 'scale(1)';
           }
-        }, index * 50);
+        }, index * 150); // Increased delay between words for more graceful effect
       });
     };
 

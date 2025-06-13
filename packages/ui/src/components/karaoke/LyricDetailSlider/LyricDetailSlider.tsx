@@ -192,7 +192,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
                         }
                       >
-                        <TextEffect preset="fade" per="word">
+                        <TextEffect preset="fade" per="word" delay={0.2}>
                           {props.lyric.translatedText!}
                         </TextEffect>
                       </Show>
