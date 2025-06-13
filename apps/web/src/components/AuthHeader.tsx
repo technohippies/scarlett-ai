@@ -63,7 +63,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
     <header class="bg-surface border-b border-subtle p-4">
       <div class="flex items-center justify-between gap-4">
         {/* Left side: Streak and Crown */}
-        <div class="flex items-center gap-3" style={{ 'min-width': '120px' }}>
+        <div class="flex items-center gap-3">
           <Show when={props.currentStreak !== undefined}>
             <div class="flex items-center gap-2">
               <IconFireFill class="w-6 h-6 text-orange-500" style="color: #ff6b35;" />
@@ -74,7 +74,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
           </Show>
           <div class="flex items-center gap-2">
             <IconCrownFill class="w-6 h-6 text-yellow-500" style="color: #fbbf24;" />
-            <span class="text-lg font-bold" style="color: #fbbf24;">
+            <span class="text-lg font-bold">
               {props.hasTopPosition ? '1' : '0'}
             </span>
           </div>
@@ -84,7 +84,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
         <div 
           style={{
             flex: '1',
-            'margin': '0 16px'
+            'margin': '0 8px'
           }}
         >
           <div
@@ -107,7 +107,7 @@ export const AuthHeader: Component<AuthHeaderProps> = (props) => {
                   setIsSearchExpanded(false);
                 }
               }}
-              placeholder="Search songs, artists..."
+              placeholder="Search"
               style={{
                 width: '100%',
                 height: '40px',
