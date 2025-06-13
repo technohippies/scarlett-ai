@@ -96,7 +96,7 @@ export const TabsTrigger: Component<TabsTriggerProps> = (props) => {
         'disabled:pointer-events-none disabled:opacity-50',
         'flex-1 relative',
         isActive()
-          ? 'bg-surface text-primary shadow-sm border border-default'
+          ? 'bg-surface text-primary shadow-sm'
           : 'text-secondary hover:text-primary hover:bg-highlight/50',
         props.class
       )}

@@ -29,7 +29,7 @@ export interface LyricDetailSliderProps {
   targetLanguage?: 'en' | 'es';
   isLoading?: boolean;
   onClose: () => void;
-  onTranslate: (targetLang: 'en' | 'es') => void;
+  onTranslate: (targetLang: 'en' | 'es' | null) => void;
   onAnnotate: () => void;
   onPractice?: (text: string) => void;
 }
@@ -38,8 +38,9 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   const { t } = useI18n();
   const [showTranslation, setShowTranslation] = createSignal(true); // Always show translation area to maintain layout
   const [showAnnotations, setShowAnnotations] = createSignal(false);
-  const [selectedTargetLang, setSelectedTargetLang] = createSignal<'en' | 'es'>('es');
+  const [selectedTargetLang, setSelectedTargetLang] = createSignal<'en' | 'es' | null>(null);
   const [isStreaming, setIsStreaming] = createSignal(false);
+  const [isUnsupportedLanguage, setIsUnsupportedLanguage] = createSignal(false);
   
   // Auto-detect if we should translate to English or Spanish
   createEffect(() => {
@@ -47,17 +48,18 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
     console.log('[LyricDetailSlider] Language detection - userLang:', userLang);
     
     if (userLang.startsWith('es')) {
-      // Spanish speakers -> translate to English
-      console.log('[LyricDetailSlider] Detected Spanish, setting target to English');
-      setSelectedTargetLang('en');
-    } else if (userLang.startsWith('zh')) {
-      // Chinese speakers -> translate to English (API doesn't support Chinese yet)
-      console.log('[LyricDetailSlider] Detected Chinese, setting target to English');
+      // Spanish speakers -> translate to Spanish (their native language)
+      console.log('[LyricDetailSlider] Detected Spanish, setting target to Spanish');
+      setSelectedTargetLang('es');
+    } else if (userLang.startsWith('en')) {
+      // English speakers -> translate to English (their native language)
+      console.log('[LyricDetailSlider] Detected English, setting target to English');
       setSelectedTargetLang('en');
     } else {
-      // English and other speakers -> translate to Spanish
-      console.log('[LyricDetailSlider] Detected other language, setting target to Spanish');
-      setSelectedTargetLang('es');
+      // For other languages (like Chinese), we can't translate to their language
+      console.log('[LyricDetailSlider] Detected unsupported language:', userLang);
+      setSelectedTargetLang(null);
+      setIsUnsupportedLanguage(true);
     }
   });
   
@@ -108,12 +110,12 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   
   // Auto-translate on open
   createEffect(() => {
-    if (props.isOpen && !props.lyric.translatedText && !props.isLoading) {
+    if (props.isOpen && !props.lyric.translatedText && !props.isLoading && selectedTargetLang() !== null) {
       console.log('[LyricDetailSlider] Auto-translate triggered');
       console.log('[LyricDetailSlider] User language:', props.userLanguage);
       console.log('[LyricDetailSlider] Selected target lang:', selectedTargetLang());
       setShowTranslation(true);
-      props.onTranslate(selectedTargetLang());
+      props.onTranslate(selectedTargetLang()!);
     }
   });
   
@@ -201,9 +203,15 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                   {/* Translation - always takes up space */}
                   <div class="text-2xl leading-relaxed text-primary break-words min-h-[7.5rem]">
                     <Show when={showTranslation()}>
-                      {props.lyric.translatedText || (
-                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                      )}
+                      <Show when={!isUnsupportedLanguage()} fallback={
+                        <div class="text-base text-secondary italic">
+                          {t('lyricDetail.translationNotSupported', 'Translation to your language is not yet supported')}
+                        </div>
+                      }>
+                        {props.lyric.translatedText || (
+                          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
+                        )}
+                      </Show>
                     </Show>
                   </div>
                 </div>

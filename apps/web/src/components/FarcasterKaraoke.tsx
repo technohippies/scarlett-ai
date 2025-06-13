@@ -209,30 +209,39 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       setShowLyricDetail(true);
       
       // Check cache for translation
-      // For Chinese users, translate to Chinese; for Spanish users to English; otherwise to Spanish
+      // Users should see translations in their native language
       const userLang = getUserLanguage();
-      let targetLang: 'en' | 'es' = 'es';
+      let targetLang: 'en' | 'es' | null = null;
       
       console.log('[LyricClick] User language:', userLang);
       
+      // Determine target language based on user's native language
       if (userLang.startsWith('es')) {
+        // Spanish users → translate to Spanish
+        targetLang = 'es';
+      } else if (userLang.startsWith('en')) {
+        // English users → translate to English
         targetLang = 'en';
       } else if (userLang.startsWith('zh')) {
-        // For now, translate to English for Chinese users since API doesn't support Chinese yet
-        targetLang = 'en';
-      } else if (userLang.startsWith('en')) {
-        // English speakers -> translate to Spanish
-        targetLang = 'es';
+        // Chinese users → API doesn't support Chinese, so:
+        // - If song is likely in English, don't translate (they see original)
+        // - If song is likely in Spanish, translate to English (better than nothing)
+        // For now, we'll skip translation for Chinese users
+        targetLang = null;
+        console.log('[LyricClick] Chinese user - translation not supported');
       }
       
       console.log('[LyricClick] Target translation language:', targetLang);
       
-      const cacheKey = `${lyric.text}:${targetLang}`;
-      const cachedTranslation = translationCache.get(cacheKey);
+      const cacheKey = targetLang ? `${lyric.text}:${targetLang}` : null;
+      const cachedTranslation = cacheKey ? translationCache.get(cacheKey) : null;
       
       if (cachedTranslation) {
         console.log('[LyricClick] Found cached translation');
         setLyricTranslation(cachedTranslation);
+      } else if (targetLang === null) {
+        // For unsupported languages, don't show translation
+        setLyricTranslation(undefined);
       }
       
       // Check cache for annotations
@@ -245,10 +254,10 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   };
 
   // Handle translation request
-  const handleTranslate = async (targetLang: 'en' | 'es') => {
+  const handleTranslate = async (targetLang: 'en' | 'es' | null) => {
     console.log('[Translation] Starting translation to', targetLang);
-    if (!selectedLyric() || isTranslating()) {
-      console.log('[Translation] Already translating or no lyric selected');
+    if (!selectedLyric() || isTranslating() || !targetLang) {
+      console.log('[Translation] Already translating, no lyric selected, or no target language');
       return;
     }
     
@@ -450,7 +459,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
         userLanguage={getUserLanguage()}
         isLoading={isLoadingLyricDetail()}
         onClose={() => setShowLyricDetail(false)}
-        onTranslate={handleTranslate}
+        onTranslate={(lang) => lang && handleTranslate(lang)}
         onAnnotate={handleAnnotate}
       />
     </div>
