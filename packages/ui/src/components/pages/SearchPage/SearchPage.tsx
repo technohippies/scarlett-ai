@@ -1,6 +1,7 @@
 import type { Component } from 'solid-js';
 import { Show, For, createSignal, onMount } from 'solid-js';
 import { SearchInput } from '../../common/SearchInput';
+import { Button } from '../../common/Button';
 import { useI18n } from '../../../i18n/provider';
 
 export interface Song {
@@ -153,19 +154,13 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
             {/* Load More Button */}
             <Show when={props.hasMore}>
               <div class="mt-6 flex justify-center">
-                <button
+                <Button
+                  variant="secondary"
                   onClick={() => props.onLoadMore?.()}
-                  disabled={props.loadingMore}
-                  class="px-6 py-3 bg-surface hover:bg-surface-hover 
-                         rounded-lg transition-colors duration-200
-                         text-text-primary font-medium
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                  loading={props.loadingMore}
                 >
-                  {props.loadingMore 
-                    ? t('common.search.loadingMore', 'Loading more...') 
-                    : t('common.search.loadMore', 'Load more tracks')
-                  }
-                </button>
+                  {t('common.search.loadMore', 'Load more')}
+                </Button>
               </div>
             </Show>
           </Show>

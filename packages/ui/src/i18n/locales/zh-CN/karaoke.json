@@ -32,7 +32,9 @@
     "shareMessage": "我刚在《{{song}}》（{{artist}}）中获得了{{score}}分！🎤",
     "playAgain": "再唱一次",
     "tryAnotherSong": "换首歌试试",
-    "downloadRecording": "下载录音"
+    "downloadRecording": "下载录音",
+    "rank": "排名",
+    "practiceErrors": "练习错误"
   },
   "leaderboard": {
     "title": "排行榜",

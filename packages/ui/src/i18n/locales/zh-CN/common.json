@@ -32,7 +32,6 @@
     "startTyping": "开始输入以搜索",
     "tryDifferent": "试试搜索其他内容",
     "resultsCount": "{{count}} 个结果",
-    "loadMore": "加载更多歌曲",
-    "loadingMore": "正在加载更多..."
+    "loadMore": "加载更多"
   }
 }

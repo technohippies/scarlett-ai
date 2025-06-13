@@ -32,7 +32,6 @@
     "startTyping": "Start typing to search",
     "tryDifferent": "Try searching for something else",
     "resultsCount": "{{count}} results",
-    "loadMore": "Load more tracks",
-    "loadingMore": "Loading more..."
+    "loadMore": "Load more"
   }
 }

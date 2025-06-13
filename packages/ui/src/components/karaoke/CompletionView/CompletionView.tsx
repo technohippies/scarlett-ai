@@ -48,7 +48,7 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
         <div class="flex gap-12 mb-12">
           {/* Rank */}
           <div class="text-center flex flex-col">
-            <div class="text-lg text-secondary mb-2 order-1">Rank</div>
+            <div class="text-lg text-secondary mb-2 order-1">{t('karaoke.completion.rank')}</div>
             <div class="text-3xl font-bold text-primary order-2">#{formatNumber(props.rank)}</div>
           </div>
           
@@ -56,7 +56,7 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
           <Show when={props.currentStreak !== undefined}>
             <div class="text-center flex flex-col">
               <div class="text-lg text-secondary mb-2 order-1 flex items-center justify-center gap-1">
-                <span>Streak</span>
+                <span>{t('display.scorePanel.streak')}</span>
                 <Show when={props.isNewStreak}>
                   <span class="text-accent-primary">🔥</span>
                 </Show>
@@ -94,7 +94,7 @@ export const CompletionView: Component<CompletionViewProps> = (props) => {
             fullWidth
             onClick={props.onPractice}
           >
-            Practice Errors
+            {t('karaoke.completion.practiceErrors')
           </Button>
         </div>
       </Show>

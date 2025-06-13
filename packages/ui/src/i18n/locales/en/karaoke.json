@@ -32,7 +32,9 @@
     "shareMessage": "I just scored {{score}} on {{song}} by {{artist}}! 🎤",
     "playAgain": "Play Again",
     "tryAnotherSong": "Try Another Song",
-    "downloadRecording": "Download Recording"
+    "downloadRecording": "Download Recording",
+    "rank": "Rank",
+    "practiceErrors": "Practice Errors"
   },
   "leaderboard": {
     "title": "Leaderboard",
