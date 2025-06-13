@@ -10,6 +10,9 @@ export interface Song {
   title: string;
   artist: string;
   hasLyrics?: boolean;
+  source?: 'local' | 'soundcloak';
+  plays?: number;
+  likes?: number;
 }
 
 export interface SearchPageProps {
@@ -48,7 +51,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
             value={query()}
             onInput={(e) => handleSearch(e.currentTarget.value)}
             onClear={() => handleSearch('')}
-            placeholder={t('search.placeholder', 'Search songs, artists...')}
+            placeholder={t('common.search.placeholder', 'Search songs, artists...')}
             autofocus
           />
         </div>
@@ -60,7 +63,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
           when={!props.loading}
           fallback={
             <div class="text-center py-8 text-text-secondary">
-              {t('search.loading', 'Searching...')}
+              {t('common.search.loading', 'Searching...')}
             </div>
           }
         >
@@ -70,13 +73,13 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
               <div class="text-center py-16">
                 <p class="text-text-secondary text-lg mb-2">
                   {query() 
-                    ? t('search.noResults', 'No results found')
-                    : t('search.startTyping', 'Start typing to search')
+                    ? t('common.search.noResults', 'No results found')
+                    : t('common.search.startTyping', 'Start typing to search')
                   }
                 </p>
                 <Show when={query()}>
                   <p class="text-text-tertiary">
-                    {t('search.tryDifferent', 'Try searching for something else')}
+                    {t('common.search.tryDifferent', 'Try searching for something else')}
                   </p>
                 </Show>
               </div>
@@ -84,7 +87,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
           >
             <div class="mb-4">
               <p class="text-text-secondary">
-                {t('search.resultsCount', `${filteredSongs().length} results`)}
+                {filteredSongs().length} results
               </p>
             </div>
             
@@ -98,13 +101,26 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                            hover:translate-x-1"
                   >
                     <div class="flex items-center justify-between">
-                      <div>
+                      <div class="flex-1">
                         <h3 class="font-semibold text-text-primary">
                           {song.title}
                         </h3>
                         <p class="text-text-secondary text-sm">
                           {song.artist}
                         </p>
+                        <Show when={song.source || song.plays}>
+                          <p class="text-text-tertiary text-xs mt-1">
+                            <Show when={song.source === 'soundcloak'}>
+                              <span>From SoundCloud</span>
+                              <Show when={song.plays}>
+                                <span> • {song.plays.toLocaleString()} plays</span>
+                              </Show>
+                            </Show>
+                            <Show when={song.hasLyrics}>
+                              <span class="text-accent-success"> • Has lyrics ✓</span>
+                            </Show>
+                          </p>
+                        </Show>
                       </div>
                       <IconArrowRightRegular 
                         class="w-5 h-5 text-text-tertiary opacity-0 

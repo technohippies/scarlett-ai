@@ -10,6 +10,8 @@ import {
   type KaraokeResults
 } from '@scarlett/ui';
 import { PracticeExercises } from './PracticeExercises';
+import { apiService } from '../services/api';
+import sdk from '@farcaster/frame-sdk';
 
 interface FarcasterKaraokeProps {
   songUrl: string;
@@ -111,9 +113,38 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     },
     songCatalogId: props.songCatalogId,
     apiUrl: props.apiUrl || import.meta.env.VITE_API_URL || 'http://localhost:8787',
-    onComplete: (results) => {
+    onComplete: async (results) => {
       setCompletionData(results);
       setViewState('completion');
+      
+      // Save performance and update streak
+      try {
+        // Get user ID
+        const frameContext = await sdk.context.catch(() => null);
+        const userId = frameContext?.user?.fid 
+          ? `farcaster-${frameContext.user.fid}` 
+          : 'demo-user';
+        
+        // Save performance
+        const performanceResult = await apiService.savePerformance({
+          userId,
+          songCatalogId: props.songCatalogId || props.trackId,
+          score: results.score,
+          accuracy: results.accuracy,
+          sessionDurationMs: results.duration,
+          linesCompleted: results.linesCompleted,
+          totalLines: results.totalLines,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        });
+        
+        // Update UI if user achieved #1 or improved streak
+        if (performanceResult.streak || performanceResult.hasTopPosition) {
+          // Could show a celebration or update the header
+          console.log('Performance saved:', performanceResult);
+        }
+      } catch (error) {
+        console.error('Failed to save performance:', error);
+      }
     }
   });
 

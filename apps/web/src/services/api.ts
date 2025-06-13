@@ -138,6 +138,114 @@ class ApiService {
 
     return response.json();
   }
+
+  async searchSongs(query: string, limit: number = 20) {
+    const url = new URL(`${API_BASE_URL}/api/search`);
+    url.searchParams.set('q', query);
+    url.searchParams.set('limit', limit.toString());
+    
+    console.log('[ApiService] Searching:', url.toString());
+    
+    const response = await fetch(url.toString());
+    console.log('[ApiService] Search response status:', response.status);
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('[ApiService] Search error:', error);
+      throw new Error('Failed to search songs');
+    }
+
+    const data = await response.json();
+    console.log('[ApiService] Search data:', data);
+    return data;
+  }
+
+  async getUserStreak(userId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/streak`);
+      
+      if (!response.ok) {
+        console.warn('Failed to get user streak, using defaults');
+        return {
+          userId,
+          currentStreak: 0,
+          longestStreak: 0,
+          lastCompletionDate: null,
+          completedToday: false
+        };
+      }
+
+      const data = await response.json();
+      return data.data || {
+        userId,
+        currentStreak: 0,
+        longestStreak: 0,
+        lastCompletionDate: null,
+        completedToday: false
+      };
+    } catch (error) {
+      console.error('Error fetching user streak:', error);
+      return {
+        userId,
+        currentStreak: 0,
+        longestStreak: 0,
+        lastCompletionDate: null,
+        completedToday: false
+      };
+    }
+  }
+
+  async getUserRankings(userId: string) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/${userId}/rankings`);
+      
+      if (!response.ok) {
+        console.warn('Failed to get user rankings, using defaults');
+        return {
+          rankings: [],
+          hasTopPosition: false
+        };
+      }
+
+      const data = await response.json();
+      return data.data || {
+        rankings: [],
+        hasTopPosition: false
+      };
+    } catch (error) {
+      console.error('Error fetching user rankings:', error);
+      return {
+        rankings: [],
+        hasTopPosition: false
+      };
+    }
+  }
+
+  async savePerformance(performanceData: {
+    userId: string;
+    songCatalogId: string;
+    score: number;
+    accuracy?: number;
+    sessionDurationMs?: number;
+    linesCompleted?: number;
+    totalLines?: number;
+    timezone?: string;
+  }) {
+    const response = await fetch(`${API_BASE_URL}/api/performances/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(performanceData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save performance');
+    }
+
+    const data = await response.json();
+    return data.data;
+  }
 }
 
 export const apiService = new ApiService();

@@ -1,0 +1,22 @@
+-- Create performances table to track karaoke sessions
+CREATE TABLE IF NOT EXISTS performances (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    song_catalog_id TEXT NOT NULL,
+    score INTEGER NOT NULL DEFAULT 0,
+    accuracy REAL DEFAULT 0,
+    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    session_duration_ms INTEGER,
+    lines_completed INTEGER DEFAULT 0,
+    total_lines INTEGER DEFAULT 0,
+    is_best_score BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (song_catalog_id) REFERENCES song_catalog(id)
+);
+
+-- Indexes for performances
+CREATE INDEX idx_performances_user ON performances(user_id);
+CREATE INDEX idx_performances_song ON performances(song_catalog_id);
+CREATE INDEX idx_performances_score ON performances(song_catalog_id, score DESC);
+CREATE INDEX idx_performances_user_best ON performances(user_id, is_best_score);
+CREATE INDEX idx_performances_date ON performances(completed_at DESC);

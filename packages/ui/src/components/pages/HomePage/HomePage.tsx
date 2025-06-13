@@ -9,6 +9,8 @@ export interface Song {
   trackId: string;
   title: string;
   artist: string;
+  hasLyrics?: boolean;
+  source?: 'local' | 'soundcloak';
 }
 
 export interface HomePageProps {
@@ -125,7 +127,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
               setSearchQuery('');
               props.onSearch?.('');
             }}
-            placeholder={t('search.placeholder', 'Search songs, artists...')}
+            placeholder={t('common.search.placeholder', 'Search songs, artists...')}
             style={{
               width: '100%'
             }}

@@ -1,6 +1,7 @@
 import { createSignal, onMount, Show, createMemo, createResource, createEffect } from 'solid-js';
 import sdk from '@farcaster/frame-sdk';
-import { HomePage, SearchPage, type Song, type LyricLine, SubscriptionSlider, I18nProvider } from '@scarlett/ui';
+import { HomePage, SearchPage, type LyricLine, SubscriptionSlider, I18nProvider } from '@scarlett/ui';
+import type { Song } from '@scarlett/ui/components/pages/HomePage';
 import { apiService } from './services/api';
 import { FarcasterKaraoke } from './components/FarcasterKaraoke';
 import { AuthHeader } from './components/AuthHeader';
@@ -47,6 +48,17 @@ const App = () => {
   const [pendingSong, setPendingSong] = createSignal<Song | null>(null);
   const [pendingAction, setPendingAction] = createSignal<(() => void) | null>(null);
   const [searchQuery, setSearchQuery] = createSignal('');
+  const [searchResults, setSearchResults] = createSignal<Song[] | null>(null);
+  const [isSearching, setIsSearching] = createSignal(false);
+  let searchTimeout: NodeJS.Timeout | null = null;
+  
+  // User stats state
+  const [userStreak, setUserStreak] = createSignal(0);
+  const [hasTopPosition, setHasTopPosition] = createSignal(false);
+  
+  // DEBUG: Test crown display
+  // Uncomment the line below to test the crown display
+  // setHasTopPosition(true);
 
   // Fetch popular songs from the API
   const [popularSongs] = createResource(async () => {
@@ -83,6 +95,7 @@ const App = () => {
     setIsLoadingSong(true);
     setSelectedSong(song);
     setSearchQuery(''); // Clear search when selecting a song
+    setSearchResults(null); // Clear search results
     
     try {
       // Fetch karaoke data for the song
@@ -95,6 +108,49 @@ const App = () => {
     } finally {
       setIsLoadingSong(false);
     }
+  };
+
+  // Handle search with debounce
+  const handleSearch = (query: string) => {
+    console.log('[App] Search query:', query);
+    setSearchQuery(query);
+    
+    // Clear previous timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    
+    if (!query.trim()) {
+      console.log('[App] Empty query, clearing results');
+      setSearchResults(null);
+      setIsSearching(false);
+      return;
+    }
+    
+    setIsSearching(true);
+    
+    // Debounce search by 300ms
+    searchTimeout = setTimeout(async () => {
+      console.log('[App] Executing search for:', query);
+      try {
+        const response = await apiService.searchSongs(query);
+        console.log('[App] Search response:', response);
+        // Only update results if the query hasn't changed
+        if (searchQuery() === query) {
+          setSearchResults(response.results || []);
+          console.log('[App] Updated results:', response.results?.length || 0, 'songs');
+        }
+      } catch (error) {
+        console.error('[App] Search error:', error);
+        if (searchQuery() === query) {
+          setSearchResults([]);
+        }
+      } finally {
+        if (searchQuery() === query) {
+          setIsSearching(false);
+        }
+      }
+    }, 300);
   };
 
   // Convert karaoke data to LyricLine format
@@ -236,6 +292,35 @@ const App = () => {
       checkUnlockMembership();
     }
   });
+  
+  // Fetch user stats
+  const fetchUserStats = async (userId: string) => {
+    try {
+      // Fetch streak
+      const streakResponse = await apiService.getUserStreak(userId);
+      console.log('[App] Streak response:', streakResponse);
+      if (streakResponse && streakResponse.currentStreak !== undefined) {
+        setUserStreak(streakResponse.currentStreak);
+      } else {
+        setUserStreak(0);
+      }
+      
+      // Fetch rankings to check if user has any #1 positions
+      const rankingsResponse = await apiService.getUserRankings(userId);
+      console.log('[App] Rankings response:', rankingsResponse);
+      if (rankingsResponse && rankingsResponse.hasTopPosition !== undefined) {
+        setHasTopPosition(rankingsResponse.hasTopPosition);
+        console.log('[App] Has top position:', rankingsResponse.hasTopPosition);
+      } else {
+        setHasTopPosition(false);
+      }
+    } catch (error) {
+      console.log('Error fetching user stats, using defaults:', error);
+      // Set default values for new users
+      setUserStreak(0);
+      setHasTopPosition(false);
+    }
+  };
 
   onMount(async () => {
     try {
@@ -255,10 +340,21 @@ const App = () => {
             displayName: frameContext.user.displayName,
             pfpUrl: frameContext.user.pfpUrl
           });
+          
+          // Fetch user stats using FID
+          await fetchUserStats(`farcaster-${frameContext.user.fid}`);
         }
         
         // Hide splash screen
         await sdk.actions.ready().catch(console.error);
+      } else {
+        // For non-Farcaster users, use wallet address or demo user
+        const userId = address() || 'demo-user';
+        await fetchUserStats(userId);
+        
+        // DEBUG: Temporarily set crown for testing
+        // Remove this after testing
+        setHasTopPosition(true);
       }
       
       setIsLoading(false);
@@ -291,8 +387,8 @@ const App = () => {
           <AuthHeader 
             farcasterUser={farcasterUser()} 
             onAuthSuccess={handleAuthSuccess}
-            currentStreak={7}
-            hasTopPosition={true}
+            currentStreak={userStreak()}
+            hasTopPosition={hasTopPosition()}
           />
         </Show>
         
@@ -353,10 +449,11 @@ const App = () => {
                 when={!searchQuery()}
                 fallback={
                   <SearchPage
-                    songs={popularSongs() || []}
+                    songs={searchResults() || []}
                     onSongSelect={handleSongSelect}
                     searchQuery={searchQuery()}
-                    onSearch={setSearchQuery}
+                    onSearch={handleSearch}
+                    loading={isSearching()}
                   />
                 }
               >
@@ -364,7 +461,7 @@ const App = () => {
                   songs={popularSongs() || []}
                   onSongSelect={handleSongSelect}
                   showHero={true}
-                  onSearch={setSearchQuery}
+                  onSearch={handleSearch}
                 />
               </Show>
             </Show>

@@ -18,6 +18,9 @@ import sttRoutes from './routes/stt.routes';
 import { exercisesRoutes } from './routes/exercises.routes';
 import { practiceRoutes } from './routes/practice.routes';
 import { audioProxyRouter } from './routes/audio-proxy.routes';
+import { searchRoutes } from './routes/search.routes';
+import { userRoutes } from './routes/user.routes';
+import { performanceRoutes } from './routes/performance.routes';
 import docsApp from './docs/openapi';
 
 // Create app
@@ -57,6 +60,9 @@ app.route('/api/speech-to-text', sttRoutes);
 app.route('/api/exercises', exercisesRoutes);
 app.route('/api/practice', practiceRoutes);
 app.route('/api/audio', audioProxyRouter);
+app.route('/api/search', searchRoutes);
+app.route('/api/users', userRoutes);
+app.route('/api/performances', performanceRoutes);
 
 // Documentation (only in development)
 app.use('/docs/*', async (c, next) => {
