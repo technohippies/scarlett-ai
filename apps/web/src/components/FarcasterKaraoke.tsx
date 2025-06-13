@@ -6,6 +6,7 @@ import {
   Countdown, 
   useKaraokeSession, 
   I18nProvider,
+  LyricDetailSlider,
   type LyricLine,
   type KaraokeResults
 } from '@scarlett/ui';
@@ -32,6 +33,11 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const [rank, setRank] = createSignal<number | null>(null);
   const [viewState, setViewState] = createSignal<ViewState>('karaoke');
   const [completionData, setCompletionData] = createSignal<KaraokeResults | null>(null);
+  const [selectedLyric, setSelectedLyric] = createSignal<{ lyric: LyricLine; index: number } | null>(null);
+  const [showLyricDetail, setShowLyricDetail] = createSignal(false);
+  const [lyricTranslation, setLyricTranslation] = createSignal<string | undefined>();
+  const [lyricAnnotations, setLyricAnnotations] = createSignal<any[] | undefined>();
+  const [isLoadingLyricDetail, setIsLoadingLyricDetail] = createSignal(false);
   
   // Construct audio URL based on trackId
   const getAudioUrl = () => {
@@ -181,6 +187,71 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     setViewState('completion');
   };
 
+  // Handle lyric click
+  const handleLyricClick = (lyric: LyricLine, index: number) => {
+    if (!isPlaying()) {
+      setSelectedLyric({ lyric, index });
+      setShowLyricDetail(true);
+      // Reset previous data
+      setLyricTranslation(undefined);
+      setLyricAnnotations(undefined);
+    }
+  };
+
+  // Handle translation request
+  const handleTranslate = async (targetLang: 'en' | 'es') => {
+    if (!selectedLyric()) return;
+    
+    setIsLoadingLyricDetail(true);
+    try {
+      // TODO: Call translation API when available
+      // For now, simulate with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock translation
+      if (targetLang === 'es') {
+        setLyricTranslation('Esta es una traducción de ejemplo');
+      } else {
+        setLyricTranslation('This is an example translation');
+      }
+    } catch (error) {
+      console.error('Translation failed:', error);
+    } finally {
+      setIsLoadingLyricDetail(false);
+    }
+  };
+
+  // Handle annotation request
+  const handleAnnotate = async () => {
+    if (!selectedLyric()) return;
+    
+    setIsLoadingLyricDetail(true);
+    try {
+      // TODO: Call annotation API when available
+      // For now, simulate with timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock annotations
+      setLyricAnnotations([
+        {
+          word: 'example',
+          meaning: 'a thing characteristic of its kind or illustrating a general rule',
+          pronunciation: 'ɪɡˈzɑːmpl'
+        }
+      ]);
+    } catch (error) {
+      console.error('Annotation failed:', error);
+    } finally {
+      setIsLoadingLyricDetail(false);
+    }
+  };
+
+  // Detect user language
+  const getUserLanguage = () => {
+    const browserLang = navigator.language.toLowerCase();
+    return browserLang;
+  };
+
   return (
     <div class="relative h-screen overflow-hidden">
       <Switch>
@@ -214,7 +285,7 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
               <CompletionView
                 score={completionData()!.score}
                 rank={1}
-                speed={playbackSpeed()}
+                speed={1.0}
                 feedbackText={
                   completionData()!.score >= 95 ? "Perfect! You nailed it!" :
                   completionData()!.score >= 85 ? "Excellent performance!" :

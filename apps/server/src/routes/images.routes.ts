@@ -1,19 +1,21 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
+import { ArtworkService } from '../services/artwork.service';
 
 const app = new Hono<{ Bindings: Env }>();
 
 // Proxy endpoint for images
-app.get('/proxy/*', async (c) => {
-  const urlPath = c.req.param('*');
+app.get('/proxy', async (c) => {
+  const imageUrl = c.req.query('url');
+  const trackId = c.req.query('trackId'); // Optional track ID for fetching fresh artwork
   
-  if (!urlPath) {
+  console.log('[Image Proxy] Image URL:', imageUrl, 'Track ID:', trackId);
+  
+  if (!imageUrl) {
     return c.text('No URL provided', 400);
   }
   
   try {
-    // Decode the URL
-    const imageUrl = decodeURIComponent(urlPath);
     
     console.log('[Image Proxy] Fetching:', imageUrl);
     
@@ -52,6 +54,33 @@ app.get('/proxy/*', async (c) => {
               'Access-Control-Allow-Origin': '*',
             }
           });
+        }
+      }
+      
+      // If we have a track ID, try to fetch fresh artwork
+      if (trackId) {
+        console.log('[Image Proxy] Trying to fetch fresh artwork for track:', trackId);
+        const artworkService = new ArtworkService(c.env);
+        const freshUrl = await artworkService.getFreshArtworkUrl(trackId);
+        
+        if (freshUrl) {
+          // Try the fresh URL
+          const freshResponse = await fetch(freshUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              'Referer': 'https://soundcloud.com/',
+            }
+          });
+          
+          if (freshResponse.ok) {
+            return new Response(freshResponse.body, {
+              headers: {
+                'Content-Type': freshResponse.headers.get('Content-Type') || 'image/jpeg',
+                'Cache-Control': 'public, max-age=86400',
+                'Access-Control-Allow-Origin': '*',
+              }
+            });
+          }
         }
       }
       

@@ -101,7 +101,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                   >
                     <div class="flex items-center justify-between">
                       <Show
-                        when={getImageUrl(song.artworkUrl, props.apiUrl || '')}
+                        when={getImageUrl(song.artworkUrl, props.apiUrl || '', song.trackId)}
                         fallback={
                           <div style={{
                             width: '48px',
@@ -123,7 +123,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                         }
                       >
                         <img
-                          src={getImageUrl(song.artworkUrl, props.apiUrl || '')}
+                          src={getImageUrl(song.artworkUrl, props.apiUrl || '', song.trackId)}
                           alt={`${song.title} artwork`}
                           style={{
                             width: '48px',

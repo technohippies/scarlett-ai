@@ -1,7 +1,7 @@
 /**
  * Get a working image URL, using proxy if needed
  */
-export function getImageUrl(url: string | undefined, apiUrl: string): string | undefined {
+export function getImageUrl(url: string | undefined, apiUrl: string, trackId?: string): string | undefined {
   if (!url) return undefined;
   
   // If it's already a full URL and not a soundcloud URL, return as-is
@@ -12,8 +12,13 @@ export function getImageUrl(url: string | undefined, apiUrl: string): string | u
   // If it's a soundcloud URL, proxy it through our server
   if (url.includes('sndcdn.com')) {
     // Use our image proxy to avoid CORS and handle failures
-    const encodedUrl = encodeURIComponent(url);
-    return `${apiUrl}/api/images/proxy/${encodedUrl}`;
+    const proxyUrl = new URL(`${apiUrl}/api/images/proxy`);
+    proxyUrl.searchParams.set('url', url);
+    // Include track ID so we can fetch fresh artwork if needed
+    if (trackId) {
+      proxyUrl.searchParams.set('trackId', trackId);
+    }
+    return proxyUrl.toString();
   }
   
   // If it's a relative URL, make it absolute

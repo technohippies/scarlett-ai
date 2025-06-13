@@ -14,6 +14,7 @@ export interface LyricsDisplayProps {
   currentTime?: number; // in milliseconds
   isPlaying?: boolean;
   lineScores?: Array<{ lineIndex: number; score: number; transcription: string; feedback?: string }>;
+  onLyricClick?: (lyric: LyricLine, index: number) => void;
   class?: string;
 }
 
@@ -159,13 +160,15 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
                   'text-2xl leading-relaxed',
                   index() === currentLineIndex()
                     ? 'opacity-100'
-                    : 'opacity-60'
+                    : 'opacity-60',
+                  !props.isPlaying && props.onLyricClick && 'cursor-pointer hover:opacity-80 transition-opacity'
                 )}
                 style={{
                   color: index() === currentLineIndex() && !lineScore() 
                     ? '#ffffff' // White for current line without score
                     : scoreStyle().color || '#ffffff'
                 }}
+                onClick={() => !props.isPlaying && props.onLyricClick?.(line, index())}
               >
                 {line.text}
               </div>
