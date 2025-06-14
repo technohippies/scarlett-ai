@@ -206,9 +206,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Translation section */}
                       <Show when={props.lyric.translatedText}>
                         <div class="flex items-start gap-3">
-                          <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
-                            <IconTranslateFill />
-                          </div>
+                          <IconTranslateFill class="text-white flex-shrink-0 mt-0.5" style={{ "font-size": "24px" }} />
                           <div class="text-lg leading-relaxed text-primary break-words flex-1">
                             {props.lyric.translatedText || (
                               <Spinner size="sm" class="mt-1" />
@@ -220,9 +218,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Meaning explanation */}
                       <Show when={props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                         <div class="flex items-start gap-3">
-                          <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
-                            <IconQuestionFill />
-                          </div>
+                          <IconQuestionFill class="text-white flex-shrink-0 mt-0.5" style={{ "font-size": "24px" }} />
                           <div class="flex-1">
                             <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                               {(annotation) => (
@@ -239,9 +235,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Grammar explanation */}
                       <Show when={props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                         <div class="flex items-start gap-3">
-                          <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
-                            <IconBookOpenTextFill />
-                          </div>
+                          <IconBookOpenTextFill class="text-white flex-shrink-0 mt-0.5" style={{ "font-size": "24px" }} />
                           <div class="flex-1">
                             <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                               {(annotation) => (
