@@ -94,6 +94,13 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
     }
   });
   
+  // Show annotations when available
+  createEffect(() => {
+    if (props.lyric.annotations && props.lyric.annotations.length > 0) {
+      setShowAnnotations(true);
+    }
+  });
+  
   // Lock body scroll when slider is open
   createEffect(() => {
     if (props.isOpen) {
@@ -223,7 +230,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Translation section */}
                       <Show when={showTranslation()}>
                         <div class="flex items-start gap-3">
-                          <div class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
+                          <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
                             <IconTranslateFill />
                           </div>
                           <div class="text-lg leading-relaxed text-primary break-words flex-1">
@@ -237,7 +244,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Meaning explanation */}
                       <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                         <div class="flex items-start gap-3">
-                          <div class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
+                          <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
                             <IconQuestionFill />
                           </div>
                           <div class="flex-1">
@@ -256,7 +263,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Grammar explanation */}
                       <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                         <div class="flex items-start gap-3">
-                          <div class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
+                          <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
                             <IconBookOpenTextFill />
                           </div>
                           <div class="flex-1">
