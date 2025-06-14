@@ -31,7 +31,7 @@ const unlockConfig = {
 
 export const AccountPage: Component = () => {
   const navigate = useNavigate();
-  const { account, provider, signer, connectWallet } = useWeb3();
+  const { account, provider, signer, connectWallet, disconnectWallet } = useWeb3();
   const { data: trialData, cancelAndRefund } = useFreeTrial(
     LOCK_ADDRESS,
     provider(),
@@ -117,8 +117,22 @@ export const AccountPage: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-base flex flex-col">
-      <Header variant="default" title="Account" />
+    <div class="min-h-screen bg-base flex flex-col relative">
+      {/* Back button - positioned absolutely like song page */}
+      <button
+        onClick={() => navigate('/')}
+        class="absolute top-4 left-2 z-50 p-2 text-white drop-shadow-lg hover:text-white/90 transition-colors"
+        aria-label="Go back"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      
+      {/* Header with padding to account for back button */}
+      <header class="bg-surface border-b border-subtle px-4 py-6">
+        <h1 class="text-2xl font-bold text-center">Account</h1>
+      </header>
       
       <main class="flex-1 container mx-auto px-4 py-8 max-w-2xl">
         
@@ -136,7 +150,21 @@ export const AccountPage: Component = () => {
           <div class="space-y-6">
             {/* Wallet Info */}
             <div class="bg-surface rounded-lg p-6">
-              <h2 class="text-lg font-semibold text-primary mb-2">Connected Wallet</h2>
+              <div class="flex items-center justify-between mb-2">
+                <h2 class="text-lg font-semibold text-primary">Connected Wallet</h2>
+                <Show when={typeof window !== 'undefined' && window.ethereum}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      disconnectWallet();
+                      navigate('/');
+                    }}
+                  >
+                    Disconnect
+                  </Button>
+                </Show>
+              </div>
               <p class="text-sm text-secondary font-mono">
                 {account()?.slice(0, 6)}...{account()?.slice(-4)}
               </p>
@@ -252,6 +280,20 @@ export const AccountPage: Component = () => {
                   </Show>
                 </Show>
               </Show>
+            </div>
+            
+            {/* Sign Out Button */}
+            <div class="bg-surface rounded-lg p-6">
+              <Button
+                variant="ghost"
+                fullWidth
+                onClick={() => {
+                  disconnectWallet();
+                  navigate('/');
+                }}
+              >
+                Sign Out
+              </Button>
             </div>
           </div>
         </Show>
