@@ -36,7 +36,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
           </div>
           
           <Show when={props.hasTrialAvailable && !props.isActive}>
-            <p class="text-sm text-accent-primary font-medium">
+            <p class="text-base text-accent-primary font-medium">
               {t('subscription.plan.trial')}
             </p>
           </Show>
@@ -45,15 +45,15 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
         <ul class="space-y-3 text-left py-4">
           <li class="flex items-center gap-3">
             <IconCheckCircleFill class="w-5 h-5 text-accent-primary flex-shrink-0" />
-            <span class="text-sm text-primary">{t('subscription.plan.features.allSongs')}</span>
+            <span class="text-base text-primary">{t('subscription.plan.features.allSongs')}</span>
           </li>
           <li class="flex items-center gap-3">
             <IconCheckCircleFill class="w-5 h-5 text-accent-primary flex-shrink-0" />
-            <span class="text-sm text-primary">{t('subscription.plan.features.unlimited')}</span>
+            <span class="text-base text-primary">{t('subscription.plan.features.unlimited')}</span>
           </li>
           <li class="flex items-center gap-3">
             <IconCheckCircleFill class="w-5 h-5 text-accent-primary flex-shrink-0" />
-            <span class="text-sm text-primary">{t('subscription.plan.features.newFeatures')}</span>
+            <span class="text-base text-primary">{t('subscription.plan.features.newFeatures')}</span>
           </li>
         </ul>
         
@@ -65,6 +65,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
               fallback={
                 <Button
                   variant="primary"
+                  size="lg"
                   fullWidth
                   onClick={props.onConnectWallet}
                   disabled={props.disabled}
@@ -81,6 +82,7 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
                 </Show>
                 <Button
                   variant="primary"
+                  size="lg"
                   fullWidth
                   onClick={props.onSubscribe}
                   disabled={props.disabled}
@@ -92,12 +94,13 @@ export const SubscriptionPlan: Component<SubscriptionPlanProps> = (props) => {
           }
         >
           <div class="space-y-3">
-            <div class="flex items-center justify-center gap-2 text-sm text-accent-primary">
+            <div class="flex items-center justify-center gap-2 text-base text-accent-primary">
               <IconCheckCircleFill class="w-4 h-4" />
               <span class="font-medium">{t('subscription.plan.actions.active')}</span>
             </div>
             <Button
               variant="secondary"
+              size="lg"
               fullWidth
               onClick={props.onManage}
               disabled={props.disabled}

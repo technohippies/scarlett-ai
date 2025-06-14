@@ -58,14 +58,14 @@ export const Default: Story = {
     rank: 4,
     lyrics: sampleLyrics,
     leaderboard: sampleLeaderboard,
-    currentTime: 12,
-    isPlaying: true,
+    currentTime: 0,
+    isPlaying: false,
     onStart: () => console.log('Start karaoke!'),
   },
   decorators: [
     (Story) => {
       const container = document.createElement('div');
-      container.className = 'h-screen w-screen bg-base';
+      container.className = 'w-full h-screen max-w-[424px] mx-auto bg-base overflow-hidden';
       
       const storyElement = Story();
       if (typeof storyElement === 'string') {
@@ -79,20 +79,20 @@ export const Default: Story = {
   ],
 };
 
-export const NotPlaying: Story = {
+export const Playing: Story = {
   args: {
     score: 8750,
     rank: 4,
     lyrics: sampleLyrics,
     leaderboard: sampleLeaderboard,
-    currentTime: 5,
-    isPlaying: false,
+    currentTime: 12,
+    isPlaying: true,
     onStart: () => console.log('Start karaoke!'),
   },
   decorators: [
     (Story) => {
       const container = document.createElement('div');
-      container.className = 'h-screen w-screen bg-base';
+      container.className = 'w-full h-screen max-w-[424px] mx-auto bg-base overflow-hidden';
       
       const storyElement = Story();
       if (typeof storyElement === 'string') {
@@ -125,7 +125,7 @@ export const HighScore: Story = {
   decorators: [
     (Story) => {
       const container = document.createElement('div');
-      container.className = 'h-screen w-screen bg-base';
+      container.className = 'w-full h-screen max-w-[424px] mx-auto bg-base overflow-hidden';
       
       const storyElement = Story();
       if (typeof storyElement === 'string') {

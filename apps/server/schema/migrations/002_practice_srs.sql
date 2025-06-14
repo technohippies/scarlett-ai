@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS practice_cards (
   
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  -- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, -- Not supported in D1
   UNIQUE(user_id, target_text)
 );
 
@@ -72,9 +72,9 @@ CREATE TABLE IF NOT EXISTS card_contexts (
   
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (card_id) REFERENCES practice_cards(id) ON DELETE CASCADE,
-  FOREIGN KEY (session_id) REFERENCES karaoke_sessions(id) ON DELETE CASCADE,
-  FOREIGN KEY (song_id) REFERENCES song_catalog(id) ON DELETE CASCADE
+  -- FOREIGN KEY (card_id) REFERENCES practice_cards(id) ON DELETE CASCADE, -- Not supported in D1
+  -- FOREIGN KEY (session_id) REFERENCES karaoke_sessions(id) ON DELETE CASCADE, -- Not supported in D1
+  -- FOREIGN KEY (song_id) REFERENCES song_catalog(id) ON DELETE CASCADE -- Not supported in D1
 );
 
 CREATE INDEX idx_card_contexts_card ON card_contexts(card_id);
@@ -103,8 +103,8 @@ CREATE TABLE IF NOT EXISTS readaloud_exercises (
   
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (song_id) REFERENCES song_catalog(id) ON DELETE CASCADE
+  -- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, -- Not supported in D1
+  -- FOREIGN KEY (song_id) REFERENCES song_catalog(id) ON DELETE CASCADE -- Not supported in D1
 );
 
 CREATE INDEX idx_readaloud_user ON readaloud_exercises(user_id, completed);
@@ -126,8 +126,8 @@ CREATE TABLE IF NOT EXISTS card_reviews (
   
   reviewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (card_id) REFERENCES practice_cards(id) ON DELETE CASCADE,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  -- FOREIGN KEY (card_id) REFERENCES practice_cards(id) ON DELETE CASCADE, -- Not supported in D1
+  -- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE -- Not supported in D1
 );
 
 CREATE INDEX idx_card_reviews_user ON card_reviews(user_id, reviewed_at DESC);
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS pronunciation_patterns (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  -- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, -- Not supported in D1
   UNIQUE(user_id, expected_word)
 );
 

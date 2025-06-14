@@ -16,8 +16,7 @@ CREATE TABLE IF NOT EXISTS user_daily_completions (
     completion_date DATE NOT NULL,
     songs_completed INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (user_id, completion_date),
-    FOREIGN KEY (user_id) REFERENCES user_streaks(user_id) ON DELETE CASCADE
+    UNIQUE (user_id, completion_date)
 );
 
 -- Create performances table if it doesn't exist
@@ -39,12 +38,15 @@ CREATE INDEX IF NOT EXISTS idx_song_score ON performances(song_catalog_id, score
 CREATE INDEX IF NOT EXISTS idx_user_best ON performances(user_id, is_best_score);
 
 -- Create view for song leaderboards
+-- Note: RANK() OVER is not supported in D1, so we'll use a simpler approach
 CREATE VIEW IF NOT EXISTS song_leaderboards AS
 SELECT 
-    song_catalog_id,
-    user_id,
-    score,
-    created_at,
-    RANK() OVER (PARTITION BY song_catalog_id ORDER BY score DESC, created_at ASC) as position
-FROM performances
-WHERE score > 0;
+    p1.song_catalog_id,
+    p1.user_id,
+    p1.score,
+    p1.created_at,
+    (SELECT COUNT(*) + 1 FROM performances p2 
+     WHERE p2.song_catalog_id = p1.song_catalog_id 
+     AND (p2.score > p1.score OR (p2.score = p1.score AND p2.created_at < p1.created_at))) as position
+FROM performances p1
+WHERE p1.score > 0;

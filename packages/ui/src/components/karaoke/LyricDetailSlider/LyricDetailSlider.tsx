@@ -176,18 +176,13 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
       >
         <Show when={props.isOpen}>
           <div class="fixed inset-x-0 bottom-0 z-50 overflow-hidden">
-            <div class="bg-elevated rounded-t-3xl shadow-2xl h-[85vh] overflow-hidden flex flex-col">
-              {/* Handle bar */}
-              <div class="flex justify-center pt-3 pb-2">
-                <div class="w-12 h-1 bg-surface rounded-full" />
-              </div>
-              
+            <div class="bg-elevated rounded-t-3xl shadow-2xl h-[70vh] overflow-hidden flex flex-col relative">
               {/* Close button */}
-              <div class="absolute top-4 right-4">
+              <div class="absolute top-4 right-4 z-10">
                 <button
                   onClick={props.onClose}
                   class="p-2 rounded-lg bg-surface/50 hover:bg-surface transition-all hover:scale-110"
-                  aria-label={t('lyricDetail.close')}
+                  aria-label={t('karaoke.lyricDetail.close')}
                 >
                   <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 6L6 18M6 6l12 12" />
@@ -195,44 +190,31 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                 </button>
               </div>
               
-              <div class="px-6 pb-8 overflow-y-auto overflow-x-hidden flex-1">
-                {/* Use CSS Grid for fixed layout */}
-                <div style="display: grid; grid-template-rows: auto auto 150px; gap: 1rem;">
-                  {/* Original lyric - auto height */}
-                  <div class="text-2xl leading-relaxed text-primary break-words">
-                    {props.lyric.text}
+              <div class="flex flex-col flex-1 overflow-hidden">
+                <div class="px-6 pt-6 pb-4 overflow-y-auto flex-1">
+                  {/* Use CSS Grid for fixed layout */}
+                  <div style="display: grid; grid-template-rows: auto auto 150px; gap: 1rem;">
+                    {/* Original lyric - auto height */}
+                    <div class="text-xl leading-relaxed text-primary break-words">
+                      {props.lyric.text}
+                    </div>
+                    
+                    {/* Romanization - auto height */}
+                    <div class="text-base text-secondary italic break-words" style="min-height: 0;">
+                      {props.lyric.romanization || ''}
+                    </div>
+                    
+                    {/* Translation - FIXED 150px height */}
+                    <div class="text-xl leading-relaxed text-primary break-words overflow-y-auto">
+                      <Show when={showTranslation()}>
+                        {props.lyric.translatedText || (
+                          <div class="pt-4">
+                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
+                          </div>
+                        )}
+                      </Show>
+                    </div>
                   </div>
-                  
-                  {/* Romanization - auto height */}
-                  <div class="text-lg text-secondary italic break-words" style="min-height: 0;">
-                    {props.lyric.romanization || ''}
-                  </div>
-                  
-                  {/* Translation - FIXED 150px height */}
-                  <div class="text-2xl leading-relaxed text-primary break-words overflow-y-auto">
-                    <Show when={showTranslation()}>
-                      {props.lyric.translatedText || (
-                        <div class="pt-4">
-                          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
-                        </div>
-                      )}
-                    </Show>
-                  </div>
-                </div>
-                
-                {/* Single Explain button */}
-                <Show when={!showAnnotations() || !props.lyric.annotations}>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    onClick={handleExplain}
-                    loading={props.isLoading && !props.lyric.annotations}
-                    disabled={props.isLoading}
-                    fullWidth
-                  >
-                    {t('lyricDetail.explain', 'Explain')}
-                  </Button>
-                </Show>
                 
                 <Show when={props.onPractice}>
                   <Button
@@ -248,7 +230,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       <line x1="12" y1="19" x2="12" y2="23" />
                       <line x1="8" y1="23" x2="16" y2="23" />
                     </svg>
-                    {t('lyricDetail.practiceThisLine')}
+                    {t('karaoke.lyricDetail.practiceThisLine')}
                   </Button>
                 </Show>
                 
@@ -256,7 +238,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                 <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.length > 0}>
                     <div class="space-y-3 pt-4">
                       <h3 class="text-xs font-semibold text-tertiary uppercase tracking-wider">
-                        {t('lyricDetail.annotations')}
+                        {t('karaoke.lyricDetail.annotations')}
                       </h3>
                       <div class="space-y-3">
                         <For each={props.lyric.annotations}>
@@ -281,6 +263,30 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       </div>
                     </div>
                   </Show>
+                </div>
+                
+                {/* Sticky bottom button container */}
+                <div class="px-6 pb-8">
+                  <Show when={!showAnnotations() || !props.lyric.annotations}>
+                    <button
+                      onClick={handleExplain}
+                      disabled={props.isLoading}
+                      class={cn(
+                        'w-full inline-flex items-center justify-center',
+                        'h-12 px-6 text-lg font-medium rounded-lg',
+                        'bg-surface text-primary',
+                        'hover:bg-elevated transition-all',
+                        'disabled:cursor-not-allowed disabled:opacity-50',
+                        props.isLoading && 'cursor-wait'
+                      )}
+                    >
+                      <Show when={props.isLoading && !props.lyric.annotations}>
+                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2" />
+                      </Show>
+                      {t('karaoke.lyricDetail.explain', 'Explain')}
+                    </button>
+                  </Show>
+                </div>
               </div>
             </div>
           </div>

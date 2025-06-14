@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS karaoke_sessions (
   -- Credits
   credits_used INTEGER DEFAULT 1,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+  -- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL -- Not supported in D1
 );
 
 -- Indexes for sessions
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS line_scores (
   feedback_text TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (session_id) REFERENCES karaoke_sessions(id) ON DELETE CASCADE
+  -- FOREIGN KEY (session_id) REFERENCES karaoke_sessions(id) ON DELETE CASCADE -- Not supported in D1
 );
 
 -- Indexes for line scores
@@ -146,8 +146,8 @@ CREATE TABLE IF NOT EXISTS user_best_scores (
   average_score REAL DEFAULT 0,
   last_played_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (best_session_id) REFERENCES karaoke_sessions(id) ON DELETE SET NULL,
+  -- FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, -- Not supported in D1
+  -- FOREIGN KEY (best_session_id) REFERENCES karaoke_sessions(id) ON DELETE SET NULL, -- Not supported in D1
   UNIQUE(user_id, song_id)
 );
 
@@ -168,7 +168,7 @@ CREATE TABLE IF NOT EXISTS song_match_events (
   success BOOLEAN DEFAULT false,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (song_catalog_id) REFERENCES song_catalog(id) ON DELETE SET NULL
+  -- FOREIGN KEY (song_catalog_id) REFERENCES song_catalog(id) ON DELETE SET NULL -- Not supported in D1
 );
 
 -- Indexes for match events

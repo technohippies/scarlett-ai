@@ -411,7 +411,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
         </Match>
         
         <Match when={viewState() === 'completion' && completionData()}>
-          <I18nProvider>
             <Show when={!completionData()!.isLoading} fallback={
               <div class="flex items-center justify-center h-full bg-base">
                 <div class="text-center">
@@ -435,7 +434,6 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
                 onPractice={completionData()!.needsWorkLines > 0 ? handlePracticeErrors : undefined}
               />
             </Show>
-          </I18nProvider>
         </Match>
         
         <Match when={viewState() === 'practice'}>

@@ -5,13 +5,13 @@ CREATE TABLE IF NOT EXISTS performances (
     song_catalog_id TEXT NOT NULL,
     score INTEGER NOT NULL DEFAULT 0,
     accuracy REAL DEFAULT 0,
-    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     session_duration_ms INTEGER,
     lines_completed INTEGER DEFAULT 0,
     total_lines INTEGER DEFAULT 0,
-    is_best_score BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (song_catalog_id) REFERENCES song_catalog(id)
+    is_best_score BOOLEAN DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    -- FOREIGN KEY (song_catalog_id) REFERENCES song_catalog(id) -- Not supported in D1
 );
 
 -- Indexes for performances

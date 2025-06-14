@@ -24,17 +24,17 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
       let module;
       switch (currentLocale) {
         case 'zh-CN':
-          module = await import('./locales/zh-CN/index.ts');
+          module = await import('./locales/zh-CN/index');
           break;
         case 'en':
         default:
-          module = await import('./locales/en/index.ts');
+          module = await import('./locales/en/index');
           break;
       }
       setTranslations(module.default);
     } catch (e) {
       console.error(`[I18nProvider] Failed to load locale ${currentLocale}:`, e);
-      const module = await import('./locales/en/index.ts');
+      const module = await import('./locales/en/index');
       setTranslations(module.default);
     }
   });
@@ -43,6 +43,7 @@ export const I18nProvider: ParentComponent<{ defaultLocale?: LocaleCode }> = (pr
   const t = (key: string, params?: Record<string, any>) => {
     const keys = key.split('.');
     let value: any = translations();
+    
     
     for (const k of keys) {
       value = value?.[k];

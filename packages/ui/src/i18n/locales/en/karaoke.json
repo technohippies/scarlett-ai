@@ -56,5 +56,11 @@
     "start": "Start",
     "pause": "Pause",
     "goBack": "Go back"
+  },
+  "lyricDetail": {
+    "close": "Close",
+    "explain": "Explain",
+    "practiceThisLine": "Practice This Line",
+    "annotations": "Word Explanations"
   }
 }

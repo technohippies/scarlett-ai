@@ -8,13 +8,11 @@ compatibility_date = "2024-01-15"
 [vars]
 ENVIRONMENT = "development"
 
-# Node compatibility for packages like ts-fsrs
-node_compat = true
-
 # Development environment
 [env.development]
 name = "scarlett-api-dev"
 vars = { ENVIRONMENT = "development" }
+nodejs_compat = true
 
 [[env.development.d1_databases]]
 binding = "DB"
@@ -25,6 +23,7 @@ database_id = "c0cebf07-8c3b-4c03-9ecd-589d9a8346e6"
 [env.production]
 name = "scarlett-api"
 vars = { ENVIRONMENT = "production" }
+node_compat = true
 
 [[env.production.d1_databases]]
 binding = "DB"

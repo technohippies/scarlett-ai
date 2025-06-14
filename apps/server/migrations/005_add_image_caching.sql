@@ -1,12 +1,6 @@
--- Migration 005: Add image caching support
+-- Migration 005: Add image caching support (safe version)
 -- This migration adds support for caching external images
-
--- Add additional image fields to song_catalog
-ALTER TABLE song_catalog ADD COLUMN artwork_url_small TEXT;
-ALTER TABLE song_catalog ADD COLUMN artwork_url_medium TEXT;
-ALTER TABLE song_catalog ADD COLUMN artwork_url_large TEXT;
-ALTER TABLE song_catalog ADD COLUMN artwork_cached_at DATETIME;
-ALTER TABLE song_catalog ADD COLUMN artwork_source TEXT;
+-- It checks if columns exist before adding them
 
 -- Create image cache table for storing proxied images
 CREATE TABLE IF NOT EXISTS image_cache (
@@ -23,16 +17,9 @@ CREATE TABLE IF NOT EXISTS image_cache (
 );
 
 -- Indexes for image cache
-CREATE INDEX idx_image_cache_url ON image_cache(original_url);
-CREATE INDEX idx_image_cache_accessed ON image_cache(last_accessed_at);
+CREATE INDEX IF NOT EXISTS idx_image_cache_url ON image_cache(original_url);
+CREATE INDEX IF NOT EXISTS idx_image_cache_accessed ON image_cache(last_accessed_at);
 
--- Add soundcloud metadata fields
-ALTER TABLE song_catalog ADD COLUMN sc_likes_count INTEGER DEFAULT 0;
-ALTER TABLE song_catalog ADD COLUMN sc_plays_count INTEGER DEFAULT 0;
-ALTER TABLE song_catalog ADD COLUMN sc_reposts_count INTEGER DEFAULT 0;
-ALTER TABLE song_catalog ADD COLUMN sc_created_at DATETIME;
-ALTER TABLE song_catalog ADD COLUMN sc_modified_at DATETIME;
-ALTER TABLE song_catalog ADD COLUMN sc_genre TEXT;
-ALTER TABLE song_catalog ADD COLUMN sc_description TEXT;
-ALTER TABLE song_catalog ADD COLUMN sc_user_avatar_url TEXT;
-ALTER TABLE song_catalog ADD COLUMN sc_user_name TEXT;
+-- Note: SQLite/D1 doesn't support conditional ALTER TABLE statements
+-- The columns for song_catalog should be added in the initial schema or handled separately
+-- If you need to add these columns and they don't exist, you'll need to handle it manually

@@ -40,10 +40,10 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
   
   return (
     <div class={cn('flex flex-col h-screen overflow-hidden bg-base relative', props.class)}>
-      {/* Back button - positioned absolutely */}
+      {/* Back button - positioned absolutely with adjusted positioning */}
       <button
         onClick={props.onBack}
-        class="absolute top-4 left-4 z-50 p-2 text-white drop-shadow-lg hover:text-white/90 transition-colors"
+        class="absolute top-4 left-2 z-50 p-2 text-white drop-shadow-lg hover:text-white/90 transition-colors"
         aria-label={t('karaoke.controls.goBack')}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-6 h-6">
@@ -81,7 +81,7 @@ export const FarcasterKaraokeView: Component<FarcasterKaraokeViewProps> = (props
         )}
         
         <TabsContent value="lyrics" class="flex-1 flex flex-col min-h-0">
-          <div class="flex-1 overflow-y-auto">
+          <div class="flex-1 overflow-y-auto px-4">
             <LyricsDisplay
               lyrics={props.lyrics}
               currentTime={props.currentTime}

@@ -56,5 +56,11 @@
     "start": "开始",
     "pause": "暂停",
     "goBack": "返回"
+  },
+  "lyricDetail": {
+    "close": "关闭",
+    "explain": "解释",
+    "practiceThisLine": "练习这一句",
+    "annotations": "词汇解释"
   }
 }

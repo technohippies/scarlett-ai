@@ -16,7 +16,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
   const { t, formatNumber } = useI18n();
   
   return (
-    <div class={cn('relative flex flex-col', props.class)} style={{ height: '30vh', 'min-height': '300px' }}>
+    <div class={cn('relative flex flex-col', props.class)} style={{ height: '40vh', 'min-height': '400px' }}>
       {/* Background image with gradient overlay - always show if backgroundImage is provided */}
       <Show when={props.backgroundImage}>
         <div class="absolute inset-0 z-0">
@@ -43,7 +43,7 @@ export const ScorePanel: Component<ScorePanelProps> = (props) => {
       <div class="flex-1" />
       
       {/* Content container */}
-      <div class="relative z-10 px-4 pb-8">
+      <div class="relative z-10 px-4 pt-8 pb-8">
         {/* Title and Artist */}
         <Show when={props.title || props.artist}>
           <div class="mb-6">

@@ -81,30 +81,27 @@ export const SubscriptionSlider: Component<SubscriptionSliderProps> = (props) =>
       >
         <Show when={props.isOpen}>
           <div class="fixed inset-x-0 bottom-0 z-50">
-            <div class="bg-elevated rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden">
-              {/* Handle bar */}
-              <div class="flex justify-center pt-3 pb-2">
-                <div class="w-12 h-1 bg-surface rounded-full" />
-              </div>
-              
+            <div class="bg-elevated rounded-t-3xl shadow-2xl max-h-[90vh] overflow-hidden relative">
               {/* Close button */}
-              <div class="absolute top-4 right-4">
+              <div class="absolute top-4 right-4 z-10">
                 <button
                   onClick={props.onClose}
                   class="p-2 rounded-lg bg-surface/50 hover:bg-surface transition-all hover:scale-110"
                   aria-label={t('subscription.slider.close')}
                 >
-                  <IconXFill class="w-5 h-5 text-secondary hover:text-primary" />
+                  <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12" />
+                  </svg>
                 </button>
               </div>
               
-              <div class="px-6 pb-8 space-y-6 overflow-y-auto max-h-[80vh]">
+              <div class="px-6 pt-6 pb-8 space-y-6 overflow-y-auto max-h-[80vh]">
                 <div class="text-center">
                   <h2 class="text-2xl font-bold text-primary mb-2">
                     {props.isActive ? t('subscription.slider.active') : t('subscription.slider.title')}
                   </h2>
                   <Show when={props.isActive}>
-                    <p class="text-secondary text-sm">
+                    <p class="text-secondary text-base">
                       {t('subscription.slider.manageSubscription')}
                     </p>
                   </Show>
