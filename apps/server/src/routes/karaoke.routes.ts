@@ -68,9 +68,27 @@ class LRCLibService {
 
 // Helper functions from working implementation
 function cleanLyricsText(text: string): string {
+  // First check if the entire line is wrapped in parentheses or brackets
+  const trimmedText = text.trim();
+  
+  // If the entire line is wrapped in parentheses, remove them but keep the content
+  if (trimmedText.startsWith('(') && trimmedText.endsWith(')') && 
+      trimmedText.indexOf('(', 1) === -1 && trimmedText.lastIndexOf(')', trimmedText.length - 2) === -1) {
+    return trimmedText.slice(1, -1).trim();
+  }
+  
+  // If the entire line is wrapped in brackets, remove them but keep the content
+  if (trimmedText.startsWith('[') && trimmedText.endsWith(']') && 
+      trimmedText.indexOf('[', 1) === -1 && trimmedText.lastIndexOf(']', trimmedText.length - 2) === -1) {
+    return trimmedText.slice(1, -1).trim();
+  }
+  
+  // Otherwise, remove inline parenthetical/bracketed content (like annotations)
+  // but preserve the main text
   return text
-    .replace(/\([^)]*\)/g, '') // Remove parenthetical content
-    .replace(/\[[^\]]*\]/g, '') // Remove bracketed content
+    .replace(/\s*\([^)]*\)\s*/g, ' ') // Remove inline parenthetical content
+    .replace(/\s*\[[^\]]*\]\s*/g, ' ') // Remove inline bracketed content
+    .replace(/\s+/g, ' ') // Normalize whitespace
     .trim();
 }
 
@@ -381,16 +399,25 @@ app.get('/*', async (c) => {
       
       // Process lyrics
       
-      formattedLyrics = processedLyrics.map((line, index) => ({
-        id: index,
-        timestamp: line.timestamp,
-        text: cleanLyricsText(line.text),
-        duration: line.duration,
-        startTime: line.timestamp / 1000,
-        endTime: (line.timestamp + (line.duration || 0)) / 1000,
-        recordingStart: line.recordingStart,
-        recordingEnd: line.recordingEnd,
-      }));
+      formattedLyrics = processedLyrics
+        .map((line, index) => {
+          const cleanedText = cleanLyricsText(line.text);
+          // Skip lines that become empty after cleaning
+          if (!cleanedText) {
+            return null;
+          }
+          return {
+            id: index,
+            timestamp: line.timestamp,
+            text: cleanedText,
+            duration: line.duration,
+            startTime: line.timestamp / 1000,
+            endTime: (line.timestamp + (line.duration || 0)) / 1000,
+            recordingStart: line.recordingStart,
+            recordingEnd: line.recordingEnd,
+          };
+        })
+        .filter(line => line !== null);
 
       // Check if all timestamps are 0 (invalid synced lyrics)
       const hasValidTimestamps = formattedLyrics.some(
