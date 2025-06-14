@@ -15,6 +15,42 @@ import { PracticeExercises } from './PracticeExercises';
 import { apiService } from '../services/api';
 import sdk from '@farcaster/frame-sdk';
 
+// Global caches for translations and annotations - persist across component instances
+const translationCache = new Map<string, string>();
+const annotationsCache = new Map<string, any[]>();
+
+// Load translations from localStorage on startup
+if (typeof window !== 'undefined' && window.localStorage) {
+  try {
+    const savedTranslations = localStorage.getItem('scarlett_translations');
+    if (savedTranslations) {
+      const parsed = JSON.parse(savedTranslations);
+      Object.entries(parsed).forEach(([key, value]) => {
+        translationCache.set(key, value as string);
+      });
+      console.log('[Cache] Loaded', translationCache.size, 'translations from localStorage');
+    }
+  } catch (e) {
+    console.error('[Cache] Failed to load translations from localStorage:', e);
+  }
+}
+
+// Save translations to localStorage whenever cache is updated
+function saveTranslationToCache(key: string, value: string) {
+  translationCache.set(key, value);
+  
+  // Also save to localStorage
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const cacheObject = Object.fromEntries(translationCache);
+      localStorage.setItem('scarlett_translations', JSON.stringify(cacheObject));
+      console.log('[Cache] Saved', translationCache.size, 'translations to localStorage');
+    } catch (e) {
+      console.error('[Cache] Failed to save to localStorage:', e);
+    }
+  }
+}
+
 interface FarcasterKaraokeProps {
   songUrl: string;
   lyrics: LyricLine[];
@@ -42,10 +78,15 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
   const [isLoadingLyricDetail, setIsLoadingLyricDetail] = createSignal(false);
   const [isTranslating, setIsTranslating] = createSignal(false);
   
-  // Translation cache - key is "lyricText:targetLang"
-  const translationCache = new Map<string, string>();
-  // Annotations cache - key is lyric text
-  const annotationsCache = new Map<string, any[]>();
+  // Log cache status on component mount
+  onMount(() => {
+    console.log('[FarcasterKaraoke] Component mounted, cache status:', {
+      translationCacheSize: translationCache.size,
+      translationKeys: Array.from(translationCache.keys()),
+      annotationsCacheSize: annotationsCache.size,
+      annotationKeys: Array.from(annotationsCache.keys())
+    });
+  });
   
   // Construct audio URL based on trackId
   const getAudioUrl = () => {
@@ -255,8 +296,15 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       const cacheKey = targetLang ? `${lyric.text}:${targetLang}` : null;
       const cachedTranslation = cacheKey ? translationCache.get(cacheKey) : null;
       
+      console.log('[Translation Cache]', {
+        cacheKey,
+        hasCache: !!cachedTranslation,
+        cacheSize: translationCache.size,
+        allKeys: Array.from(translationCache.keys())
+      });
+      
       if (cachedTranslation) {
-        console.log('[LyricClick] Found cached translation');
+        console.log('[LyricClick] Found cached translation:', cachedTranslation);
         setLyricTranslation(cachedTranslation);
       } else if (targetLang === null) {
         // For unsupported languages, don't show translation
@@ -286,10 +334,20 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     // Check cache first
     const cached = translationCache.get(cacheKey);
     if (cached) {
-      console.log('[Translation] Found in cache:', cached);
+      console.log('[Translation] Found in cache - NOT calling API:', {
+        cacheKey,
+        cachedValue: cached,
+        cacheSize: translationCache.size
+      });
       setLyricTranslation(cached);
       return;
     }
+    
+    console.log('[Translation] NOT in cache - will call API:', {
+      cacheKey,
+      cacheSize: translationCache.size,
+      existingKeys: Array.from(translationCache.keys())
+    });
     
     setIsTranslating(true);
     setIsLoadingLyricDetail(true);
@@ -341,8 +399,14 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       console.log('[Translation] Final text:', translatedText);
       setLyricTranslation(translatedText);
       
-      // Save to cache
-      translationCache.set(cacheKey, translatedText);
+      // Save to cache (both memory and localStorage)
+      saveTranslationToCache(cacheKey, translatedText);
+      console.log('[Translation] Saved to cache:', {
+        cacheKey,
+        translatedText,
+        newCacheSize: translationCache.size,
+        allKeys: Array.from(translationCache.keys())
+      });
     } catch (error) {
       console.error('[Translation] Translation failed:', error);
       setLyricTranslation('Translation failed');

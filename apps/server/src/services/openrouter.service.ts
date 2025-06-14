@@ -50,6 +50,13 @@ export class OpenRouterService {
     onChunk: (chunk: string) => void,
     sourceLanguage?: string
   ): Promise<void> {
+    console.log('[OpenRouter] Starting translation', {
+      text: text.substring(0, 50) + '...',
+      targetLanguage,
+      sourceLanguage,
+      timestamp: new Date().toISOString()
+    });
+
     const systemPrompt = `You are a professional translator. Translate the following text ${
       sourceLanguage ? `from ${sourceLanguage} ` : ''
     }to ${targetLanguage}. Provide only the translation without any explanations or additional text.`;
@@ -106,6 +113,13 @@ export class OpenRouterService {
     if (!this.apiKey) {
       throw new Error('OpenRouter API key not configured');
     }
+
+    console.log('[OpenRouter] Making API call', {
+      model: this.defaultModel,
+      temperature,
+      messagesCount: messages.length,
+      timestamp: new Date().toISOString()
+    });
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',

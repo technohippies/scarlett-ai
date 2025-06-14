@@ -66,6 +66,15 @@ Important:
 
     const userPrompt = `Translate this song lyric to ${targetLangName}: "${data.text}"`;
 
+    // Log translation request details
+    console.log('[Translation Request]', {
+      text: data.text,
+      targetLang: data.targetLang,
+      targetLangName,
+      timestamp: new Date().toISOString(),
+      source: 'OpenRouter'
+    });
+
     // Stream the response using OpenRouter
     return streamSSE(c, async (stream) => {
       await stream.writeSSE({
@@ -74,6 +83,7 @@ Important:
       });
 
       let fullTranslation = '';
+      const startTime = Date.now();
       
       await openRouterService.streamTranslate(
         data.text,
@@ -86,6 +96,15 @@ Important:
           });
         }
       );
+
+      const duration = Date.now() - startTime;
+      console.log('[Translation Complete]', {
+        text: data.text,
+        targetLang: data.targetLang,
+        translation: fullTranslation,
+        duration: `${duration}ms`,
+        timestamp: new Date().toISOString()
+      });
 
       await stream.writeSSE({
         event: 'complete',
