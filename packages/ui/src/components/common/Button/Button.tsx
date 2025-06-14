@@ -36,7 +36,7 @@ export const Button = (props: ButtonProps) => {
           // Variants
           'bg-gradient-primary text-white hover:shadow-lg hover:brightness-110 glow-primary':
             variant() === 'primary',
-          'bg-surface text-primary border border-default hover:bg-elevated hover:border-strong':
+          'bg-surface text-primary hover:bg-elevated':
             variant() === 'secondary',
           'text-secondary hover:text-primary hover:bg-surface':
             variant() === 'ghost',

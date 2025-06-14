@@ -223,7 +223,9 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Translation section */}
                       <Show when={showTranslation()}>
                         <div class="flex items-start gap-3">
-                          <IconTranslateFill class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5" />
+                          <div class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
+                            <IconTranslateFill />
+                          </div>
                           <div class="text-lg leading-relaxed text-primary break-words flex-1">
                             {props.lyric.translatedText || (
                               <Spinner size="sm" class="mt-1" />
@@ -235,7 +237,9 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Meaning explanation */}
                       <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                         <div class="flex items-start gap-3">
-                          <IconQuestionFill class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5" />
+                          <div class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
+                            <IconQuestionFill />
+                          </div>
                           <div class="flex-1">
                             <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                               {(annotation) => (
@@ -252,7 +256,9 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Grammar explanation */}
                       <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                         <div class="flex items-start gap-3">
-                          <IconBookOpenTextFill class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5" />
+                          <div class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
+                            <IconBookOpenTextFill />
+                          </div>
                           <div class="flex-1">
                             <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                               {(annotation) => (
