@@ -174,7 +174,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
           <div class="fixed inset-x-0 bottom-0 z-50 overflow-hidden">
             <div class="bg-elevated rounded-t-3xl shadow-2xl h-[70vh] overflow-hidden flex flex-col relative">
               {/* Close button */}
-              <div class="absolute top-4 right-4 z-10">
+              <div class="absolute top-4 end-4 z-10">
                 <button
                   onClick={props.onClose}
                   class="p-2 rounded-lg bg-surface/50 hover:bg-surface transition-all hover:scale-110"
@@ -187,8 +187,9 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
               </div>
               
               <div class="flex flex-col flex-1 overflow-hidden">
-                <div class="px-6 pt-6 pb-4 overflow-y-auto flex-1">
-                  <div class="space-y-4">
+                <div class="px-6 pt-10 pb-4 overflow-y-auto flex-1">
+                  {/* Add extra padding for RTL to avoid close button overlap */}
+                  <div class="space-y-4 pe-12">
                     {/* Original lyric */}
                     <div class="text-xl leading-relaxed text-primary break-words">
                       {props.lyric.text}
