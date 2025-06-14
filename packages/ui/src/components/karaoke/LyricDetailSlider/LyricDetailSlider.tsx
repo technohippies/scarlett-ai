@@ -7,24 +7,9 @@ import { TextEffect } from '../../common/TextEffect';
 import { MarkdownRenderer } from '../../common/MarkdownRenderer';
 import { cn } from '../../../utils/cn';
 import { useI18n } from '../../../i18n';
-// Icon components
-const TranslateIcon = () => (
-  <svg viewBox="0 0 256 256" fill="currentColor" class="w-full h-full">
-    <path d="M160,129.89l0,0s0-.07,0,0Zm64-49.89v88a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V80A16,16,0,0,1,48,64H208A16,16,0,0,1,224,80ZM200.3,144h-30a8,8,0,0,0,0,16h30a8,8,0,0,0,0-16Zm-66.34,0H87.05A65.46,65.46,0,0,0,83.8,128H112a8,8,0,0,0,0-16H81.91a64.36,64.36,0,0,0-12.17-24H152V88h16V80a8,8,0,0,0-16,0v8H136V80a8,8,0,0,0-16,0v8H108a8,8,0,0,0,0,16h1.74A80.32,80.32,0,0,1,114.25,112H72a8,8,0,0,0,0,16h39.94C108.25,139.69,99.35,144,87.05,144c-17.76,0-28-20.18-28.06-20.3a8,8,0,0,0-13.85,8c.06.1,1.65,2.67,4.56,6.3H48a16,16,0,0,0,16,16h85.42c2.71,3.23,7.66,8,16,8,6.86,0,13-5.42,17.59-14.34L203.88,102A8,8,0,0,0,189.66,96.7L169.8,141.76C166.84,143.75,163.77,144,161.33,144Z"/>
-  </svg>
-);
-
-const QuestionIcon = () => (
-  <svg viewBox="0 0 256 256" fill="currentColor" class="w-full h-full">
-    <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,168a12,12,0,1,1,12-12A12,12,0,0,1,128,192Zm8-48.72V144a8,8,0,0,1-16,0v-8a8,8,0,0,1,8-8c13.23,0,24-9,24-20s-10.77-20-24-20-24,9-24,20v4a8,8,0,0,1-16,0v-4c0-19.85,17.94-36,40-36s40,16.15,40,36C168,127.23,154.24,141.93,136,143.28Z"/>
-  </svg>
-);
-
-const BookIcon = () => (
-  <svg viewBox="0 0 256 256" fill="currentColor" class="w-full h-full">
-    <path d="M240,56V200a8,8,0,0,1-8,8H160a24,24,0,0,0-24,24,8,8,0,0,1-16,0,24,24,0,0,0-24-24H24a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H88a32,32,0,0,1,32,32v87.73c0,.15,0,.29,0,.43s0,.29,0,.43V80a32,32,0,0,1,32-32h64A8,8,0,0,1,240,56Z"/>
-  </svg>
-);
+import IconTranslateFill from 'phosphor-icons-solid/IconTranslateFill';
+import IconQuestionFill from 'phosphor-icons-solid/IconQuestionFill';
+import IconBookOpenTextFill from 'phosphor-icons-solid/IconBookOpenTextFill';
 import { Spinner } from '../../common/Spinner';
 
 export interface LyricDetailSliderProps {
@@ -238,9 +223,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Translation section */}
                       <Show when={showTranslation()}>
                         <div class="flex items-start gap-3">
-                          <div class="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-accent-primary)' }}>
-                            <TranslateIcon />
-                          </div>
+                          <IconTranslateFill class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5" />
                           <div class="text-lg leading-relaxed text-primary break-words flex-1">
                             {props.lyric.translatedText || (
                               <Spinner size="sm" class="mt-1" />
@@ -252,9 +235,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Meaning explanation */}
                       <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                         <div class="flex items-start gap-3">
-                          <div class="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-accent-primary)' }}>
-                            <QuestionIcon />
-                          </div>
+                          <IconQuestionFill class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5" />
                           <div class="flex-1">
                             <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                               {(annotation) => (
@@ -271,9 +252,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       {/* Grammar explanation */}
                       <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                         <div class="flex items-start gap-3">
-                          <div class="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-accent-primary)' }}>
-                            <BookIcon />
-                          </div>
+                          <IconBookOpenTextFill class="w-5 h-5 text-accent-primary flex-shrink-0 mt-0.5" />
                           <div class="flex-1">
                             <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                               {(annotation) => (
