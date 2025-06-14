@@ -1,6 +1,6 @@
 import { type Component, createSignal, createResource, createMemo, Show, createEffect } from 'solid-js';
 import { useParams, useNavigate, useLocation } from '@solidjs/router';
-import { I18nProvider, type LyricLine, SubscriptionSlider } from '@scarlett/ui';
+import { type LyricLine, SubscriptionSlider, Spinner } from '@scarlett/ui';
 import { FarcasterKaraoke } from '../components/FarcasterKaraoke';
 import { apiService } from '../services/api';
 import { address, isConnected, connectWallet } from '../services/wallet';
@@ -198,7 +198,7 @@ export const SongPage: Component = () => {
     try {
       const web3Service = new Web3Service({
         84532: { // Base Sepolia
-          provider: 'https://rpc.ankr.com/base_sepolia',
+          provider: 'https://sepolia.base.org',
         }
       });
       
@@ -221,13 +221,8 @@ export const SongPage: Component = () => {
     }
   });
 
-  // Detect browser language
-  const browserLang = navigator.language.toLowerCase();
-  const locale = browserLang.startsWith('zh') ? 'zh-CN' : 'en';
-
   return (
-    <I18nProvider defaultLocale={locale}>
-      <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
+    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
         <div style={{ flex: 1, display: "flex", "flex-direction": "column" }}>
           <Show
             when={!songResource.loading && !songResource.error && songResource()}
@@ -239,9 +234,11 @@ export const SongPage: Component = () => {
                 'justify-content': 'center',
                 'background-color': 'var(--color-base)'
               }}>
-                <p style={{ color: 'var(--color-text-secondary)' }}>
-                  {songResource.loading ? 'Loading song...' : 'Failed to load song'}
-                </p>
+                {songResource.loading ? (
+                  <Spinner size="lg" />
+                ) : (
+                  <p style={{ color: 'var(--color-text-secondary)' }}>Failed to load song</p>
+                )}
               </div>
             }
           >
@@ -262,6 +259,10 @@ export const SongPage: Component = () => {
                   artist={data().song.artist}
                   artworkUrl={artworkUrl}
                   songCatalogId={data().songData?.song_catalog_id}
+                  geniusSongId={(() => {
+                    const id = data().songData?.song?.genius_id;
+                    return id ? parseInt(id) : undefined;
+                  })()}
                   apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
                   onStartCheck={handleKaraokeStart}
                   onBack={handleBack}
@@ -282,6 +283,5 @@ export const SongPage: Component = () => {
           onConnectWallet={handleConnectWallet}
         />
       </div>
-    </I18nProvider>
   );
 };

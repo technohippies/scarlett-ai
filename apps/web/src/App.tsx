@@ -1,7 +1,7 @@
 import { createSignal, onMount, Show, createMemo, createResource, createEffect } from 'solid-js';
 import { useNavigate, useLocation, useParams } from '@solidjs/router';
 import sdk from '@farcaster/frame-sdk';
-import { HomePage, SearchPage, type LyricLine, SubscriptionSlider, I18nProvider, SearchInput } from '@scarlett/ui';
+import { HomePage, SearchPage, type LyricLine, SubscriptionSlider, SearchInput, Spinner } from '@scarlett/ui';
 import type { Song } from '@scarlett/ui/components/pages/HomePage';
 import { apiService } from './services/api';
 import { FarcasterKaraoke } from './components/FarcasterKaraoke';
@@ -350,7 +350,7 @@ const App = () => {
     try {
       const web3Service = new Web3Service({
         84532: { // Base Sepolia
-          provider: 'https://rpc.ankr.com/base_sepolia',
+          provider: 'https://sepolia.base.org',
         }
       });
       
@@ -442,21 +442,13 @@ const App = () => {
     }
   });
 
-  // Detect browser language
-  const browserLang = navigator.language.toLowerCase();
-  const locale = browserLang.startsWith('zh') ? 'zh-CN' : 'en';
-  
-  console.log('[App] Browser language detected:', navigator.language);
-  console.log('[App] Setting locale to:', locale);
-
   return (
-    <I18nProvider defaultLocale={locale}>
-      <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
+    <div style={{ "min-height": "100vh", "background-color": "#0a0a0a", "color": "#ffffff", display: "flex", "flex-direction": "column" }}>
       <Show
         when={!isLoading()}
         fallback={
           <div style={{ "text-align": "center", "padding": "50px" }}>
-            <p style={{ "color": "#ffffff" }}>Loading...</p>
+            <Spinner size="lg" />
           </div>
         }
       >
@@ -494,7 +486,7 @@ const App = () => {
                     'justify-content': 'center',
                     'background-color': 'var(--color-base)'
                   }}>
-                    <p style={{ color: 'var(--color-text-secondary)' }}>Loading song...</p>
+                    <Spinner size="lg" />
                   </div>
                 }
               >
@@ -506,6 +498,7 @@ const App = () => {
                     artist={selectedSong()!.artist}
                     artworkUrl={songData()?.song?.artwork_url || selectedSong()!.artworkUrl}
                     songCatalogId={songData()?.song_catalog_id}
+                    geniusSongId={songData()?.song?.genius_id ? parseInt(songData().song.genius_id) : undefined}
                     apiUrl={import.meta.env.VITE_API_URL || 'http://localhost:8787'}
                     onStartCheck={handleKaraokeStart}
                     onBack={handleBack}
@@ -518,7 +511,7 @@ const App = () => {
               fallback={
                 <div style={{ "text-align": "center", "padding": "50px" }}>
                   {popularSongs.loading ? (
-                    <p style={{ "color": "#ffffff" }}>Loading songs...</p>
+                    <Spinner size="lg" />
                   ) : (
                     <p style={{ "color": "#ef4444" }}>Failed to load songs. Please check the server.</p>
                   )}
@@ -574,7 +567,6 @@ const App = () => {
         onConnectWallet={handleConnectWallet}
       />
     </div>
-    </I18nProvider>
   );
 };
 
