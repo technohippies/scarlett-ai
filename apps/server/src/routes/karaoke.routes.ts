@@ -74,6 +74,35 @@ function cleanLyricsText(text: string): string {
     .trim();
 }
 
+// Simple language detection based on common words and patterns
+function detectLanguage(text: string): string | null {
+  if (!text) return null;
+  
+  // Remove noise and normalize
+  const cleanText = text.toLowerCase();
+  
+  // Count indicators for each language
+  const spanishIndicators = (
+    (cleanText.match(/\b(el|la|los|las|un|una|de|que|es|en|por|para|con|sin|yo|tú|mi|tu|su|esta|esto|pero|como|cuando|donde|muy|más|hay|todo|nada|algo|siempre|nunca)\b/g) || []).length +
+    (cleanText.match(/[áéíóúñ¿¡]/g) || []).length * 2 // Spanish characters count more
+  );
+  
+  const englishIndicators = (
+    (cleanText.match(/\b(the|be|to|of|and|a|in|that|have|I|it|for|not|on|with|he|as|you|do|at|this|but|from|they|we|say|her|she|or|an|will|my|one|all|would|there|their)\b/g) || []).length
+  );
+  
+  const chineseIndicators = (cleanText.match(/[\u4e00-\u9fa5]/g) || []).length;
+  
+  console.log(`[Language Detection] ES:${spanishIndicators} EN:${englishIndicators} ZH:${chineseIndicators}`);
+  
+  // Determine language based on highest count
+  if (chineseIndicators > 0) return 'zh';
+  if (spanishIndicators > englishIndicators * 1.2) return 'es'; // Require more Spanish than English
+  if (englishIndicators > 0) return 'en';
+  
+  return null;
+}
+
 function processSyncedLyrics(rawLyrics: any[], options?: { disableMerging?: boolean }): any[] {
   console.log('[Karaoke Route] processSyncedLyrics wrapper called with options:', options);
   const lyricsService = new LyricsService();
@@ -534,7 +563,7 @@ app.get('/*', async (c) => {
               song ? geniusMatch.confidence || 0.5 : 0,
               geniusMatch.confidence > 0.9 ? true : false,
               artworkData?.url || song?.song_art_image_url || null,
-              song?.language || null, // Get language from Genius
+              song?.language || detectLanguage(formattedLyrics.map(l => l.text).join(' ')) || null, // Detect language from lyrics
               'lrclib',
               lyricsResult.type,
               formattedLyrics.length
