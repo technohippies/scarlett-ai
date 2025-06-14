@@ -75,6 +75,7 @@ function cleanLyricsText(text: string): string {
 }
 
 function processSyncedLyrics(rawLyrics: any[], options?: { disableMerging?: boolean }): any[] {
+  console.log('[Karaoke Route] processSyncedLyrics wrapper called with options:', options);
   const lyricsService = new LyricsService();
   return lyricsService.processSyncedLyrics(rawLyrics, options);
 }

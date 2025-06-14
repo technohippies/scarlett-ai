@@ -163,6 +163,9 @@ export class LyricsService {
   }
 
   processSyncedLyrics(lyrics: LRCLine[], options?: { disableMerging?: boolean }): LyricsLine[] {
+    console.log('[LyricsService] processSyncedLyrics called with options:', options);
+    console.log('[LyricsService] Input lyrics count:', lyrics.length);
+    
     const processed: LyricsLine[] = [];
 
     for (let i = 0; i < lyrics.length; i++) {
@@ -193,11 +196,15 @@ export class LyricsService {
 
     // Only merge short lines if not disabled
     if (options?.disableMerging) {
+      console.log('[LyricsService] Merging disabled, returning', processed.length, 'lines');
       return processed;
     }
     
     // Merge short lines for better UX
-    return this.mergeShortLines(processed);
+    console.log('[LyricsService] Merging enabled, processing lines');
+    const merged = this.mergeShortLines(processed);
+    console.log('[LyricsService] After merging:', merged.length, 'lines');
+    return merged;
   }
 
   private parseLRCString(lrcString: string): LRCLine[] {
@@ -226,9 +233,9 @@ export class LyricsService {
   }
 
   private cleanLyricsText(text: string): string {
+    // Only normalize whitespace, keep all original punctuation and formatting
     return text
       .replace(/\s+/g, ' ')
-      .replace(/[^\w\s.,!?'-]/g, '')
       .trim();
   }
 
