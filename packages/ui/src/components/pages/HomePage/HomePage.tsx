@@ -1,11 +1,12 @@
 import type { Component } from 'solid-js';
-import { For, Show, createSignal } from 'solid-js';
+import { For, Show, createSignal, createEffect } from 'solid-js';
 import { useI18n } from '../../../i18n/provider';
 import { Button } from '../../common/Button';
 import { SearchInput } from '../../common/SearchInput';
 import { getImageUrl } from '../../../utils/images';
 import { interactiveListItemStyles, listContainerStyles } from '../../../utils/interactiveListStyles';
 import { cn } from '../../../utils/cn';
+import { Spinner } from '../../common/Spinner';
 
 export interface Song {
   id: string;
@@ -28,17 +29,52 @@ export interface HomePageProps {
   onSearch?: (query: string) => void;
   showSearch?: boolean;
   apiUrl?: string;
+  // New props for header
+  userStreak?: number;
+  hasTopPosition?: boolean;
+  isConnected?: boolean;
+  onConnect?: () => void;
+  // Loading state
+  isLoading?: boolean;
+  loadingError?: string;
 }
 
 export const HomePage: Component<HomePageProps> = (props) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [searchQuery, setSearchQuery] = createSignal('');
+  const [showSearchResults, setShowSearchResults] = createSignal(false);
   
+  console.log('[HomePage] Current locale:', locale());
+  console.log('[HomePage] Hero title translation:', t('homepage.hero.title'));
+  console.log('[HomePage] Hero subtitle translation:', t('homepage.hero.subtitle'));
   
+  // Track search state
+  createEffect(() => {
+    setShowSearchResults(searchQuery().length > 0);
+  });
+  
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    props.onSearch?.(query);
+  };
 
   return (
-    <div>
-      <Show when={props.showHero !== false}>
+    <div class="min-h-screen bg-base text-primary flex flex-col">
+      <div class="flex-1 flex flex-col">
+        <Show when={props.isLoading}>
+          <div class="text-center py-12">
+            <Spinner size="lg" />
+          </div>
+        </Show>
+        
+        <Show when={props.loadingError}>
+          <div class="text-center py-12">
+            <p class="text-error text-lg">{props.loadingError}</p>
+          </div>
+        </Show>
+        
+        <Show when={!props.isLoading && !props.loadingError}>
+          <Show when={!showSearchResults() && props.showHero !== false}>
         {/* Hero Section */}
         <div style={{ 
           padding: '64px 16px',
@@ -51,7 +87,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
           <div style={{
             position: 'absolute',
             top: '-50%',
-            right: '-10%',
+            'inset-inline-end': '-10%',
             width: '300px',
             height: '300px',
             background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%)',
@@ -60,7 +96,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
           <div style={{
             position: 'absolute',
             bottom: '-30%',
-            left: '-10%',
+            'inset-inline-start': '-10%',
             width: '250px',
             height: '250px',
             background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%)',
@@ -83,8 +119,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
               'font-size': '20px',
               color: 'rgba(255,255,255,0.9)',
               'max-width': '600px',
-              'margin-left': 'auto',
-              'margin-right': 'auto',
+              'margin-inline': 'auto',
               'padding-bottom': props.onGetStarted ? '32px' : '0'
             }}>
               {t('homepage.hero.subtitle')}
@@ -106,10 +141,10 @@ export const HomePage: Component<HomePageProps> = (props) => {
             </Show>
           </div>
         </div>
-      </Show>
-      
-      {/* Search Section */}
-      <Show when={props.showSearch !== false}>
+          </Show>
+          
+          {/* Search Section - only show when explicitly enabled */}
+          <Show when={props.showSearch === true}>
         <div style={{ 
           'background-color': 'var(--color-bg-surface)',
           'border-bottom': '1px solid var(--color-border-default)',
@@ -137,28 +172,35 @@ export const HomePage: Component<HomePageProps> = (props) => {
             />
           </div>
         </div>
-      </Show>
-      
-      {/* Trending Songs Section */}
-      <div style={{ padding: '16px 16px 0 16px' }}>
+          </Show>
+          
+          {/* Content transitions based on search state */}
+          <div class={cn(
+            "transition-all duration-300 ease-out",
+            showSearchResults() && !props.songs.length ? "opacity-50 translate-y-2" : "opacity-100 translate-y-0"
+          )}>
+            <Show when={!showSearchResults()}>
+              {/* Trending Songs Section */}
+              <div style={{ padding: '16px 16px 0 16px' }}>
         <h2 style={{ margin: '0', 'font-size': '20px', 'font-weight': 'bold' }}>
           {t('homepage.trending')}
         </h2>
-      </div>
-      
-      <div style={{ padding: '8px 16px 16px 16px' }} class={listContainerStyles({ variant: 'compact' })}>
+              </div>
+              
+              <div style={{ padding: '8px 16px 16px 16px' }} class={listContainerStyles({ variant: 'compact' })}>
         <For each={props.songs}>
           {(song, index) => (
             <div 
               class={interactiveListItemStyles({ variant: 'compact' })}
               onClick={() => props.onSongSelect?.(song)}
             >
-              <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
+              <div style={{ display: 'flex', gap: '12px', 'align-items': 'center' }}>
                 <span style={{ 
                   color: 'var(--color-text-primary)',
                   'font-size': '24px',
                   'font-weight': 'bold',
-                  'min-width': '40px'
+                  'min-width': '30px',
+                  'text-align': 'center'
                 }}>
                   {index() + 1}
                 </span>
@@ -217,7 +259,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
                   </div>
                 </div>
                 <svg
-                  class="w-5 h-5 text-accent-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  class="w-5 h-5 text-accent-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200 rtl:scale-x-[-1]"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -230,7 +272,11 @@ export const HomePage: Component<HomePageProps> = (props) => {
               </div>
             </div>
           )}
-        </For>
+                </For>
+              </div>
+            </Show>
+          </div>
+        </Show>
       </div>
     </div>
   );
