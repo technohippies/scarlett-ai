@@ -4,8 +4,28 @@ import { Portal } from 'solid-js/web';
 import { Transition } from 'solid-transition-group';
 import { Button } from '../../common/Button';
 import { TextEffect } from '../../common/TextEffect';
+import { MarkdownRenderer } from '../../common/MarkdownRenderer';
 import { cn } from '../../../utils/cn';
 import { useI18n } from '../../../i18n';
+// Icon components
+const TranslateIcon = () => (
+  <svg viewBox="0 0 256 256" fill="currentColor" class="w-full h-full">
+    <path d="M160,129.89l0,0s0-.07,0,0Zm64-49.89v88a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V80A16,16,0,0,1,48,64H208A16,16,0,0,1,224,80ZM200.3,144h-30a8,8,0,0,0,0,16h30a8,8,0,0,0,0-16Zm-66.34,0H87.05A65.46,65.46,0,0,0,83.8,128H112a8,8,0,0,0,0-16H81.91a64.36,64.36,0,0,0-12.17-24H152V88h16V80a8,8,0,0,0-16,0v8H136V80a8,8,0,0,0-16,0v8H108a8,8,0,0,0,0,16h1.74A80.32,80.32,0,0,1,114.25,112H72a8,8,0,0,0,0,16h39.94C108.25,139.69,99.35,144,87.05,144c-17.76,0-28-20.18-28.06-20.3a8,8,0,0,0-13.85,8c.06.1,1.65,2.67,4.56,6.3H48a16,16,0,0,0,16,16h85.42c2.71,3.23,7.66,8,16,8,6.86,0,13-5.42,17.59-14.34L203.88,102A8,8,0,0,0,189.66,96.7L169.8,141.76C166.84,143.75,163.77,144,161.33,144Z"/>
+  </svg>
+);
+
+const QuestionIcon = () => (
+  <svg viewBox="0 0 256 256" fill="currentColor" class="w-full h-full">
+    <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,168a12,12,0,1,1,12-12A12,12,0,0,1,128,192Zm8-48.72V144a8,8,0,0,1-16,0v-8a8,8,0,0,1,8-8c13.23,0,24-9,24-20s-10.77-20-24-20-24,9-24,20v4a8,8,0,0,1-16,0v-4c0-19.85,17.94-36,40-36s40,16.15,40,36C168,127.23,154.24,141.93,136,143.28Z"/>
+  </svg>
+);
+
+const BookIcon = () => (
+  <svg viewBox="0 0 256 256" fill="currentColor" class="w-full h-full">
+    <path d="M240,56V200a8,8,0,0,1-8,8H160a24,24,0,0,0-24,24,8,8,0,0,1-16,0,24,24,0,0,0-24-24H24a8,8,0,0,1-8-8V56a8,8,0,0,1,8-8H88a32,32,0,0,1,32,32v87.73c0,.15,0,.29,0,.43s0,.29,0,.43V80a32,32,0,0,1,32-32h64A8,8,0,0,1,240,56Z"/>
+  </svg>
+);
+import { Spinner } from '../../common/Spinner';
 
 export interface LyricDetailSliderProps {
   isOpen: boolean;
@@ -30,7 +50,8 @@ export interface LyricDetailSliderProps {
   isLoading?: boolean;
   onClose: () => void;
   onTranslate: (targetLang: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null) => void;
-  onAnnotate: () => void;
+  onExplainMeaning: () => void;
+  onExplainGrammar: () => void;
   onPractice?: (text: string) => void;
 }
 
@@ -129,9 +150,16 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
     }
   });
   
-  const handleExplain = () => {
+  const handleExplainMeaning = (e: MouseEvent) => {
+    e.stopPropagation();
     setShowAnnotations(true);
-    props.onAnnotate();
+    props.onExplainMeaning();
+  };
+  
+  const handleExplainGrammar = (e: MouseEvent) => {
+    e.stopPropagation();
+    setShowAnnotations(true);
+    props.onExplainGrammar();
   };
   
   const getLanguageName = (code: string) => {
@@ -192,26 +220,71 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
               
               <div class="flex flex-col flex-1 overflow-hidden">
                 <div class="px-6 pt-6 pb-4 overflow-y-auto flex-1">
-                  {/* Use CSS Grid for fixed layout */}
-                  <div style="display: grid; grid-template-rows: auto auto 150px; gap: 1rem;">
-                    {/* Original lyric - auto height */}
+                  <div class="space-y-4">
+                    {/* Original lyric */}
                     <div class="text-xl leading-relaxed text-primary break-words">
                       {props.lyric.text}
                     </div>
                     
-                    {/* Romanization - auto height */}
-                    <div class="text-base text-secondary italic break-words" style="min-height: 0;">
-                      {props.lyric.romanization || ''}
-                    </div>
+                    {/* Romanization */}
+                    <Show when={props.lyric.romanization}>
+                      <div class="text-base text-secondary italic break-words">
+                        {props.lyric.romanization}
+                      </div>
+                    </Show>
                     
-                    {/* Translation - FIXED 150px height */}
-                    <div class="text-xl leading-relaxed text-primary break-words overflow-y-auto">
+                    {/* Sections container with consistent spacing */}
+                    <div class="space-y-4 pt-4">
+                      {/* Translation section */}
                       <Show when={showTranslation()}>
-                        {props.lyric.translatedText || (
-                          <div class="pt-4">
-                            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-accent-primary"></div>
+                        <div class="flex items-start gap-3">
+                          <div class="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-accent-primary)' }}>
+                            <TranslateIcon />
                           </div>
-                        )}
+                          <div class="text-lg leading-relaxed text-primary break-words flex-1">
+                            {props.lyric.translatedText || (
+                              <Spinner size="sm" class="mt-1" />
+                            )}
+                          </div>
+                        </div>
+                      </Show>
+                      
+                      {/* Meaning explanation */}
+                      <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
+                        <div class="flex items-start gap-3">
+                          <div class="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-accent-primary)' }}>
+                            <QuestionIcon />
+                          </div>
+                          <div class="flex-1">
+                            <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
+                              {(annotation) => (
+                                <MarkdownRenderer 
+                                  content={annotation.meaning} 
+                                  class="text-base leading-relaxed"
+                                />
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      </Show>
+                      
+                      {/* Grammar explanation */}
+                      <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
+                        <div class="flex items-start gap-3">
+                          <div class="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--color-accent-primary)' }}>
+                            <BookIcon />
+                          </div>
+                          <div class="flex-1">
+                            <For each={props.lyric.annotations.filter(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
+                              {(annotation) => (
+                                <MarkdownRenderer 
+                                  content={annotation.meaning} 
+                                  class="text-base leading-relaxed"
+                                />
+                              )}
+                            </For>
+                          </div>
+                        </div>
                       </Show>
                     </div>
                   </div>
@@ -233,59 +306,38 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                     {t('karaoke.lyricDetail.practiceThisLine')}
                   </Button>
                 </Show>
-                
-                {/* Annotations - improved design */}
-                <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.length > 0}>
-                    <div class="space-y-3 pt-4">
-                      <h3 class="text-xs font-semibold text-tertiary uppercase tracking-wider">
-                        {t('karaoke.lyricDetail.annotations')}
-                      </h3>
-                      <div class="space-y-3">
-                        <For each={props.lyric.annotations}>
-                          {(annotation) => (
-                            <div class="bg-surface rounded-lg p-3 space-y-1">
-                              <div class="flex items-baseline gap-2">
-                                <span class="font-semibold text-primary">
-                                  {annotation.word}
-                                </span>
-                                <Show when={annotation.pronunciation}>
-                                  <span class="text-sm text-secondary">
-                                    [{annotation.pronunciation}]
-                                  </span>
-                                </Show>
-                              </div>
-                              <div class="text-sm text-secondary">
-                                {annotation.meaning}
-                              </div>
-                            </div>
-                          )}
-                        </For>
-                      </div>
-                    </div>
-                  </Show>
                 </div>
                 
                 {/* Sticky bottom button container */}
-                <div class="px-6 pb-8">
-                  <Show when={!showAnnotations() || !props.lyric.annotations}>
+                <div class="px-6 pb-6">
+                  <div class="flex flex-col gap-2">
                     <button
-                      onClick={handleExplain}
+                      onClick={handleExplainMeaning}
                       disabled={props.isLoading}
                       class={cn(
                         'w-full inline-flex items-center justify-center',
-                        'h-12 px-6 text-lg font-medium rounded-lg',
-                        'bg-surface text-primary',
-                        'hover:bg-elevated transition-all',
-                        'disabled:cursor-not-allowed disabled:opacity-50',
-                        props.isLoading && 'cursor-wait'
+                        'h-12 px-4 text-base font-medium rounded-lg',
+                        'bg-surface text-primary border border-default',
+                        'hover:bg-elevated hover:border-strong transition-all',
+                        'disabled:cursor-not-allowed disabled:opacity-50'
                       )}
                     >
-                      <Show when={props.isLoading && !props.lyric.annotations}>
-                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2" />
-                      </Show>
-                      {t('karaoke.lyricDetail.explain', 'Explain')}
+                      {t('karaoke.lyricDetail.explainMeaning', 'Explain meaning')}
                     </button>
-                  </Show>
+                    <button
+                      onClick={handleExplainGrammar}
+                      disabled={props.isLoading}
+                      class={cn(
+                        'w-full inline-flex items-center justify-center',
+                        'h-12 px-4 text-base font-medium rounded-lg',
+                        'bg-surface text-primary border border-default',
+                        'hover:bg-elevated hover:border-strong transition-all',
+                        'disabled:cursor-not-allowed disabled:opacity-50'
+                      )}
+                    >
+                      {t('karaoke.lyricDetail.explainGrammar', 'Explain grammar')}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

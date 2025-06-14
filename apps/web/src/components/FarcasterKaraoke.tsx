@@ -18,6 +18,7 @@ import sdk from '@farcaster/frame-sdk';
 // Global caches for translations and annotations - persist across component instances
 const translationCache = new Map<string, string>();
 const annotationsCache = new Map<string, any[]>();
+const explanationCache = new Map<string, string>();
 
 // Load translations from localStorage on startup
 if (typeof window !== 'undefined' && window.localStorage) {
@@ -30,8 +31,18 @@ if (typeof window !== 'undefined' && window.localStorage) {
       });
       console.log('[Cache] Loaded', translationCache.size, 'translations from localStorage');
     }
+    
+    // Load explanations from localStorage
+    const savedExplanations = localStorage.getItem('scarlett_explanations');
+    if (savedExplanations) {
+      const parsed = JSON.parse(savedExplanations);
+      Object.entries(parsed).forEach(([key, value]) => {
+        explanationCache.set(key, value as string);
+      });
+      console.log('[Cache] Loaded', explanationCache.size, 'explanations from localStorage');
+    }
   } catch (e) {
-    console.error('[Cache] Failed to load translations from localStorage:', e);
+    console.error('[Cache] Failed to load from localStorage:', e);
   }
 }
 
@@ -46,7 +57,23 @@ function saveTranslationToCache(key: string, value: string) {
       localStorage.setItem('scarlett_translations', JSON.stringify(cacheObject));
       console.log('[Cache] Saved', translationCache.size, 'translations to localStorage');
     } catch (e) {
-      console.error('[Cache] Failed to save to localStorage:', e);
+      console.error('[Cache] Failed to save translations to localStorage:', e);
+    }
+  }
+}
+
+// Save explanations to localStorage whenever cache is updated
+function saveExplanationToCache(key: string, value: string) {
+  explanationCache.set(key, value);
+  
+  // Also save to localStorage
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const cacheObject = Object.fromEntries(explanationCache);
+      localStorage.setItem('scarlett_explanations', JSON.stringify(cacheObject));
+      console.log('[Cache] Saved', explanationCache.size, 'explanations to localStorage');
+    } catch (e) {
+      console.error('[Cache] Failed to save explanations to localStorage:', e);
     }
   }
 }
@@ -59,6 +86,7 @@ interface FarcasterKaraokeProps {
   artist: string;
   artworkUrl?: string;
   songCatalogId?: string;
+  geniusSongId?: number;
   apiUrl?: string;
   onStartCheck?: (startSession: () => void) => void;
   onBack?: () => void;
@@ -84,7 +112,9 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       translationCacheSize: translationCache.size,
       translationKeys: Array.from(translationCache.keys()),
       annotationsCacheSize: annotationsCache.size,
-      annotationKeys: Array.from(annotationsCache.keys())
+      annotationKeys: Array.from(annotationsCache.keys()),
+      explanationCacheSize: explanationCache.size,
+      explanationKeys: Array.from(explanationCache.keys())
     });
   });
   
@@ -320,6 +350,144 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     }
   };
 
+  // Handle explain request
+  const handleExplain = async (type: 'meaning' | 'grammar') => {
+    console.log('[Explain] Starting explanation request:', type);
+    if (!selectedLyric() || isLoadingLyricDetail()) {
+      console.log('[Explain] Already loading or no lyric selected');
+      return;
+    }
+    
+    const lyric = selectedLyric()!;
+    const lyricText = lyric.lyric.text;
+    const userLang = getUserLanguage();
+    
+    // Determine target language for explanation
+    let targetLang = 'en';
+    if (userLang.startsWith('zh')) {
+      targetLang = 'zh';
+    } else if (userLang.startsWith('es')) {
+      targetLang = 'es';
+    }
+    
+    console.log('[Explain] User language:', userLang, 'Target language:', targetLang);
+    
+    // Create cache key with type and target language
+    const cacheKey = `${lyricText}:${type}:${targetLang}`;
+    
+    // Check cache first
+    const cached = explanationCache.get(cacheKey);
+    if (cached) {
+      console.log('[Explain] Found in cache - NOT calling API:', {
+        cacheKey,
+        cachedValue: cached,
+        cacheSize: explanationCache.size
+      });
+      setLyricAnnotations([{
+        word: lyricText,
+        meaning: cached,
+        pronunciation: type === 'grammar' ? 'grammar' : undefined
+      }]);
+      return;
+    }
+    
+    console.log('[Explain] NOT in cache - will call API:', {
+      cacheKey,
+      cacheSize: explanationCache.size,
+      existingKeys: Array.from(explanationCache.keys())
+    });
+    
+    setIsLoadingLyricDetail(true);
+    setLyricAnnotations([]); // Clear previous annotations
+    
+    try {
+      const stream = await apiService.explainLyric({
+        songTitle: props.title,
+        artistName: props.artist,
+        lyricLine: lyricText,
+        lineIndex: lyric.index,
+        allLyrics: props.lyrics.map(l => l.text),
+        targetLang,
+        explanationType: type,
+        geniusSongId: props.geniusSongId
+      });
+      
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+      
+      let explanation = '';
+      let buffer = '';
+      let hasAnnotations = false;
+      let geniusUrl = '';
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+            
+            try {
+              const parsed = JSON.parse(data);
+              
+              if (parsed.type === 'start') {
+                hasAnnotations = parsed.hasAnnotations;
+                geniusUrl = parsed.geniusUrl;
+                console.log('[Explain] Start data:', { hasAnnotations, geniusUrl });
+              } else if (parsed.type === 'content') {
+                explanation += parsed.content;
+                // Update annotations with streaming explanation
+                // Use pronunciation field to differentiate grammar from meaning
+                setLyricAnnotations([{
+                  word: lyricText,
+                  meaning: explanation,
+                  pronunciation: type === 'grammar' ? 'grammar' : undefined
+                }]);
+              } else if (parsed.type === 'done') {
+                console.log('[Explain] Complete, annotation count:', parsed.annotationCount);
+              }
+            } catch (e) {
+              console.error('[Explain] Failed to parse SSE:', e);
+            }
+          }
+        }
+      }
+      
+      // Save to cache (both memory and localStorage)
+      saveExplanationToCache(cacheKey, explanation);
+      console.log('[Explain] Saved to cache:', {
+        cacheKey,
+        explanation: explanation.substring(0, 100) + '...',
+        newCacheSize: explanationCache.size,
+        allKeys: Array.from(explanationCache.keys())
+      });
+      
+      // Also update the old annotationsCache for backward compatibility
+      const annotationCacheKey = `${lyricText}:${type}`;
+      annotationsCache.set(annotationCacheKey, [{
+        word: lyricText,
+        meaning: explanation,
+        pronunciation: type === 'grammar' ? 'grammar' : undefined
+      }]);
+      
+    } catch (error) {
+      console.error('[Explain] Failed:', error);
+      setLyricAnnotations([{
+        word: lyricText,
+        meaning: 'Failed to load explanation',
+        pronunciation: undefined
+      }]);
+    } finally {
+      setIsLoadingLyricDetail(false);
+    }
+  };
+
   // Handle translation request
   const handleTranslate = async (targetLang: 'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null) => {
     console.log('[Translation] Starting translation to', targetLang);
@@ -529,7 +697,8 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
         isLoading={isLoadingLyricDetail()}
         onClose={() => setShowLyricDetail(false)}
         onTranslate={(lang) => lang && handleTranslate(lang)}
-        onAnnotate={handleAnnotate}
+        onExplainMeaning={() => handleExplain('meaning')}
+        onExplainGrammar={() => handleExplain('grammar')}
       />
     </div>
   );
