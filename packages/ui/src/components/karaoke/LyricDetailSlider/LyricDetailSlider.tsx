@@ -42,8 +42,7 @@ export interface LyricDetailSliderProps {
 
 export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
   const { t } = useI18n();
-  const [showTranslation, setShowTranslation] = createSignal(true); // Always show translation area to maintain layout
-  const [showAnnotations, setShowAnnotations] = createSignal(false);
+  // Removed showTranslation and showAnnotations - we show based on data availability
   const [selectedTargetLang, setSelectedTargetLang] = createSignal<'en' | 'es' | 'zh' | 'zh-CN' | 'zh-TW' | null>(null);
   const [isStreaming, setIsStreaming] = createSignal(false);
   const [isUnsupportedLanguage, setIsUnsupportedLanguage] = createSignal(false);
@@ -79,27 +78,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
     }
   });
   
-  // Reset states when slider opens/closes
-  createEffect(() => {
-    if (!props.isOpen) {
-      // Don't reset showTranslation to maintain layout
-      setShowAnnotations(false);
-    }
-  });
-  
-  // Show translation when available
-  createEffect(() => {
-    if (props.lyric.translatedText) {
-      setShowTranslation(true);
-    }
-  });
-  
-  // Show annotations when available
-  createEffect(() => {
-    if (props.lyric.annotations && props.lyric.annotations.length > 0) {
-      setShowAnnotations(true);
-    }
-  });
+  // No need for state management - we show content based on data availability
   
   // Lock body scroll when slider is open
   createEffect(() => {
@@ -137,20 +116,17 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
       console.log('[LyricDetailSlider] Auto-translate triggered');
       console.log('[LyricDetailSlider] User language:', props.userLanguage);
       console.log('[LyricDetailSlider] Selected target lang:', selectedTargetLang());
-      setShowTranslation(true);
       props.onTranslate(selectedTargetLang()!);
     }
   });
   
   const handleExplainMeaning = (e: MouseEvent) => {
     e.stopPropagation();
-    setShowAnnotations(true);
     props.onExplainMeaning();
   };
   
   const handleExplainGrammar = (e: MouseEvent) => {
     e.stopPropagation();
-    setShowAnnotations(true);
     props.onExplainGrammar();
   };
   
@@ -228,7 +204,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                     {/* Sections container with consistent spacing */}
                     <div class="space-y-4 pt-4">
                       {/* Translation section */}
-                      <Show when={showTranslation()}>
+                      <Show when={props.lyric.translatedText}>
                         <div class="flex items-start gap-3">
                           <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
                             <IconTranslateFill />
@@ -242,7 +218,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       </Show>
                       
                       {/* Meaning explanation */}
-                      <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
+                      <Show when={props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
                         <div class="flex items-start gap-3">
                           <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
                             <IconQuestionFill />
@@ -261,7 +237,7 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                       </Show>
                       
                       {/* Grammar explanation */}
-                      <Show when={showAnnotations() && props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
+                      <Show when={props.lyric.annotations && props.lyric.annotations.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
                         <div class="flex items-start gap-3">
                           <div class="w-6 h-6 text-white flex-shrink-0 mt-0.5 [&>svg]:w-full [&>svg]:h-full">
                             <IconBookOpenTextFill />
@@ -303,32 +279,36 @@ export const LyricDetailSlider: Component<LyricDetailSliderProps> = (props) => {
                 {/* Sticky bottom button container */}
                 <div class="px-6 pb-6">
                   <div class="flex flex-col gap-2">
-                    <button
-                      onClick={handleExplainMeaning}
-                      disabled={props.isLoading}
-                      class={cn(
-                        'w-full inline-flex items-center justify-center',
-                        'h-12 px-4 text-base font-medium rounded-lg',
-                        'bg-surface text-primary border border-default',
-                        'hover:bg-elevated hover:border-strong transition-all',
-                        'disabled:cursor-not-allowed disabled:opacity-50'
-                      )}
-                    >
-                      {t('karaoke.lyricDetail.explainMeaning', 'Explain meaning')}
-                    </button>
-                    <button
-                      onClick={handleExplainGrammar}
-                      disabled={props.isLoading}
-                      class={cn(
-                        'w-full inline-flex items-center justify-center',
-                        'h-12 px-4 text-base font-medium rounded-lg',
-                        'bg-surface text-primary border border-default',
-                        'hover:bg-elevated hover:border-strong transition-all',
-                        'disabled:cursor-not-allowed disabled:opacity-50'
-                      )}
-                    >
-                      {t('karaoke.lyricDetail.explainGrammar', 'Explain grammar')}
-                    </button>
+                    <Show when={!props.lyric.annotations?.find(a => a.word === props.lyric.text && a.pronunciation === undefined)}>
+                      <button
+                        onClick={handleExplainMeaning}
+                        disabled={props.isLoading}
+                        class={cn(
+                          'w-full inline-flex items-center justify-center',
+                          'h-12 px-4 text-base font-medium rounded-lg',
+                          'bg-surface text-primary border border-default',
+                          'hover:bg-elevated hover:border-strong transition-all',
+                          'disabled:cursor-not-allowed disabled:opacity-50'
+                        )}
+                      >
+                        {t('karaoke.lyricDetail.explainMeaning', 'Explain meaning')}
+                      </button>
+                    </Show>
+                    <Show when={!props.lyric.annotations?.find(a => a.word === props.lyric.text && a.pronunciation !== undefined)}>
+                      <button
+                        onClick={handleExplainGrammar}
+                        disabled={props.isLoading}
+                        class={cn(
+                          'w-full inline-flex items-center justify-center',
+                          'h-12 px-4 text-base font-medium rounded-lg',
+                          'bg-surface text-primary border border-default',
+                          'hover:bg-elevated hover:border-strong transition-all',
+                          'disabled:cursor-not-allowed disabled:opacity-50'
+                        )}
+                      >
+                        {t('karaoke.lyricDetail.explainGrammar', 'Explain grammar')}
+                      </button>
+                    </Show>
                   </div>
                 </div>
               </div>
