@@ -154,11 +154,24 @@ searchRoutes.get('/', async (c) => {
     
     while ((match = searchResultPattern.exec(html)) !== null && scResults.length < limit) {
       const trackId = match[1];
-      const imageUrl = match[2];
+      let imageUrl = match[2];
       const title = match[3].trim();
       const artist = match[4].trim();
       
-      console.log('[Search] Found match:', { trackId, title, artist });
+      console.log('[Search] Found match:', { trackId, title, artist, imageUrl });
+      
+      // Process soundcloak proxy URLs to extract the actual image URL
+      if (imageUrl && imageUrl.includes('/_/proxy/images?url=')) {
+        try {
+          const urlParam = imageUrl.split('url=')[1];
+          const decodedUrl = decodeURIComponent(urlParam);
+          console.log('[Search] Extracted original URL from proxy:', decodedUrl);
+          imageUrl = decodedUrl;
+        } catch (error) {
+          console.error('[Search] Failed to extract URL from proxy:', error);
+          // Keep the original URL if extraction fails
+        }
+      }
       
       // Check if we already have this track in local results (only for first page)
       const existsLocally = offset === 0 && localResults.some(song => song.trackId === trackId);

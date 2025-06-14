@@ -16,16 +16,40 @@ app.get('/proxy', async (c) => {
   }
   
   try {
+    // Validate the URL is a valid absolute URL
+    let validatedUrl: string;
+    try {
+      const url = new URL(imageUrl);
+      validatedUrl = url.toString();
+    } catch (urlError) {
+      console.error('[Image Proxy] Invalid URL:', imageUrl, urlError);
+      
+      // If it's a relative URL from soundcloak proxy, try to extract the original URL
+      if (imageUrl.includes('/_/proxy/images?url=')) {
+        try {
+          const urlParam = imageUrl.split('url=')[1];
+          const decodedUrl = decodeURIComponent(urlParam);
+          const url = new URL(decodedUrl);
+          validatedUrl = url.toString();
+          console.log('[Image Proxy] Extracted URL from proxy:', validatedUrl);
+        } catch (extractError) {
+          console.error('[Image Proxy] Failed to extract URL from proxy:', extractError);
+          return c.text('Invalid URL format', 400);
+        }
+      } else {
+        return c.text('Invalid URL format', 400);
+      }
+    }
     
-    console.log('[Image Proxy] Fetching:', imageUrl);
+    console.log('[Image Proxy] Fetching:', validatedUrl);
     
     // Validate it's a soundcloud image
-    if (!imageUrl.includes('sndcdn.com')) {
+    if (!validatedUrl.includes('sndcdn.com')) {
       return c.text('Invalid image source', 403);
     }
     
     // Fetch the image
-    const response = await fetch(imageUrl, {
+    const response = await fetch(validatedUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Referer': 'https://soundcloud.com/',
@@ -36,9 +60,9 @@ app.get('/proxy', async (c) => {
       console.log('[Image Proxy] Failed to fetch image:', response.status);
       
       // Try alternative URLs if the original fails
-      if (imageUrl.includes('-t500x500')) {
+      if (validatedUrl.includes('-t500x500')) {
         // Try original size
-        const originalUrl = imageUrl.replace('-t500x500', '-original');
+        const originalUrl = validatedUrl.replace('-t500x500', '-original');
         const originalResponse = await fetch(originalUrl, {
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
