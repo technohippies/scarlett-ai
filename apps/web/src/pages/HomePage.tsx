@@ -24,7 +24,11 @@ export const HomePage: Component = () => {
   // Fetch popular songs
   const [popularSongs] = createResource(async () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8787';
-    const response = await fetch(`${apiUrl}/api/songs/popular`);
+    const response = await fetch(`${apiUrl}/api/songs/popular`, {
+      headers: {
+        'Accept-Language': navigator.language
+      }
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch popular songs');
     }

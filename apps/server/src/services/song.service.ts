@@ -160,48 +160,82 @@ export class SongService {
     difficulty?: string,
     userLanguage?: string
   ): Promise<PaginatedResponse<Song>> {
+    console.log('[SongService] getPopularSongs called with:', {
+      page,
+      limit,
+      difficulty,
+      userLanguage
+    });
+    
     const offset = (page - 1) * limit;
     
     let query = `
-      SELECT 
-        id, track_id as trackId, title, artist, album, duration_ms as durationMs,
-        difficulty, genius_id as geniusId, genius_url as geniusUrl,
-        artwork_url as artworkUrl, artwork_url_small as artworkUrlSmall,
-        artwork_url_medium as artworkUrlMedium, artwork_url_large as artworkUrlLarge,
-        language, lyrics_type as lyricsType,
-        total_attempts as totalAttempts, success_rate as successRate,
-        unique_users_attempted as uniqueUsersAttempted,
-        last_played_at as lastPlayedAt, created_at as createdAt
-      FROM song_catalog 
-      WHERE total_attempts > 0`;
+      WITH RankedSongs AS (
+        SELECT 
+          id, track_id as trackId, title, artist, album, duration_ms as durationMs,
+          difficulty, genius_id as geniusId, genius_url as geniusUrl,
+          artwork_url as artworkUrl, artwork_url_small as artworkUrlSmall,
+          artwork_url_medium as artworkUrlMedium, artwork_url_large as artworkUrlLarge,
+          language, lyrics_type as lyricsType,
+          total_attempts as totalAttempts, success_rate as successRate,
+          unique_users_attempted as uniqueUsersAttempted,
+          last_played_at as lastPlayedAt, created_at as createdAt,
+          ROW_NUMBER() OVER (
+            PARTITION BY LOWER(title), LOWER(artist) 
+            ORDER BY total_attempts DESC, id DESC
+          ) as rn
+        FROM song_catalog 
+        WHERE total_attempts > 0
+      )
+      SELECT * FROM RankedSongs WHERE rn = 1`;
 
     let countQuery = `
-      SELECT COUNT(*) as total 
-      FROM song_catalog 
-      WHERE total_attempts > 0`;
+      WITH RankedSongs AS (
+        SELECT 
+          id, title, artist,
+          ROW_NUMBER() OVER (
+            PARTITION BY LOWER(title), LOWER(artist) 
+            ORDER BY total_attempts DESC, id DESC
+          ) as rn
+        FROM song_catalog 
+        WHERE total_attempts > 0
+      )
+      SELECT COUNT(*) as total FROM RankedSongs WHERE rn = 1`;
 
     const params: (string | number)[] = [];
 
+    // Build WHERE conditions
+    let whereConditions = [];
     if (difficulty) {
-      query += ' AND difficulty = ?';
-      countQuery += ' AND difficulty = ?';
+      whereConditions.push('difficulty = ?');
       params.push(difficulty);
     }
     
-    // Add language filter
+    // Add language filter based on user preference
     if (userLanguage) {
-      if (userLanguage.startsWith('en')) {
-        query += ' AND (language = ? OR language IS NULL)';
-        countQuery += ' AND (language = ? OR language IS NULL)';
+      if (userLanguage.startsWith('zh')) {
+        // Chinese speakers get English songs ONLY
+        console.log('[SongService] Chinese user detected, filtering for English songs');
+        whereConditions.push('language = ?');
+        params.push('en');
+      } else if (userLanguage.startsWith('en')) {
+        // English speakers get Spanish songs ONLY
+        console.log('[SongService] English user detected, filtering for Spanish songs');
+        whereConditions.push('language = ?');
         params.push('es');
       } else {
-        query += ' AND (language = ? OR language IS NULL)';
-        countQuery += ' AND (language = ? OR language IS NULL)';
-        params.push('en');
+        console.log('[SongService] Language not matched:', userLanguage);
       }
     }
 
-    query += ' ORDER BY total_attempts DESC, success_rate DESC LIMIT ? OFFSET ?';
+    // Apply WHERE conditions to both queries
+    if (whereConditions.length > 0) {
+      const whereClause = ' AND ' + whereConditions.join(' AND ');
+      query = query.replace('WHERE total_attempts > 0', 'WHERE total_attempts > 0' + whereClause);
+      countQuery = countQuery.replace('WHERE total_attempts > 0', 'WHERE total_attempts > 0' + whereClause);
+    }
+
+    query += ' ORDER BY totalAttempts DESC, successRate DESC LIMIT ? OFFSET ?';
 
     const [songs, count] = await Promise.all([
       this.env.DB.prepare(query)
@@ -213,6 +247,16 @@ export class SongService {
     ]);
 
     const total = (count as { total: number })?.total || 0;
+
+    console.log('[SongService] Query results:', {
+      totalSongs: songs.results.length,
+      total,
+      sampleSongs: songs.results.slice(0, 3).map((s: any) => ({
+        title: s.title,
+        artist: s.artist,
+        language: s.language
+      }))
+    });
 
     return {
       success: true,

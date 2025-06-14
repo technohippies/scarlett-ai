@@ -3,6 +3,8 @@ import { Show, For, createSignal, onMount } from 'solid-js';
 import { SearchInput } from '../../common/SearchInput';
 import { Button } from '../../common/Button';
 import { useI18n } from '../../../i18n/provider';
+import { interactiveListItemStyles, listContainerStyles } from '../../../utils/interactiveListStyles';
+import { cn } from '../../../utils/cn';
 
 export interface Song {
   id: string;
@@ -89,14 +91,12 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
             }
           >
             
-            <div class="space-y-2">
+            <div class={listContainerStyles({ variant: 'compact' })}>
               <For each={filteredSongs()}>
                 {(song) => (
                   <button
                     onClick={() => props.onSongSelect?.(song)}
-                    class="w-full p-4 bg-surface rounded-lg hover:bg-surface-hover 
-                           transition-all duration-200 text-left group
-                           hover:translate-x-1"
+                    class={cn('w-full text-left', interactiveListItemStyles({ variant: 'compact' }))}
                   >
                     <div class="flex items-center justify-between">
                       <div class="flex-1">
@@ -118,8 +118,7 @@ export const SearchPage: Component<SearchPageProps> = (props) => {
                         </Show>
                       </div>
                       <svg
-                        class="w-5 h-5 text-text-tertiary opacity-0 
-                               group-hover:opacity-100 transition-opacity"
+                        class="w-5 h-5 text-accent-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"

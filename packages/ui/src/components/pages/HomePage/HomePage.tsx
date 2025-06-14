@@ -4,6 +4,8 @@ import { useI18n } from '../../../i18n/provider';
 import { Button } from '../../common/Button';
 import { SearchInput } from '../../common/SearchInput';
 import { getImageUrl } from '../../../utils/images';
+import { interactiveListItemStyles, listContainerStyles } from '../../../utils/interactiveListStyles';
+import { cn } from '../../../utils/cn';
 
 export interface Song {
   id: string;
@@ -33,14 +35,6 @@ export const HomePage: Component<HomePageProps> = (props) => {
   const [searchQuery, setSearchQuery] = createSignal('');
   
   
-  const songItemStyle = {
-    padding: '16px',
-    'margin-bottom': '8px',
-    'background-color': 'transparent',
-    'border-radius': '8px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  };
 
   return (
     <div>
@@ -152,28 +146,16 @@ export const HomePage: Component<HomePageProps> = (props) => {
         </h2>
       </div>
       
-      <div style={{ padding: '8px 16px 16px 16px' }}>
+      <div style={{ padding: '8px 16px 16px 16px' }} class={listContainerStyles({ variant: 'compact' })}>
         <For each={props.songs}>
           {(song, index) => (
             <div 
-              style={songItemStyle}
+              class={interactiveListItemStyles({ variant: 'compact' })}
               onClick={() => props.onSongSelect?.(song)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--color-bg-surface)';
-                e.currentTarget.style.transform = 'translateX(8px)';
-                const arrow = e.currentTarget.querySelector('.arrow-icon') as HTMLElement;
-                if (arrow) arrow.style.opacity = '1';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.transform = 'translateX(0)';
-                const arrow = e.currentTarget.querySelector('.arrow-icon') as HTMLElement;
-                if (arrow) arrow.style.opacity = '0';
-              }}
             >
               <div style={{ display: 'flex', gap: '16px', 'align-items': 'center' }}>
                 <span style={{ 
-                  color: 'var(--color-accent-primary)',
+                  color: 'var(--color-text-primary)',
                   'font-size': '24px',
                   'font-weight': 'bold',
                   'min-width': '40px'
@@ -235,14 +217,7 @@ export const HomePage: Component<HomePageProps> = (props) => {
                   </div>
                 </div>
                 <svg
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    color: 'var(--color-accent-primary)',
-                    opacity: 0,
-                    transition: 'opacity 0.2s ease'
-                  }}
-                  class="arrow-icon"
+                  class="w-5 h-5 text-accent-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

@@ -26,6 +26,12 @@ app.get('/popular', validateQuery(paginationSchema.extend({
   const acceptLanguage = c.req.header('Accept-Language');
   const userLanguage = acceptLanguage?.split(',')[0]?.split(';')[0] || 'en';
   
+  console.log('[Songs Route] Popular songs request:', {
+    acceptLanguage,
+    parsedLanguage: userLanguage,
+    query
+  });
+  
   const songService = new SongService(c.env);
   const result = await songService.getPopularSongs(
     query.page,

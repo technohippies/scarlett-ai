@@ -85,7 +85,8 @@ export const SongPage: Component = () => {
     }
     
     // Fetch karaoke data with full path
-    const data = await apiService.getKaraokeData(fullPath, title, artist);
+    // Disable merging for song page to show individual lines
+    const data = await apiService.getKaraokeData(fullPath, title, artist, true);
     
     
     return {

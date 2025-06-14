@@ -33,6 +33,12 @@ export default {
     'select-none',
     'ring-offset-base',
     'bg-highlight/50',
-    'hover:bg-highlight/50'
+    'hover:bg-highlight/50',
+    'bg-highlight/70',
+    'active:bg-highlight/70',
+    'md:bg-transparent',
+    'hover:border-subtle',
+    'active:scale-[0.99]',
+    'hover:translate-x-1'
   ]
 } satisfies Config

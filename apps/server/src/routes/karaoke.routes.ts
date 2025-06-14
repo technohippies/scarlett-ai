@@ -74,16 +74,18 @@ function cleanLyricsText(text: string): string {
     .trim();
 }
 
-function processSyncedLyrics(rawLyrics: any[]): any[] {
+function processSyncedLyrics(rawLyrics: any[], options?: { disableMerging?: boolean }): any[] {
   const lyricsService = new LyricsService();
-  // Temporarily disable merging to fix jumping issue
-  return lyricsService.processSyncedLyrics(rawLyrics, { disableMerging: true });
+  return lyricsService.processSyncedLyrics(rawLyrics, options);
 }
 
 // OPTIONS handled by global CORS middleware
 
 // Core karaoke endpoint - check if track has karaoke data
 app.get('/*', async (c) => {
+  // Get query parameter to control lyric merging
+  const disableMerging = c.req.query('disableMerging') === 'true';
+  
   // Extract track ID from the full path, removing the '/api/karaoke/' prefix
   const fullPath = c.req.url.split('/api/karaoke/')[1];
   const [encodedTrackId] = fullPath.split('?'); // Remove query parameters
@@ -114,7 +116,7 @@ app.get('/*', async (c) => {
         let formattedLyrics: any[] = [];
 
         if (lyricsResult.type === 'synced' && rawLyrics.length > 0) {
-          formattedLyrics = processSyncedLyrics(rawLyrics).map((line, index) => ({
+          formattedLyrics = processSyncedLyrics(rawLyrics, { disableMerging }).map((line, index) => ({
             id: index,
             timestamp: line.timestamp,
             text: cleanLyricsText(line.text),
@@ -345,7 +347,7 @@ app.get('/*', async (c) => {
       // Process synced lyrics
 
       // Process synced lyrics with timing improvements
-      const processedLyrics = processSyncedLyrics(rawLyrics);
+      const processedLyrics = processSyncedLyrics(rawLyrics, { disableMerging });
       
       // Process lyrics
       

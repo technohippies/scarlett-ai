@@ -1,6 +1,7 @@
 import { For, createEffect, createSignal, Show } from 'solid-js';
 import type { Component } from 'solid-js';
 import { cn } from '../../../utils/cn';
+import { interactiveListItemStyles } from '../../../utils/interactiveListStyles';
 
 export interface LyricLine {
   id: string;
@@ -140,33 +141,33 @@ export const LyricsDisplay: Component<LyricsDisplayProps> = (props) => {
     <div
       ref={containerRef}
       class={cn(
-        'lyrics-display overflow-y-auto scroll-smooth',
-        'h-full px-6 py-12',
+        'lyrics-display overflow-y-auto overflow-x-hidden scroll-smooth',
+        'h-full py-8',
         props.class
       )}
     >
-      <div class="space-y-8">
+      <div class="space-y-4">
         <For each={props.lyrics}>
           {(line, index) => {
             const lineScore = () => getLineScore(index());
             const scoreStyle = () => getScoreStyle(lineScore());
-            // Using color gradients instead of emojis
+            const isClickable = () => !props.isPlaying && props.onLyricClick;
             
             return (
               <div
                 data-line-index={index()}
                 class={cn(
-                  'text-center',
-                  'text-2xl leading-relaxed',
-                  index() === currentLineIndex()
-                    ? 'opacity-100'
-                    : 'opacity-60',
-                  !props.isPlaying && props.onLyricClick && 'cursor-pointer hover:opacity-80 transition-opacity'
+                  interactiveListItemStyles({
+                    isActive: index() === currentLineIndex(),
+                    isClickable: isClickable(),
+                    variant: 'compact'
+                  }),
+                  'text-left',
+                  'text-xl leading-relaxed'
                 )}
                 style={{
-                  color: index() === currentLineIndex() && !lineScore() 
-                    ? '#ffffff' // White for current line without score
-                    : scoreStyle().color || '#ffffff'
+                  color: scoreStyle().color || (index() === currentLineIndex() ? '#ffffff' : '#a8a8a8'),
+                  opacity: index() === currentLineIndex() ? 1 : 0.8
                 }}
                 onClick={() => !props.isPlaying && props.onLyricClick?.(line, index())}
               >
