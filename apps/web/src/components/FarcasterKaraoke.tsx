@@ -341,11 +341,50 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
         setLyricTranslation(undefined);
       }
       
-      // Check cache for annotations
-      const cachedAnnotations = annotationsCache.get(lyric.text);
-      if (cachedAnnotations) {
-        console.log('[LyricClick] Found cached annotations');
-        setLyricAnnotations(cachedAnnotations);
+      // Check cache for explanations (both meaning and grammar)
+      const allAnnotations = [];
+      
+      // Determine target language for explanations
+      let explanationLang = 'en';
+      if (userLang.startsWith('zh')) {
+        explanationLang = 'zh';
+      } else if (userLang.startsWith('es')) {
+        explanationLang = 'es';
+      }
+      
+      // Check for cached meaning explanation
+      const meaningCacheKey = `${lyric.text}:meaning:${explanationLang}`;
+      const cachedMeaning = explanationCache.get(meaningCacheKey);
+      if (cachedMeaning) {
+        console.log('[LyricClick] Found cached meaning explanation');
+        allAnnotations.push({
+          word: lyric.text,
+          meaning: cachedMeaning,
+          pronunciation: undefined
+        });
+      }
+      
+      // Check for cached grammar explanation
+      const grammarCacheKey = `${lyric.text}:grammar:${explanationLang}`;
+      const cachedGrammar = explanationCache.get(grammarCacheKey);
+      if (cachedGrammar) {
+        console.log('[LyricClick] Found cached grammar explanation');
+        allAnnotations.push({
+          word: lyric.text,
+          meaning: cachedGrammar,
+          pronunciation: 'grammar'
+        });
+      }
+      
+      // Also check old annotationsCache for backward compatibility
+      const oldCachedAnnotations = annotationsCache.get(lyric.text);
+      if (oldCachedAnnotations) {
+        console.log('[LyricClick] Found old cached annotations');
+        allAnnotations.push(...oldCachedAnnotations);
+      }
+      
+      if (allAnnotations.length > 0) {
+        setLyricAnnotations(allAnnotations);
       }
     }
   };
@@ -383,7 +422,12 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
         cachedValue: cached,
         cacheSize: explanationCache.size
       });
-      setLyricAnnotations([{
+      // Merge with existing annotations
+      const existingAnnotations = lyricAnnotations() || [];
+      const otherAnnotations = existingAnnotations.filter(a => 
+        a.word !== lyricText || (type === 'grammar' ? a.pronunciation === undefined : a.pronunciation !== undefined)
+      );
+      setLyricAnnotations([...otherAnnotations, {
         word: lyricText,
         meaning: cached,
         pronunciation: type === 'grammar' ? 'grammar' : undefined
@@ -398,7 +442,12 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
     });
     
     setIsLoadingLyricDetail(true);
-    setLyricAnnotations([]); // Clear previous annotations
+    // Don't clear all annotations, just remove the one we're updating
+    const existingAnnotations = lyricAnnotations() || [];
+    const otherAnnotations = existingAnnotations.filter(a => 
+      a.word !== lyricText || (type === 'grammar' ? a.pronunciation === undefined : a.pronunciation !== undefined)
+    );
+    setLyricAnnotations(otherAnnotations);
     
     try {
       const stream = await apiService.explainLyric({
@@ -443,8 +492,12 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
               } else if (parsed.type === 'content') {
                 explanation += parsed.content;
                 // Update annotations with streaming explanation
-                // Use pronunciation field to differentiate grammar from meaning
-                setLyricAnnotations([{
+                // Merge with other annotations
+                const currentAnnotations = lyricAnnotations() || [];
+                const otherAnnotations = currentAnnotations.filter(a => 
+                  a.word !== lyricText || (type === 'grammar' ? a.pronunciation === undefined : a.pronunciation !== undefined)
+                );
+                setLyricAnnotations([...otherAnnotations, {
                   word: lyricText,
                   meaning: explanation,
                   pronunciation: type === 'grammar' ? 'grammar' : undefined
@@ -478,10 +531,15 @@ export const FarcasterKaraoke: Component<FarcasterKaraokeProps> = (props) => {
       
     } catch (error) {
       console.error('[Explain] Failed:', error);
-      setLyricAnnotations([{
+      // Keep existing annotations and add error message
+      const currentAnnotations = lyricAnnotations() || [];
+      const otherAnnotations = currentAnnotations.filter(a => 
+        a.word !== lyricText || (type === 'grammar' ? a.pronunciation === undefined : a.pronunciation !== undefined)
+      );
+      setLyricAnnotations([...otherAnnotations, {
         word: lyricText,
         meaning: 'Failed to load explanation',
-        pronunciation: undefined
+        pronunciation: type === 'grammar' ? 'grammar' : undefined
       }]);
     } finally {
       setIsLoadingLyricDetail(false);
